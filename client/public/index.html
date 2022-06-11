@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+     <!-- 
+      html-webpack-plugin injects a relative path to the bundle.js file,
+      and this breaks when requesting /nested/ routes in react-router.
+      Adding <base href="/"> ensures the bundle.js file is searched relative to "/",
+      i.e, '/bundle.js'
+    -->
+    <base href="/">
+    <title>FakeMates</title>
+  </head>
+  <body>
+    <noscript>
+      You must enable JavaScript to run this app
+    </noscript>
+    <div id="root"></div>
+  </body>
+</html>
