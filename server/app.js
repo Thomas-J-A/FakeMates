@@ -8,8 +8,27 @@ const mongoose = require('mongoose');
 const connectToDatabase = require('./config/database');
 
 // Import routes
+const authRouter = require('./routes/auth');
+const timelineRouter = require('./routes/timeline');
+const postsRouter = require('./routes/posts');
+const commentsRouter = require('./routes/comments');
+const advertisementsRouter = require('./routes/advertisements');
+const friendRequestsRouter = require('./routes/friend-requests');
+const notificationsRouter = require('./routes/notifications');
+const usersRouter = require('./routes/users');
+const searchRouter = require('./routes/search');
+const conversationsRouter = require('./routes/conversations');
+const messagesRouter = require('./routes/messages');
 
 // Import models
+const Post = require('./models/post');
+const Comment = require('./models/comment');
+const Advertisement = require('./models/advertisement');
+const FriendRequest = require('./models/friend-request');
+const Notification = require('./models/notification');
+const User = require('./models/user');
+const Conversation = require('./models/conversation');
+const Message = require('./models/message');
 
 // Set up environment variables
 require('dotenv').config({ path: '../.env'});
@@ -34,18 +53,33 @@ app.use(express.json());
 app.use(cookieParser()); // Parses Cookie headers and populates req.cookies (req.cookies.<cookieName>)
 
 // Add models to req object so no need to to import into each file
-// app.use((req, res, next) => {
-//   req.models = {
+app.use((req, res, next) => {
+  req.models = {
+    Post,
+    Comment,
+    Advertisement,
+    FriendRequest,
+    Notification,
+    User,
+    Conversation,
+    Message,
+  };
 
-//   };
-
-//   next();
-// });
+  next();
+});
 
 // Express routes
-app.get('/', (req, res, next) => {
-  res.send('hello world from server');
-});
+app.use('/api/auth', authRouter);
+app.use('/api/timeline', timelineRouter);
+app.use('/api/posts', postsRouter);
+app.use('/api/comments', commentsRouter);
+app.use('/api/advertisements', advertisementsRouter);
+app.use('/api/friend-requests', friendRequestsRouter);
+app.use('/api/notifications', notificationsRouter);
+app.use('/api/users', usersRouter);
+app.use('/api/search', searchRouter);
+app.use('/api/conversations', conversationsRouter);
+app.use('/api/messages', messagesRouter);
 
 // Handle undefined routes
 app.use((req, res, next) => {
