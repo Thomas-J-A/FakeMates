@@ -1,5 +1,5 @@
 const express = require('express');
-const timelineController = require('../controllers/timelineController');
+const timelineController = require('../controllers/timeline.controller');
 
 const router = express.Router();
 

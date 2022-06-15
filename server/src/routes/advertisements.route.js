@@ -1,5 +1,5 @@
 const express = require('express');
-const advertisementsController = require('../controllers/advertisementsController');
+const advertisementsController = require('../controllers/advertisements.controller');
 
 const router = express.Router();
 
