@@ -1,34 +1,37 @@
 const express = require('express');
 const path = require('path');
-const morgan = require('morgan');
+const logger = require('morgan');
 const helmet = require('helmet');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
 const mongoose = require('mongoose');
-const connectToDatabase = require('./config/database');
+const passport = require('passport');
+
+const connectToDatabase = require('./configs/db.config');
+const configurePassport = require('./configs/passport.config');
 
 // Import routes
-const authRouter = require('./routes/auth');
-const timelineRouter = require('./routes/timeline');
-const postsRouter = require('./routes/posts');
-const commentsRouter = require('./routes/comments');
-const advertisementsRouter = require('./routes/advertisements');
-const friendRequestsRouter = require('./routes/friend-requests');
-const notificationsRouter = require('./routes/notifications');
-const usersRouter = require('./routes/users');
-const searchRouter = require('./routes/search');
-const conversationsRouter = require('./routes/conversations');
-const messagesRouter = require('./routes/messages');
+const authRouter = require('./routes/auth.route');
+const timelineRouter = require('./routes/timeline.route');
+const postRouter = require('./routes/post.route');
+const commentRouter = require('./routes/comment.route');
+const advertisementRouter = require('./routes/advertisement.route');
+const friendRequestRouter = require('./routes/friend-request.route');
+const notificationRouter = require('./routes/notification.route');
+const userRouter = require('./routes/user.route');
+const searchRouter = require('./routes/search.route');
+const conversationRouter = require('./routes/conversation.route');
+const messageRouter = require('./routes/message.route');
 
 // Import models
-const Post = require('./models/post');
-const Comment = require('./models/comment');
-const Advertisement = require('./models/advertisement');
-const FriendRequest = require('./models/friend-request');
-const Notification = require('./models/notification');
-const User = require('./models/user');
-const Conversation = require('./models/conversation');
-const Message = require('./models/message');
+const Post = require('./models/post.model');
+const Comment = require('./models/comment.model');
+const Advertisement = require('./models/advertisement.model');
+const FriendRequest = require('./models/friend-request.model');
+const Notification = require('./models/notification.model');
+const User = require('./models/user.model');
+const Conversation = require('./models/conversation.model');
+const Message = require('./models/message.model');
 
 // Set up environment variables
 require('dotenv').config({ path: '../.env'});
@@ -37,12 +40,15 @@ require('dotenv').config({ path: '../.env'});
 const app = express();
 
 // Database setup
-connectToDatabase();
+if (process.env.NODE_ENV !== 'test') {
+  connectToDatabase();
+}
 
 // Passport setup
+configurePassport(passport); 
 
 // Set up middlewares
-app.use(morgan('dev'));
+app.use(logger('dev'));
 app.use(helmet());
 app.use(cors({
   origin: 'http://localhost:8080', // React client
@@ -71,15 +77,15 @@ app.use((req, res, next) => {
 // Express routes
 app.use('/api/auth', authRouter);
 app.use('/api/timeline', timelineRouter);
-app.use('/api/posts', postsRouter);
-app.use('/api/comments', commentsRouter);
-app.use('/api/advertisements', advertisementsRouter);
-app.use('/api/friend-requests', friendRequestsRouter);
-app.use('/api/notifications', notificationsRouter);
-app.use('/api/users', usersRouter);
+app.use('/api/posts', postRouter);
+app.use('/api/comments', commentRouter);
+app.use('/api/advertisements', advertisementRouter);
+app.use('/api/friend-requests', friendRequestRouter);
+app.use('/api/notifications', notificationRouter);
+app.use('/api/users', userRouter);
 app.use('/api/search', searchRouter);
-app.use('/api/conversations', conversationsRouter);
-app.use('/api/messages', messagesRouter);
+app.use('/api/conversations', conversationRouter);
+app.use('/api/messages', messageRouter);
 
 // Handle undefined routes
 app.use((req, res, next) => {

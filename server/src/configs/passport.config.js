@@ -1,0 +1,1 @@
+// persist user information in the login session (serialize/deserialize)
