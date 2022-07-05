@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
+const findOrCreate = require('mongoose-findorcreate');
 
 const { Schema } = mongoose;
 
@@ -33,5 +34,9 @@ userSchema.pre('save', async function(next) {
     next(err);
   }
 });
+
+// Adds a static method to find or create a user
+// when signing in/up with Google OAuth
+userSchema.plugin(findOrCreate);
 
 module.exports = mongoose.model('User', userSchema);

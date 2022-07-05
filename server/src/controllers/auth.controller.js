@@ -3,12 +3,34 @@ const bcrypt = require('bcryptjs');
 
 const generateToken = require('../utils/generateToken.util');
 
-exports.signInWithGoogle = (req, res,) => {
-  res.send('Signed in with Google');
-};
+exports.continueWithGoogle = async (req, res, next) => {
+  try {
+    const token = generateToken(req.user);
 
-exports.signInWithGoogleCallback = (req, res) => {
-  res.send('Signed in with Google, callback');
+    // Get a reference to token.exp value
+    const decodedToken = jwtDecode(token);
+    const expiresAt = decodedToken.exp;
+
+    res.cookie('jwt', token, {
+      httpOnly: true,
+      maxAge: 1000 * 60 * 15, // 15 minutes
+    });
+
+    // Remove password field from user data before returning it
+    const { password, ...rest } = req.user._doc;
+
+    // Change status code depending on whether user registered or just signed in
+    const status = req.isCreated ? 201 : 200;
+    
+    return res.status(status).json({
+      currentUser: rest,
+      expiresAt,
+    });
+  } catch (err) {
+    // Pass any internal errors not explicitly handled
+    // to express error-handling middleware (network, db errors)
+    next(err);
+  }
 };
 
 exports.signInWithEmail = async (req, res, next) => {
@@ -41,8 +63,6 @@ exports.signInWithEmail = async (req, res, next) => {
       expiresAt,
     });
   } catch (err) {
-    // Pass any internal errors not explicitly handled
-    // to express error-handling middleware (network, db errors)
     next(err);
   }
 };
@@ -87,22 +107,13 @@ exports.signUpWithEmail = async (req, res, next) => {
 };
 
 exports.logout = (req, res) => {
-  // req.logOut(); clear req.session/req.user
+  // Clear req.session/req.user
+  req.logOut();
+
+  // Remove cookie on client
   res.clearCookie('jwt', {
     httpOnly: true,
   });
 
   res.sendStatus(204);
 };
-
-
-
-
-
-// user registers with email/password and both are stored in db
-// they can login with email/password or oauth
-
-// user continues with oauth
-// if email exists in db, create JWT token and continue
-// if not, create new user (no password field)
-// this user can only sign in with oauth

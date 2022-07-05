@@ -11,6 +11,8 @@ exports.setupDatabase = async () => {
     useNewUrlParser: true,
     useUnifiedTopology: true,
   });
+  
+  console.log('Connected to test database');
 };
 
 // Close Mongoose connection and stop in-memory database
