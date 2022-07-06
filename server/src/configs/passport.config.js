@@ -1,11 +1,8 @@
 const JwtStrategy = require('passport-jwt').Strategy;
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
 
-const User = require('../models/user.model');
-
 const extractJwtFromCookie = (req) => {
   let token = null;
-
   if (req && req.cookies) {
     token = req.cookies.jwt;
   }
@@ -23,8 +20,7 @@ module.exports = (passport) => {
   // req.user and call next(), but it won't call serializeUser()
   passport.use(new JwtStrategy(jwtOpts, async (jwt_payload, done) => {
     try {
-      const user = await User.findById(jwt_payload.sub).exec();
-
+      const user = await req.models.User.findById(jwt_payload.sub).exec();
       if (user) {
         done(null, user);
       } else {
@@ -46,7 +42,7 @@ module.exports = (passport) => {
     passReqToCallback: true,
   }, async (req, accessToken, refreshToken, profile, done) => {
     try {
-      const result = await User.findOrCreate(
+      const result = await req.models.User.findOrCreate(
         { email: profile.emails[0].value },
         {
           firstName: profile.name.givenName,

@@ -10,27 +10,10 @@ const passport = require('passport');
 const mongoose = require('mongoose');
 
 // Import routes
-const authRouter = require('./routes/auth.route');
-const timelineRouter = require('./routes/timeline.route');
-const postRouter = require('./routes/post.route');
-const commentRouter = require('./routes/comment.route');
-const advertisementRouter = require('./routes/advertisement.route');
-const friendRequestRouter = require('./routes/friend-request.route');
-const notificationRouter = require('./routes/notification.route');
-const userRouter = require('./routes/user.route');
-const searchRouter = require('./routes/search.route');
-const conversationRouter = require('./routes/conversation.route');
-const messageRouter = require('./routes/message.route');
+const indexRouter = require('./routes/index.route');
 
 // Import models
-const Post = require('./models/post.model');
-const Comment = require('./models/comment.model');
-const Advertisement = require('./models/advertisement.model');
-const FriendRequest = require('./models/friend-request.model');
-const Notification = require('./models/notification.model');
-const User = require('./models/user.model');
-const Conversation = require('./models/conversation.model');
-const Message = require('./models/message.model');
+const models = require('./models/index.model');
 
 // Set up environment variables
 require('dotenv').config({ path: '../.env'});
@@ -66,34 +49,15 @@ app.use(cookieParser()); // Parses Cookie header and populates req.cookies (req.
 app.use(passport.initialize());
 // app.use(passport.session());
 
-// Add models to req object so no need to to import into each file
+// Add models to req object so no need to import into each file
 app.use((req, res, next) => {
-  req.models = {
-    Post,
-    Comment,
-    Advertisement,
-    FriendRequest,
-    Notification,
-    User,
-    Conversation,
-    Message,
-  };
+  req.models = models;
 
   next();
 });
 
-// Express routes
-app.use('/api/auth', authRouter);
-app.use('/api/timeline', timelineRouter);
-app.use('/api/posts', postRouter);
-app.use('/api/comments', commentRouter);
-app.use('/api/advertisements', advertisementRouter);
-app.use('/api/friend-requests', friendRequestRouter);
-app.use('/api/notifications', notificationRouter);
-app.use('/api/users', userRouter);
-app.use('/api/search', searchRouter);
-app.use('/api/conversations', conversationRouter);
-app.use('/api/messages', messageRouter);
+// Mount all routes
+app.use('/api', indexRouter);
 
 // Handle undefined routes
 app.use((req, res, next) => {
