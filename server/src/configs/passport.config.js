@@ -12,7 +12,7 @@ const extractJwtFromCookie = (req) => {
 
 const jwtOpts = {
   jwtFromRequest: extractJwtFromCookie,
-  secretOrKey: process.env.JWT_SECRET,
+  secretOrKey: process.env.ACCESS_TOKEN_SECRET,
 };
 
 module.exports = (passport) => {
@@ -50,7 +50,7 @@ module.exports = (passport) => {
           isOnline: true,
         }
       );
-      
+
       // Status code in res will change depending on whether
       // a user was found or created (signed in || signed up)
       req.isCreated = result.created;

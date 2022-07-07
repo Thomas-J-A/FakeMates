@@ -43,7 +43,7 @@ app.use(cookieParser()); // Parses Cookie header and populates req.cookies (req.
 //   resave: false,
 //   saveUninitialized: true,
 //   store: MongoStore.create({
-//     mongoUrl: process.env.MONGO_PROD_URI,
+//     mongoUrl: process.env.MONGO_URI_PROD,
 //   }),
 // }));
 app.use(passport.initialize());

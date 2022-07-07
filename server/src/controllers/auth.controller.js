@@ -108,7 +108,7 @@ exports.signUpWithEmail = async (req, res, next) => {
 
 exports.logout = (req, res) => {
   // Clear req.session/req.user
-  req.logOut();
+  // req.logOut();
 
   // Remove cookie on client
   res.clearCookie('jwt', {

@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 if (process.env.NODE_ENV === 'production') {
-  mongoose.connect(process.env.MONGO_PROD_URI, {
+  mongoose.connect(process.env.MONGO_URI_PROD, {
     useNewUrlParser: true,
     useUnifiedTopology: true
   });
@@ -12,7 +12,7 @@ if (process.env.NODE_ENV === 'production') {
 } else {
   // Make sure a mongod process is running with
   // 'sudo systemctl start mongod' before connecting
-  mongoose.connect(process.env.MONGO_DEV_URI, {
+  mongoose.connect(process.env.MONGO_URI_DEV, {
     useNewUrlParser: true,
     useUnifiedTopology: true
   });

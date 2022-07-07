@@ -68,6 +68,33 @@ describe('POST /api/auth/email', () => {
   });
 
 
+  it('should return 400 and error message if email is missing', async () => {
+    const userWithMissingEmail = { password: user.password };
+
+    const res = await request(app)
+      .post('/api/auth/email')
+      .send(userWithMissingEmail);
+
+    expect(res.statusCode).toBe(400);
+    expect(res.body.message).toBe('Email is required');
+  });
+
+
+  it('should return 400 and error message if email format is invalid', async () => {
+    const userWithInvalidEmail = {
+      email: 'name@domain',
+      password: user.password,
+    };
+
+    const res = await request(app)
+      .post('/api/auth/email')
+      .send(userWithInvalidEmail);
+
+    expect(res.statusCode).toBe(400);
+    expect(res.body.message).toBe('Invalid email');
+  });
+
+
   it('should return 401 and error message if password is incorrect', async () => {
     const userLogin = {
       email: user.email,
@@ -80,6 +107,18 @@ describe('POST /api/auth/email', () => {
 
     expect(res.statusCode).toBe(401);
     expect(res.body.message).toBe('Incorrect password');
+  });
+
+  
+  it('should return 400 and error message if password is missing', async () => {
+    const userWithMissingPassword = { email: user.email };
+
+    const res = await request(app)
+      .post('/api/auth/email')
+      .send(userWithMissingPassword);
+
+    expect(res.statusCode).toBe(400);
+    expect(res.body.message).toBe('Password is required');
   });
 });
 
@@ -151,30 +190,6 @@ describe('POST /api/auth/register', () => {
   });
 
 
-  it('should return 400 and error message if first name is missing', async () => {
-    const { firstName, ...userWithMissingFirstName } = user;
-
-    const res = await request(app)
-      .post('/api/auth/register')
-      .send(userWithMissingFirstName);
-
-    expect(res.statusCode).toBe(400);
-    expect(res.body.message).toBe('First name is required');
-  });
-
-
-  it('should return 400 and error message if last name is missing', async () => {
-    const { lastName, ...userWithMissingLastName } = user;
-
-    const res = await request(app)
-      .post('/api/auth/register')
-      .send(userWithMissingLastName);
-
-    expect(res.statusCode).toBe(400);
-    expect(res.body.message).toBe('Last name is required');
-  });
-
-
   it('should return 400 and error message is email is missing', async () => {
     const { email, ...userWithMissingEmail } = user;
 
@@ -196,6 +211,30 @@ describe('POST /api/auth/register', () => {
 
     expect(res.statusCode).toBe(400);
     expect(res.body.message).toBe('Invalid email');
+  });
+
+
+  it('should return 400 and error message if first name is missing', async () => {
+    const { firstName, ...userWithMissingFirstName } = user;
+
+    const res = await request(app)
+      .post('/api/auth/register')
+      .send(userWithMissingFirstName);
+
+    expect(res.statusCode).toBe(400);
+    expect(res.body.message).toBe('First name is required');
+  });
+
+
+  it('should return 400 and error message if last name is missing', async () => {
+    const { lastName, ...userWithMissingLastName } = user;
+
+    const res = await request(app)
+      .post('/api/auth/register')
+      .send(userWithMissingLastName);
+
+    expect(res.statusCode).toBe(400);
+    expect(res.body.message).toBe('Last name is required');
   });
 
 
@@ -257,7 +296,7 @@ describe('POST /api/auth/register', () => {
 });
 
 describe('POST /api/auth/logout', () => {
-  it('should remove JWT cookie', async () => {
+  it('should clear JWT cookie', async () => {
     const user = {
       firstName: faker.name.firstName(),
       lastName: faker.name.lastName(),
@@ -276,3 +315,6 @@ describe('POST /api/auth/logout', () => {
     expect(res.statusCode).toBe(204);
   });
 });
+
+// Use either async/await, or the done() callback for async tests
+// Use either JEST's assertions, or supertest's assertions
