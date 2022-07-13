@@ -1,8 +1,12 @@
-const request = require('supertest');
+const supertest = require('supertest');
 const { faker } = require('@faker-js/faker');
 
 const app = require('../../src/app');
 const dbUtil = require('../utils/db.util');
+const seeds = require('../seeds/index.seed');
+
+// Creates a clearer syntax in requests
+const api = supertest(app);
 
 beforeAll(async () => await dbUtil.setupDatabase());
 
@@ -11,28 +15,21 @@ afterEach(async () => await dbUtil.clearDatabase());
 afterAll(async () => await dbUtil.closeDatabase());
 
 describe('POST /api/auth/email', () => {
-  const user = {
-    firstName: faker.name.firstName(),
-    lastName: faker.name.lastName(),
-    email: faker.internet.email(),
-    password: faker.internet.password(),
-  };
-
+  // Register a new user before each test
   beforeEach(async () => {
-    // Register a new user before each test
-    await request(app)
+    await api
       .post('/api/auth/register')
-      .send(user);
-
-    await request(app)
-      .post('/api/auth/logout')
-      .send();
+      .send(seeds.users[0]);
+      
+    // await api
+    //   .post('/api/auth/logout')
+    //   .send();
   });
 
   it('should return 200 and JSON payload if successful', async () => {
-    const { firstName, lastName, ...userLogin } = user;
+    const { firstName, lastName, ...userLogin } = seeds.users[0];
 
-    const res = await request(app)
+    const res = await api
       .post('/api/auth/email')
       .send(userLogin);
 
@@ -43,9 +40,9 @@ describe('POST /api/auth/email', () => {
 
 
   it('should set a JWT cookie if successful', async () => {
-    const { firstName, lastName, ...userLogin } = user;
+    const { firstName, lastName, ...userLogin } = seeds.users[0];
 
-    const res = await request(app)
+    const res = await api
       .post('/api/auth/email')
       .send(userLogin);
     
@@ -56,22 +53,22 @@ describe('POST /api/auth/email', () => {
   it('should return 401 and error message if email doesn\'t exist', async () => {
     const userLogin = {
       email: faker.internet.email(),
-      password: user.password,
+      password: seeds.users[0].password,
     };
 
-    const res = await request(app)
+    const res = await api
       .post('/api/auth/email')
       .send(userLogin);
 
     expect(res.statusCode).toBe(401);
-    expect(res.body.message).toBe('Email does not exist');
+    expect(res.body.message).toBe('Email doesn\'t exist');
   });
 
 
   it('should return 400 and error message if email is missing', async () => {
-    const userWithMissingEmail = { password: user.password };
+    const userWithMissingEmail = { password: seeds.users[0].password };
 
-    const res = await request(app)
+    const res = await api
       .post('/api/auth/email')
       .send(userWithMissingEmail);
 
@@ -83,10 +80,10 @@ describe('POST /api/auth/email', () => {
   it('should return 400 and error message if email format is invalid', async () => {
     const userWithInvalidEmail = {
       email: 'name@domain',
-      password: user.password,
+      password: seeds.users[0].password,
     };
 
-    const res = await request(app)
+    const res = await api 
       .post('/api/auth/email')
       .send(userWithInvalidEmail);
 
@@ -97,11 +94,11 @@ describe('POST /api/auth/email', () => {
 
   it('should return 401 and error message if password is incorrect', async () => {
     const userLogin = {
-      email: user.email,
+      email: seeds.users[0].email,
       password: faker.internet.password(),
     };
 
-    const res = await request(app)
+    const res = await api
       .post('/api/auth/email')
       .send(userLogin);
 
@@ -111,9 +108,9 @@ describe('POST /api/auth/email', () => {
 
   
   it('should return 400 and error message if password is missing', async () => {
-    const userWithMissingPassword = { email: user.email };
+    const userWithMissingPassword = { email: seeds.users[0].email };
 
-    const res = await request(app)
+    const res = await api
       .post('/api/auth/email')
       .send(userWithMissingPassword);
 
@@ -123,18 +120,10 @@ describe('POST /api/auth/email', () => {
 });
 
 describe('POST /api/auth/register', () => {
-  const user = {
-    firstName: faker.name.firstName(),
-    lastName: faker.name.lastName(),
-    email: faker.internet.email(),
-    password: faker.internet.password(),
-  };
-
-
   it('should return 201 and JSON payload if successful', async () => {
-    const res = await request(app)
+    const res = await api
       .post('/api/auth/register')
-      .send(user);
+      .send(seeds.users[0]);
 
     expect(res.statusCode).toBe(201);
     expect(res.body.currentUser).toBeDefined();
@@ -143,9 +132,9 @@ describe('POST /api/auth/register', () => {
 
 
   it('should set a JWT cookie if successful', async () => {
-    const res = await request(app)
+    const res = await api
       .post('/api/auth/register')
-      .send(user);
+      .send(seeds.users[0]);
 
     expect(res.headers['set-cookie']).toBeDefined();
   });
@@ -153,12 +142,12 @@ describe('POST /api/auth/register', () => {
 
   it('should ignore input fields not defined in schema', async () => {
     const userWithInvalidFields = {
-      ...user,
+      ...seeds.users[0],
       favouriteColour: 'blue',
       favouriteNumber: 7,
     };
 
-    const res = await request(app)
+    const res = await api
       .post('/api/auth/register')
       .send(userWithInvalidFields);
     
@@ -170,18 +159,16 @@ describe('POST /api/auth/register', () => {
 
 
   it('should return 409 and error message if email already exists', async () => {
-    await request(app)
+    await api
       .post('/api/auth/register')
-      .send(user);
+      .send(seeds.users[0]);
 
     const user2 = {
-      firstName: faker.name.firstName(),
-      lastName: faker.name.lastName(),
-      email: user.email,
-      password: faker.internet.password(),
+      ...seeds.users[1],
+      email: seeds.users[0].email,
     };
 
-    const res = await request(app)
+    const res = await api
       .post('/api/auth/register')
       .send(user2);
 
@@ -191,9 +178,9 @@ describe('POST /api/auth/register', () => {
 
 
   it('should return 400 and error message is email is missing', async () => {
-    const { email, ...userWithMissingEmail } = user;
+    const { email, ...userWithMissingEmail } = seeds.users[0];
 
-    const res = await request(app)
+    const res = await api
       .post('/api/auth/register')
       .send(userWithMissingEmail);
 
@@ -203,9 +190,12 @@ describe('POST /api/auth/register', () => {
 
 
   it('should return 400 and error message if email format is invalid', async () => {
-    const userWithInvalidEmail = { ...user, email: 'name@doman' };
+    const userWithInvalidEmail = {
+      ...seeds.users[0],
+      email: 'name@doman'
+    };
 
-    const res = await request(app)
+    const res = await api
       .post('/api/auth/register')
       .send(userWithInvalidEmail);
 
@@ -215,9 +205,9 @@ describe('POST /api/auth/register', () => {
 
 
   it('should return 400 and error message if first name is missing', async () => {
-    const { firstName, ...userWithMissingFirstName } = user;
+    const { firstName, ...userWithMissingFirstName } = seeds.users[0];
 
-    const res = await request(app)
+    const res = await api
       .post('/api/auth/register')
       .send(userWithMissingFirstName);
 
@@ -227,9 +217,9 @@ describe('POST /api/auth/register', () => {
 
 
   it('should return 400 and error message if last name is missing', async () => {
-    const { lastName, ...userWithMissingLastName } = user;
+    const { lastName, ...userWithMissingLastName } = seeds.users[0];
 
-    const res = await request(app)
+    const res = await api
       .post('/api/auth/register')
       .send(userWithMissingLastName);
 
@@ -239,9 +229,9 @@ describe('POST /api/auth/register', () => {
 
 
   it('should return 400 and error message if password is missing', async () => {
-    const { password, ...userWithMissingPassword } = user;
+    const { password, ...userWithMissingPassword } = seeds.users[0];
 
-    const res = await request(app)
+    const res = await api
       .post('/api/auth/register')
       .send(userWithMissingPassword);
 
@@ -251,9 +241,12 @@ describe('POST /api/auth/register', () => {
 
   
   it('should return 400 and error message if password is too short', async () => {
-    const userWithShortPassword = { ...user, password: 'abc' };
+    const userWithShortPassword = {
+      ...seeds.users[0],
+      password: 'abc'
+    };
 
-    const res = await request(app)
+    const res = await api
       .post('/api/auth/register')
       .send(userWithShortPassword);
 
@@ -263,9 +256,12 @@ describe('POST /api/auth/register', () => {
 
 
   it('should return 400 and error message if password is too long', async () => {
-    const userWithLongPassword = { ...user, password: 'abcdefghijklmnopqrstuvwxyz' };
+    const userWithLongPassword = {
+      ...seeds.users[0],
+      password: 'abcdefghijklmnopqrstuvwxyz'
+    };
 
-    const res = await request(app)
+    const res = await api
       .post('/api/auth/register')
       .send(userWithLongPassword);
 
@@ -297,18 +293,11 @@ describe('POST /api/auth/register', () => {
 
 describe('POST /api/auth/logout', () => {
   it('should clear JWT cookie', async () => {
-    const user = {
-      firstName: faker.name.firstName(),
-      lastName: faker.name.lastName(),
-      email: faker.internet.email(),
-      password: faker.internet.password(),
-    };
-
-    await request(app)
+     await api
       .post('/api/auth/register')
-      .send(user);
+      .send(seeds.users[0]);
 
-    const res = await request(app)
+    const res = await api
       .post('/api/auth/logout')
       .send();
 

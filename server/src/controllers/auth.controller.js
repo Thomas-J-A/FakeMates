@@ -37,7 +37,7 @@ exports.signInWithEmail = async (req, res, next) => {
   try {
     const user = await req.models.User.findOne({ email: req.body.email });
     if (user === null) {
-      return res.status(401).json({ message: 'Email does not exist' });
+      return res.status(401).json({ message: 'Email doesn\'t exist' });
     }
 
     const isMatch = await bcrypt.compare(req.body.password, user.password);

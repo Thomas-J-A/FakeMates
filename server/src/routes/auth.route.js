@@ -22,12 +22,12 @@ router.get('/google/callback',
 );
 
 router.post('/email',
-  validate(authValidation.signInWithEmail),
+  validate(authValidation.signInWithEmail.body, 'body'),
   authController.signInWithEmail
 );
 
 router.post('/register',
-  validate(authValidation.signUpWithEmail),
+  validate(authValidation.signUpWithEmail.body, 'body'),
   authController.signUpWithEmail
 );
 
@@ -39,5 +39,3 @@ module.exports = router;
 
 // You set { session: false } because you do not want to store the user details in a session. 
 // You expect the user to send the token on each request to the secure routes.
-
-// passport.authenticate("jwt", { session: false }), (req, res) => {})

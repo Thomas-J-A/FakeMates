@@ -13,12 +13,13 @@ const extractJwtFromCookie = (req) => {
 const jwtOpts = {
   jwtFromRequest: extractJwtFromCookie,
   secretOrKey: process.env.ACCESS_TOKEN_SECRET,
+  passReqToCallback: true,
 };
 
 module.exports = (passport) => {
   // With { session: false } in auth call, calling done() will populate
   // req.user and call next(), but it won't call serializeUser()
-  passport.use(new JwtStrategy(jwtOpts, async (jwt_payload, done) => {
+  passport.use(new JwtStrategy(jwtOpts, async (req, jwt_payload, done) => {
     try {
       const user = await req.models.User.findById(jwt_payload.sub).exec();
       if (user) {
@@ -57,6 +58,7 @@ module.exports = (passport) => {
 
       done(null, result.doc);
     } catch (err) {
+      console.log(err)
       done(err, false);
     }
   }));  
