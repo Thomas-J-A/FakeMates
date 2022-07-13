@@ -70,9 +70,9 @@ describe('GET /api/posts', () => {
   
   it('should fetch all user\'s posts', async () => {
     const res = await api
-      .get(`/api/posts?userid=${ currentUser._id }`)
+      .get('/api/posts')
+      .query({ userid: currentUser._id })
       .set('Cookie', cookie)
-      .send();
 
     expect(res.statusCode).toBe(200);
     expect(res.body).toBeInstanceOf(Array);
@@ -87,9 +87,9 @@ describe('GET /api/posts', () => {
     cookie = headers['set-cookie'][0];
     
     const res = await api
-      .get(`/api/posts?userid=${ posts[0].postedBy }`)
-      .set('Cookie', cookie)
-      .send();
+      .get('/api/posts')
+      .query({ userid: posts[0].postedBy })
+      .set('Cookie', cookie);
 
     expect(res.statusCode).toBe(200);
     expect(res.body).toBeInstanceOf(Array);
@@ -104,9 +104,9 @@ describe('GET /api/posts', () => {
     cookie = headers['set-cookie'][0];
 
     const res = await api
-      .get(`/api/posts?userid=${ currentUser._id }`)
-      .set('Cookie', cookie)
-      .send();
+      .get('/api/posts')
+      .query({ userid: currentUser._id })
+      .set('Cookie', cookie);
     
     expect(res.statusCode).toBe(200);
     expect(res.body).toBeInstanceOf(Array);
@@ -116,8 +116,8 @@ describe('GET /api/posts', () => {
 
   it('should return 401 if not signed in', async () => {
     const res = await api
-      .get(`/api/posts?userid=${ currentUser._id }`)
-      .send();
+      .get('/api/posts')
+      .query({ userid: currentUser._ud });
 
     expect(res.statusCode).toBe(401);
   });
@@ -127,7 +127,6 @@ describe('GET /api/posts', () => {
     const res = await api
       .get('/api/posts')
       .set('Cookie', cookie)
-      .send();
 
     expect(res.statusCode).toBe(400);
     expect(res.body.message).toBe('userid is required');
@@ -138,9 +137,9 @@ describe('GET /api/posts', () => {
     const invalidId = 'abc123'
 
     const res = await api
-      .get(`/api/posts?userid=${ invalidId }`)
-      .set('Cookie', cookie)
-      .send();
+      .get('/api/posts')
+      .query({ userid: invalidId })
+      .set('Cookie', cookie);
 
     expect(res.statusCode).toBe(400);
     expect(res.body.message).toBe('userid must be a valid ObjectId');
@@ -151,9 +150,9 @@ describe('GET /api/posts', () => {
     const fakeId = '62c7cb5fc583794ebd47f3ab';
 
     const res = await api
-      .get(`/api/posts?userid=${ fakeId }`)
-      .set('Cookie', cookie)
-      .send();
+      .get('/api/posts')
+      .query({ userid: fakeId })
+      .set('Cookie', cookie);
 
     expect(res.statusCode).toBe(400);
     expect(res.body.message).toBe('User doesn\'t exist');
@@ -329,7 +328,6 @@ describe('PUT /api/posts/:id', () => {
     const res = await api
       .put(`/api/posts/${ post._id }`)
       .set('Cookie', cookie)
-      .send();
 
     expect(res.statusCode).toBe(200);
     expect(res.body.likedBy).toContain(currentUser._id);
@@ -346,13 +344,11 @@ describe('PUT /api/posts/:id', () => {
     await api
       .put(`/api/posts/${ post._id }`)
       .set('Cookie', cookie)
-      .send();
 
     // Unlike post
     const res = await api
       .put(`/api/posts/${ post._id }`)
       .set('Cookie', cookie)
-      .send();
 
     expect(res.statusCode).toBe(200);
     expect(res.body.likedBy).not.toContain(currentUser._id);
@@ -367,7 +363,6 @@ describe('PUT /api/posts/:id', () => {
 
     const res = await api
       .put(`/api/posts/${ post._id }`)
-      .send();
 
     expect(res.statusCode).toBe(401);
   });
@@ -384,7 +379,6 @@ describe('PUT /api/posts/:id', () => {
     const res = await api
       .put(`/api/posts/${ invalidId }`)
       .set('Cookie', cookie)
-      .send();
 
     expect(res.statusCode).toBe(400);
     expect(res.body.message).toBe(':id must be a valid ObjectId');
@@ -402,7 +396,6 @@ describe('PUT /api/posts/:id', () => {
     const res = await api
       .put(`/api/posts/${ fakeId }`)
       .set('Cookie', cookie)
-      .send();
 
     expect(res.statusCode).toBe(400);
     expect(res.body.message).toBe('Post doesn\'t exist');
@@ -413,7 +406,6 @@ describe('PUT /api/posts/:id', () => {
     const res = await api
       .put(`/api/posts/${ post._id }`)
       .set('Cookie', cookie)
-      .send();
 
     expect(res.statusCode).toBe(403);
     expect(res.body.message).toBe('You can\'t like your own post');
@@ -435,7 +427,6 @@ describe('DELETE /api/posts/:id', () => {
     const res = await api
       .delete(`/api/posts/${ post._id }`)
       .set('Cookie', cookie)
-      .send();
 
     expect(res.statusCode).toBe(204);
   });
@@ -454,7 +445,6 @@ describe('DELETE /api/posts/:id', () => {
   it('should return 401 if not signed in', async () => {
     const res = await api
       .delete(`/api/posts/${ post._id }`)
-      .send();
 
     expect(res.statusCode).toBe(401);
   });
@@ -466,7 +456,6 @@ describe('DELETE /api/posts/:id', () => {
     const res = await api
       .delete(`/api/posts/${ invalidId }`)
       .set('Cookie', cookie)
-      .send();
 
     expect(res.statusCode).toBe(400);
     expect(res.body.message).toBe(':id must be a valid ObjectId');
@@ -479,7 +468,6 @@ describe('DELETE /api/posts/:id', () => {
     const res = await api
       .delete(`/api/posts/${ fakeId }`)
       .set('Cookie', cookie)
-      .send();
 
     expect(res.statusCode).toBe(400);
     expect(res.body.message).toBe('Post doesn\'t exist');
@@ -495,7 +483,6 @@ describe('DELETE /api/posts/:id', () => {
     const res = await api
       .delete(`/api/posts/${ post._id }`)
       .set('Cookie', cookie)
-      .send();
 
     expect(res.statusCode).toBe(403);
     expect(res.body.message).toBe('You may only remove your own posts');
