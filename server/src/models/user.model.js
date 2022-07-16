@@ -13,8 +13,14 @@ const userSchema = new Schema({
   hometown: String,
   occupation: String,
   bio: String,
-  avatarUrl: String,
-  backgroundUrl: String,
+  avatarUrl: {
+    type: String,
+    default: '../../../public/images/avatar.svg',
+  },
+  backgroundUrl: {
+    type: String,
+    default: '../../../public/images/background.jpg',
+  },
   isOnline: Boolean,
   lastOnline: Date,
   friends: [{

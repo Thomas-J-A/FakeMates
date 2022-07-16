@@ -2,10 +2,10 @@ const supertest = require('supertest');
 const { faker } = require('@faker-js/faker');
 
 const app = require('../../src/app');
+const { createUser } = require('../utils/populate.util');
 const dbUtil = require('../utils/db.util');
 const seeds = require('../seeds/index.seed');
 
-// Creates a clearer syntax in requests
 const api = supertest(app);
 
 beforeAll(async () => await dbUtil.setupDatabase());
@@ -15,15 +15,13 @@ afterEach(async () => await dbUtil.clearDatabase());
 afterAll(async () => await dbUtil.closeDatabase());
 
 describe('POST /api/auth/email', () => {
-  // Register a new user before each test
+  let user = {};
+
+  // Create a user
   beforeEach(async () => {
-    await api
-      .post('/api/auth/register')
-      .send(seeds.users[0]);
-      
-    // await api
-    //   .post('/api/auth/logout')
-    //   .send();
+    const { body, headers } = await createUser(seeds.users[0]);
+    user.data = body.currentUser;
+    user.cookie = headers['set-cookie'][0];
   });
 
   it('should return 200 and JSON payload if successful', async () => {
@@ -159,10 +157,10 @@ describe('POST /api/auth/register', () => {
 
 
   it('should return 409 and error message if email already exists', async () => {
-    await api
-      .post('/api/auth/register')
-      .send(seeds.users[0]);
+    // Create a user
+    await createUser(seeds.users[0]);
 
+    // Create a second user with same email address
     const user2 = {
       ...seeds.users[1],
       email: seeds.users[0].email,
@@ -192,7 +190,7 @@ describe('POST /api/auth/register', () => {
   it('should return 400 and error message if email format is invalid', async () => {
     const userWithInvalidEmail = {
       ...seeds.users[0],
-      email: 'name@doman'
+      email: 'name@doman',
     };
 
     const res = await api
@@ -243,7 +241,7 @@ describe('POST /api/auth/register', () => {
   it('should return 400 and error message if password is too short', async () => {
     const userWithShortPassword = {
       ...seeds.users[0],
-      password: 'abc'
+      password: 'abc',
     };
 
     const res = await api
@@ -258,7 +256,7 @@ describe('POST /api/auth/register', () => {
   it('should return 400 and error message if password is too long', async () => {
     const userWithLongPassword = {
       ...seeds.users[0],
-      password: 'abcdefghijklmnopqrstuvwxyz'
+      password: 'abcdefghijklmnopqrstuvwxyz',
     };
 
     const res = await api
@@ -293,9 +291,8 @@ describe('POST /api/auth/register', () => {
 
 describe('POST /api/auth/logout', () => {
   it('should clear JWT cookie', async () => {
-     await api
-      .post('/api/auth/register')
-      .send(seeds.users[0]);
+    // Create a user
+    await createUser(seeds.users[0]);
 
     const res = await api
       .post('/api/auth/logout')

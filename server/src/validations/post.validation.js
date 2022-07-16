@@ -1,8 +1,10 @@
 const Joi = require('joi');
 
+const objectId = /^[0-9a-fA-F]{24}$/;
+
 const fetchPostsQuery = Joi.object({
   userid: Joi.string()
-    .pattern(/^[0-9a-fA-F]{24}$/)
+    .regex(objectId)
     .required()
     .messages({
       'string.pattern.base': 'userid must be a valid ObjectId',
@@ -11,13 +13,6 @@ const fetchPostsQuery = Joi.object({
 });
 
 const createPostBody = Joi.object({
-  postedBy: Joi.string()
-    .pattern(/^[0-9a-fA-F]{24}$/)
-    .required()
-    .messages({
-      'string.pattern.base': 'Poster ID must be a valid ObjectId',
-      'any.required': 'Poster ID is required',
-    }),
   content: Joi.string()
     .max(100)
     .required()
@@ -29,7 +24,7 @@ const createPostBody = Joi.object({
 
 const likePostParams = Joi.object({
   id: Joi.string()
-    .pattern(/^[0-9a-fA-F]{24}$/)
+    .regex(objectId)
     .required()
     .messages({
       'string.pattern.base': ':id must be a valid ObjectId',
@@ -39,7 +34,7 @@ const likePostParams = Joi.object({
 
 const removePostParams = Joi.object({
   id: Joi.string()
-    .pattern(/^[0-9a-fA-F]{24}$/)
+    .regex(objectId)
     .required()
     .messages({
       'string.pattern.base': ':id must be a valid ObjectId',

@@ -29,7 +29,7 @@ if (process.env.NODE_ENV !== 'test') require('./configs/db.config');
 require('./configs/passport.config')(passport); 
 
 // Set up middlewares
-app.use(logger('dev'));
+if (process.env.NODE_ENV !== 'test') app.use(logger('dev'));
 app.use(cors({
   origin: 'http://localhost:8080', // React client
   credentials: true, // Allow cookies to be sent

@@ -36,11 +36,13 @@ exports.continueWithGoogle = async (req, res, next) => {
 exports.signInWithEmail = async (req, res, next) => {
   try {
     const user = await req.models.User.findOne({ email: req.body.email });
+
     if (user === null) {
       return res.status(401).json({ message: 'Email doesn\'t exist' });
     }
 
     const isMatch = await bcrypt.compare(req.body.password, user.password);
+
     if (!isMatch) {
       return res.status(401).json({ message: 'Incorrect password' });
     }
@@ -58,6 +60,7 @@ exports.signInWithEmail = async (req, res, next) => {
 
     // Remove password field from user data before returning it
     const { password, ...rest } = user._doc;
+
     return res.status(200).json({
       currentUser: rest,
       expiresAt,
@@ -70,6 +73,7 @@ exports.signInWithEmail = async (req, res, next) => {
 exports.signUpWithEmail = async (req, res, next) => {
   try {
     const existingUser = await req.models.User.findOne({ email: req.body.email });
+
     if (existingUser) {
       return res.status(409).json({ message: 'Email already exists' });
     }
@@ -97,6 +101,7 @@ exports.signUpWithEmail = async (req, res, next) => {
 
     // Remove password field from user data before returning it
     const { password, ...rest } = user._doc;
+    
     return res.status(201).json({
       currentUser: rest,
       expiresAt,
