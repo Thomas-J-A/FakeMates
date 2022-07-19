@@ -21,7 +21,10 @@ const userSchema = new Schema({
     type: String,
     default: '../../../public/images/background.jpg',
   },
-  isOnline: Boolean,
+  isOnline: {
+    type: Boolean,
+    default: true,
+  },
   lastOnline: Date,
   friends: [{
     type: Schema.Types.ObjectId,

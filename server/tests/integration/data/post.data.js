@@ -10,7 +10,7 @@ for (let i = 0; i < 2; i++) {
   posts.push({
     postedBy: null,
     content: faker.lorem.sentence(),
-    image: path.resolve(__dirname, `../images/${ filename }`),
+    image: path.resolve(__dirname, `../../images/${ filename }`),
   });
 }
 

@@ -25,8 +25,6 @@ exports.createPost = async (req, res, next) => {
     const post = new req.models.Post({
       postedBy: req.user._id,
       content: req.body.content,
-      likedBy: [],
-      commentsCount: 0,
     });
     
     // Add imageUrl to doc if user added an

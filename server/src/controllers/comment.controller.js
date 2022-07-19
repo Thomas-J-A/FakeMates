@@ -51,7 +51,6 @@ exports.createComment = async (req, res, next) => {
       postedBy: req.user._id,
       postId: postid,
       content,
-      likedBy: [],
     });
 
     await comment.save();

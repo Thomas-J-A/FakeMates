@@ -3,10 +3,11 @@ const { promises: fs } = require('fs');
 const supertest = require('supertest');
 const { faker } = require('@faker-js/faker');
 
-const app = require('../../src/app');
-const { createUser, createPost, createComment } = require('../utils/populate.util');
-const dbUtil = require('../utils/db.util');
-const seeds = require('../seeds/index.seed');
+const app = require('../../../src/app');
+const dbUtil = require('../../utils/db.util');
+const seeds = require('../seeds/post.seed');
+const data = require('../data/index.data');
+const Comment = require('../../../src/models/comment.model');
 
 // Calling supertest with the initialization 
 // app creates a clearer syntax in requests
@@ -22,43 +23,46 @@ afterEach(async () => await dbUtil.clearDatabase());
 afterAll(async () => await dbUtil.closeDatabase());
 
 describe('GET /api/posts', () => {
-  let users = [];
-  let posts = [];
+  // Seed db per describe block/endpoint in order to reduce redundancy
+  // and handle references between documents more easily
 
-  // Create users
+  // Seed database
+  let { users, posts } = seeds.fetchPosts();
+
+  // Authenticate users
   beforeEach(async () => {
     for (let i = 0; i < 2; i++) {
-      const { body, headers } = await createUser(seeds.users[i]);
-      users.push({
-        data: body.currentUser,
-        cookie: headers['set-cookie'][0],
-      });
+      const userInfo = {
+        email: data.users[i].email,
+        password: data.users[i].password,
+      };
+      
+      const res = await api
+        .post('/api/auth/email')
+        .send(userInfo);
+      
+      users[i].cookie = res.headers['set-cookie'][0];
     }
   });
 
-  // Create posts
-  beforeEach(async () => {
-    for (let i = 0; i < 2; i++) {
-      const { body } = await createPost(users[0], seeds.posts[i]);
-      posts.push(body);
-    }
-  });
-
-  // Empty users & posts arrays between tests
+  // Clear arrays after each test
   afterEach(() => {
-    users = [];
-    posts = [];
+    // users/posts variables are references and so
+    // users = [] would overwrite them with a new value;
+    // users.length = 0 empties the referenced value itself
+    users.length = 0;
+    posts.length = 0;
   });
   
   it('should fetch all user\'s posts', async () => {
     const res = await api
       .get('/api/posts')
-      .query({ userid: users[0].data._id })
+      .query({ userid: users[0].data._id.toString() })
       .set('Cookie', users[0].cookie);
 
     expect(res.statusCode).toBe(200);
     expect(res.body).toBeInstanceOf(Array);
-    expect(res.body.length).toBe(2);
+    expect(res.body).toHaveLength(2);
     // expect(res.body).toEqual(posts);
   });
 
@@ -66,12 +70,12 @@ describe('GET /api/posts', () => {
   it('should fetch another user\'s posts', async () => {  
     const res = await api
       .get('/api/posts')
-      .query({ userid: users[0].data._id })
+      .query({ userid: users[0].data._id.toString() })
       .set('Cookie', users[1].cookie);
 
     expect(res.statusCode).toBe(200);
     expect(res.body).toBeInstanceOf(Array);
-    expect(res.body.length).toBe(2);
+    expect(res.body).toHaveLength(2);
     // expect(res.body).toEqual(posts);
   });
 
@@ -79,7 +83,7 @@ describe('GET /api/posts', () => {
   it('should return an empty array if no posts available', async () => {
     const res = await api
       .get('/api/posts')
-      .query({ userid: users[1].data._id })
+      .query({ userid: users[1].data._id.toString() })
       .set('Cookie', users[1].cookie);
     
     expect(res.statusCode).toBe(200);
@@ -87,10 +91,10 @@ describe('GET /api/posts', () => {
   });
 
 
-  it('should return 401 if not signed in', async () => {
+  it('should return 401 if not authenticated', async () => {
     const res = await api
       .get('/api/posts')
-      .query({ userid: users[0].data._id });
+      .query({ userid: users[0].data._id.toString() });
 
     expect(res.statusCode).toBe(401);
   });
@@ -133,25 +137,36 @@ describe('GET /api/posts', () => {
 });
 
 describe('POST /api/posts', () => {
-  let user = {};
+  // Seed database
+  let users = seeds.createPost();
 
-  // Create a user
+  // Authenticate user
   beforeEach(async () => {
-    const { body, headers } = await createUser(seeds.users[0]);
-    user.data = body.currentUser;
-    user.cookie = headers['set-cookie'][0];
+    const userInfo = {
+      email: data.users[0].email,
+      password: data.users[0].password,
+    };
+
+    const res = await api
+      .post('/api/auth/email')
+      .send(userInfo);
+
+    users[0].cookie = res.headers['set-cookie'][0];
   });
+
+  // Clear array after each test
+  afterEach(() => users.length = 0);
   
   it('should create a post with an image', async () => {
     const res = await api
       .post('/api/posts')
-      .field('content', seeds.posts[0].content) 
-      .attach('image', seeds.posts[0].image)
-      .set('Cookie', user.cookie);
+      .field('content', data.posts[0].content) 
+      .attach('image', data.posts[0].image)
+      .set('Cookie', users[0].cookie);
       
     expect(res.statusCode).toBe(201);
-    expect(res.body.postedBy).toBe(user.data._id);
-    expect(res.body.content).toBe(seeds.posts[0].content);
+    expect(res.body.postedBy).toBe(users[0].data._id.toString());
+    expect(res.body.content).toBe(data.posts[0].content);
     expect(res.body.imageUrl).toBeDefined();
     expect(res.body.likedBy).toEqual([]);
     expect(res.body.commentsCount).toBe(0);
@@ -165,23 +180,23 @@ describe('POST /api/posts', () => {
   it('should create a post without an image', async () => {
     const res = await api
       .post('/api/posts')
-      .field('content', seeds.posts[0].content)
-      .set('Cookie', user.cookie);
+      .field('content', data.posts[0].content)
+      .set('Cookie', users[0].cookie);
 
     expect(res.statusCode).toBe(201);
-    expect(res.body.postedBy).toBe(user.data._id);
-    expect(res.body.content).toBe(seeds.posts[0].content);;
+    expect(res.body.postedBy).toBe(users[0].data._id.toString());
+    expect(res.body.content).toBe(data.posts[0].content);;
     expect(res.body.imageUrl).not.toBeDefined();
     expect(res.body.likedBy).toEqual([]);
     expect(res.body.commentsCount).toBe(0);
   });
 
 
-  it('should return 401 if not signed in', async () => {
+  it('should return 401 if not authenticated', async () => {
     const res = await api
       .post('/api/posts')
-      .field('content', seeds.posts[0].content) 
-      .attach('image', seeds.posts[0].image);
+      .field('content', data.posts[0].content) 
+      .attach('image', data.posts[0].image);
 
     expect(res.statusCode).toBe(401);
   });
@@ -190,8 +205,8 @@ describe('POST /api/posts', () => {
   it('should return 400 if content is missing', async () => {
     const res = await api
       .post('/api/posts')
-      .attach('image', seeds.posts[0].image)
-      .set('Cookie', user.cookie);
+      .attach('image', data.posts[0].image)
+      .set('Cookie', users[0].cookie);
 
     expect(res.statusCode).toBe(400);
     expect(res.body.message).toBe('Content is required');
@@ -204,8 +219,8 @@ describe('POST /api/posts', () => {
     const res = await api
       .post('/api/posts')
       .field('content', longContent)
-      .attach('image', seeds.posts[0].image)
-      .set('Cookie', user.cookie);
+      .attach('image', data.posts[0].image)
+      .set('Cookie', users[0].cookie);
 
     expect(res.statusCode).toBe(400);
     expect(res.body.message).toBe('Content must be less than 100 characters');
@@ -213,13 +228,13 @@ describe('POST /api/posts', () => {
   
   
   it('should return 400 if image format is incorrect', async () => {
-    const gifImage = path.resolve(__dirname, '../images/test.gif');
+    const gifImage = path.resolve(__dirname, '../../images/test.gif');
 
     const res = await api
       .post('/api/posts')
-      .field('content', seeds.posts[0].content)
+      .field('content', data.posts[0].content)
       .attach('image', gifImage)
-      .set('Cookie', user.cookie);
+      .set('Cookie', users[0].cookie);
 
     expect(res.statusCode).toBe(400);
     expect(res.body.message).toBe('Image must be in PNG, JPG, or JPEG format');
@@ -227,14 +242,14 @@ describe('POST /api/posts', () => {
 
 
   it('should return 400 if more than one image is sent', async () => {
-    const extraImage = path.resolve(__dirname, '../images/test.png');
+    const extraImage = path.resolve(__dirname, '../../images/test.png');
 
     const res = await api
       .post('/api/posts')
-      .field('content', seeds.posts[0].content)
-      .attach('image', seeds.posts[0].image)
+      .field('content', data.posts[0].content)
+      .attach('image', data.posts[0].image)
       .attach('image', extraImage)
-      .set('Cookie', user.cookie);
+      .set('Cookie', users[0].cookie);
 
     expect(res.statusCode).toBe(400);
     expect(res.body.message).toBe('Too many files');
@@ -242,13 +257,13 @@ describe('POST /api/posts', () => {
   
 
   it('should return 400 if image is too large', async () => {
-    const largeImage = path.resolve(__dirname, '../images/test-large.jpg');
+    const largeImage = path.resolve(__dirname, '../../images/test-large.jpg');
 
     const res = await api
       .post('/api/posts')
-      .field('content', seeds.posts[0].content)
+      .field('content', data.posts[0].content)
       .attach('image', largeImage)
-      .set('Cookie', user.cookie);
+      .set('Cookie', users[0].cookie);
 
     expect(res.statusCode).toBe(400);
     expect(res.body.message).toBe('File too large');
@@ -256,58 +271,60 @@ describe('POST /api/posts', () => {
 });
 
 describe('PUT /api/posts/:id', () => {
-  let users = [];
-  let post;
+  // Seed database
+  let { users, posts } = seeds.likePost();
 
-  // Create users
+  // Authenticate users
   beforeEach(async () => {
     for (let i = 0; i < 2; i++) {
-      const { body, headers } = await createUser(seeds.users[i]);
-      users.push({
-        data: body.currentUser,
-        cookie: headers['set-cookie'][0],
-      });
+      const userInfo = {
+        email: data.users[i].email,
+        password: data.users[i].password,
+      };
+
+      const res = await api
+        .post('/api/auth/email')
+        .send(userInfo);
+
+      users[i].cookie = res.headers['set-cookie'][0];
     }
   });
 
-  // Create a post
-  beforeEach(async () => {
-    const { body } = await createPost(users[0], seeds.posts[0]);
-    post = body;
+  // Clear arrays after each test
+  afterEach(() => {
+    users.length = 0;
+    posts.length = 0;
   });
-
-  // Clear users array after each test
-  afterEach(() => users = []);
 
   it('should like a post', async () => {
     const res = await api
-      .put(`/api/posts/${ post._id }`)
+      .put(`/api/posts/${ posts[0]._id }`)
       .set('Cookie', users[1].cookie);
 
     expect(res.statusCode).toBe(200);
-    expect(res.body.likedBy).toContain(users[1].data._id);
+    expect(res.body.likedBy).toContain(users[1].data._id.toString());
   });
 
 
   it('should unlike a post', async () => {
     // Like post
     await api
-      .put(`/api/posts/${ post._id }`)
+      .put(`/api/posts/${ posts[0]._id }`)
       .set('Cookie', users[1].cookie);
 
     // Unlike post
     const res = await api
-      .put(`/api/posts/${ post._id }`)
+      .put(`/api/posts/${ posts[0]._id }`)
       .set('Cookie', users[1].cookie);
 
     expect(res.statusCode).toBe(200);
-    expect(res.body.likedBy).not.toContain(users[1].data._id);
+    expect(res.body.likedBy).not.toContain(users[1].data._id.toString());
   });
 
 
-  it('should return 401 if not signed in', async () => { 
+  it('should return 401 if not authenticated', async () => { 
     const res = await api
-      .put(`/api/posts/${ post._id }`);
+      .put(`/api/posts/${ posts[0]._id }`);
 
     expect(res.statusCode).toBe(401);
   });
@@ -339,7 +356,7 @@ describe('PUT /api/posts/:id', () => {
 
   it('should return 403 if user attempts to like own post', async () => {
     const res = await api
-      .put(`/api/posts/${ post._id }`)
+      .put(`/api/posts/${ posts[0]._id }`)
       .set('Cookie', users[0].cookie);
 
     expect(res.statusCode).toBe(403);
@@ -348,32 +365,29 @@ describe('PUT /api/posts/:id', () => {
 });
 
 describe('DELETE /api/posts/:id', () => {
-  let users = [];
-  let posts = [];
+  // Seed database
+   let { users, posts } = seeds.removePost();
 
-  // Create users
+  // Authenticate users
   beforeEach(async () => {
     for (let i = 0; i < 2; i++) {
-      const { body, headers } = await createUser(seeds.users[i]);
-      users.push({
-        data: body.currentUser,
-        cookie: headers['set-cookie'][0],
-      });
+      const userInfo = {
+        email: data.users[i].email,
+        password: data.users[i].password, 
+      };
+      
+      const res = await api
+        .post('/api/auth/email')
+        .send(userInfo);
+
+      users[i].cookie = res.headers['set-cookie'][0];
     }
   });
 
-  // Create posts
-  beforeEach(async () => {
-    for (let i = 0; i < 2; i++) {
-      const { body } = await createPost(users[0], seeds.posts[i]);
-      posts.push(body);
-    }
-  });
-
-  // Empty users & posts arrays between tests
+  // Clear arrays after each test
   afterEach(() => {
-    users = [];
-    posts = [];
+    users.length = 0;
+    posts.length = 0;
   });
 
   it('should delete a post', async () => {
@@ -386,19 +400,31 @@ describe('DELETE /api/posts/:id', () => {
 
 
   it('should delete associated comments', async () => {
-    const userCount = users.length;
-    
-    // Create comments for post one
-    // Cycle through users to simulate a chat in comments
+      const userCount = users.length;
+
+    // Seed comments for first post
     for (let i = 0; i < 3; i++) {
-      const user = users[i % userCount];
-      await createComment(user, posts[0], seeds.comments[i]);
+      // Cycle through users to simulate a chat in comments
+      const _user = users[i % userCount];
+      const _comment = new Comment({
+        postedBy: _user.data._id,
+        postId: posts[0]._id,
+        content: data.comments[i].content,
+      });
+
+      await _comment.save();
     }
 
-    // Create comments for post two
+    // Seed comments for second post
     for (let i = 0; i < 3; i++) {
-      const user = users[i % userCount];
-      await createComment(user, posts[1], seeds.comments[i + 3]);
+      const _user = users[i % userCount];
+      const _comment = new Comment({
+        postedBy: _user.data._id,
+        postId: posts[1]._id,
+        content: data.comments[i + 3].content,
+      });
+
+      await _comment.save();
     }
 
     // Delete post one
@@ -406,25 +432,25 @@ describe('DELETE /api/posts/:id', () => {
       .delete(`/api/posts/${ posts[0]._id }`)
       .set('Cookie', users[0].cookie);
 
-    // Verify that no comments with post one's id remain in db
+    // Verify that no comments with first post's id remain in db
     const res = await api
       .get('/api/comments')
-      .query({ postid: posts[0]._id })
+      .query({ postid: posts[0]._id.toString() })
       .query({ page: 1 })
       .set('Cookie', users[0].cookie);
 
     expect(res.statusCode).toBe(400);
     expect(res.body.message).toBe('Post doesn\'t exist');
 
-    // Verify that comments with post two's id still remain in db, unaffected
+    // Verify that comments with second post's id still remain in db, unaffected
     const res2 = await api
       .get('/api/comments')
-      .query({ postid: posts[1]._id })
+      .query({ postid: posts[1]._id.toString() })
       .query({ page: 1 })
       .set('Cookie', users[0].cookie);
 
     expect(res2.statusCode).toBe(200);
-    expect(res2.body.comments.length).toBe(3);
+    expect(res2.body.comments).toHaveLength(3);
   });
 
 
@@ -433,7 +459,7 @@ describe('DELETE /api/posts/:id', () => {
   // });
 
 
-  it('should return 401 if not signed in', async () => {
+  it('should return 401 if not authenticated', async () => {
     const res = await api
       .delete(`/api/posts/${ posts[0]._id }`)
 

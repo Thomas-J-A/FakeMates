@@ -83,7 +83,6 @@ exports.signUpWithEmail = async (req, res, next) => {
       lastName: req.body.lastName,
       email: req.body.email,
       password: req.body.password,
-      isOnline: true,
     });
 
     await user.save();
