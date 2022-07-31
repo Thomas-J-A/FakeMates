@@ -23,7 +23,7 @@ const postSchema = new Schema({
 postSchema.pre('remove', async function(next) {
   try {
     // Delete associated comments
-    await mongoose.model('Comment').deleteMany({ postId: this._id });
+    await mongoose.model('Comment').deleteMany({ postId: this._id }).exec();
 
     if (this.imageUrl) {
       // Delete associated image

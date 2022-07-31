@@ -29,4 +29,10 @@ const notificationSchema = new Schema({
   }],
 }, { timestamps: true });
 
-module.exports = mongoose.model('Notifications', notificationSchema);
+module.exports = mongoose.model('Notification', notificationSchema);
+
+
+//  const actionTypes = [
+//   `${ friend } created a new ${ post }`,
+//   `${ friend } liked your ${ post }`,
+//  ];

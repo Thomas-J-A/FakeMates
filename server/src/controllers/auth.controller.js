@@ -5,6 +5,13 @@ const generateToken = require('../utils/generateToken.util');
 
 exports.continueWithGoogle = async (req, res, next) => {
   try {
+    // Flag user as online if signing in
+    // If registering, default is true so unnecessary
+    if (!req.isCreated) {
+      req.user.isOnline = true;
+      await req.user.save();
+    }
+
     const token = generateToken(req.user);
 
     // Get a reference to token.exp value
@@ -21,7 +28,7 @@ exports.continueWithGoogle = async (req, res, next) => {
 
     // Change status code depending on whether user registered or just signed in
     const status = req.isCreated ? 201 : 200;
-    
+
     return res.status(status).json({
       currentUser: rest,
       expiresAt,
@@ -46,6 +53,10 @@ exports.signInWithEmail = async (req, res, next) => {
     if (!isMatch) {
       return res.status(401).json({ message: 'Incorrect password' });
     }
+
+    // Flag user as online
+    user.isOnline = true;
+    await user.save();
 
     const token = generateToken(user);
 
@@ -100,7 +111,7 @@ exports.signUpWithEmail = async (req, res, next) => {
 
     // Remove password field from user data before returning it
     const { password, ...rest } = user._doc;
-    
+
     return res.status(201).json({
       currentUser: rest,
       expiresAt,

@@ -3,8 +3,8 @@ const { faker } = require('@faker-js/faker');
 
 const app = require('../../../src/app');
 const dbUtil = require('../../utils/db.util');
-const seeds = require('../seeds/comment.seed');
 const data = require('../data/index.data');
+const models = require('../../../src/models/index.model');
 
 const api = supertest(app);
 
@@ -15,8 +15,46 @@ afterEach(async () => await dbUtil.clearDatabase());
 afterAll(async () => await dbUtil.closeDatabase());
 
 describe('GET /api/comments', () => {
+  let users = [];
+  let posts = [];
+
   // Seed database
-  let { users, posts, comments } = seeds.fetchComments();
+  beforeEach(async () => {
+    // Seed users
+    for (let i = 0; i < 3; i++) {
+      const _user = new models.User(data.users[i]);
+      await _user.save();
+      
+      users.push({ data: _user });
+    }
+
+    // Seed posts
+    for (let i = 0; i < 2; i++) {
+      const _post = new models.Post({
+        postedBy: users[0].data._id,
+        content: data.posts[i].content,
+      });
+      
+      await _post.save();
+      posts.push(_post);
+    };
+    
+    // Seed comments
+    const userCount = users.length;
+    
+    for (let i = 0; i < 8; i++) {
+      // Cycle through users to simulate a chat in comments
+      const _user = users[i % userCount];
+      
+      const _comment = new models.Comment({
+        postedBy: _user.data._id,
+        postId: posts[0]._id,
+        content: data.comments[i].content,
+      });
+      
+      await _comment.save();
+    }
+  });
 
   // Authenticate users
   beforeEach(async () => {
@@ -36,12 +74,11 @@ describe('GET /api/comments', () => {
 
   // Clear arrays after each test
   afterEach(() => {
-    users.length = 0;
-    posts.length = 0;
-    comments.length = 0;
+    users = [];
+    posts = [];
   });
 
-  it('should fetch page 1 of comments', async () => {
+  it('should fetch page one of comments', async () => {
     const res = await api
       .get('/api/comments')
       .query({ postid: posts[0]._id.toString() })
@@ -54,7 +91,7 @@ describe('GET /api/comments', () => {
   });
 
 
-  it('should fetch page 2 of comments', async () => {
+  it('should fetch page two of comments', async () => {
     const res = await api
       .get('/api/comments')
       .query({ postid: posts[0]._id.toString() })
@@ -173,10 +210,12 @@ describe('GET /api/comments', () => {
 
 
   it('should return 400 if page is a negative number', async () => {
+    const page = -1;
+
     const res = await api
       .get('/api/comments')
       .query({ postid: posts[0]._id.toString() })
-      .query({ page: -1 })
+      .query({ page })
       .set('Cookie', users[0].cookie);
 
     expect(res.statusCode).toBe(400);
@@ -185,10 +224,12 @@ describe('GET /api/comments', () => {
 
   
   it('should return 400 if page is zero', async () => {
+    const page = 0;
+
     const res = await api
     .get('/api/comments')
     .query({ postid: posts[0]._id.toString() })
-    .query({ page: 0 })
+    .query({ page })
     .set('Cookie', users[0].cookie);
     
     expect(res.statusCode).toBe(400);
@@ -197,10 +238,12 @@ describe('GET /api/comments', () => {
 
 
   it('should return 400 if page is a floating point number', async () => {
+    const page = 2.4;
+
     const res = await api
       .get('/api/comments')
       .query({ postid: posts[0]._id.toString() })
-      .query({ page: 2.4 })
+      .query({ page })
       .set('Cookie', users[0].cookie);
   
     expect(res.statusCode).toBe(400);
@@ -209,8 +252,28 @@ describe('GET /api/comments', () => {
 });
 
 describe('POST /api/comments', () => {
+  let users = [];
+  let post;
+
   // Seed database
-  const { users, posts } = seeds.createComment();
+  beforeEach(async () => {
+    // Seed users
+    for (let i = 0; i < 2; i++) {
+      const _user = new models.User(data.users[i]);
+      await _user.save();
+
+      users.push({ data: _user });
+    }
+
+    // Seed a post
+    const _post = new models.Post({
+      postedBy: users[0].data._id,
+      content: data.posts[0].content,
+    });
+
+    await _post.save();
+    post = _post;
+  })
 
   // Authenticate users
   beforeEach(async () => {
@@ -228,22 +291,19 @@ describe('POST /api/comments', () => {
     }
   });
 
-  // Clear arrays after each test
-  afterEach(() => {
-    users.length = 0;
-    posts.length = 0;
-  });
+  // Clear array after each test
+  afterEach(() => users = []);
 
   it('should create a comment', async () => {
     const res = await api
       .post('/api/comments')
-      .query({ postid: posts[0]._id.toString() })
+      .query({ postid: post._id.toString() })
       .set('Cookie', users[1].cookie)
       .send(data.comments[0]);
 
     expect(res.statusCode).toBe(201);
     expect(res.body.postedBy).toBe(users[1].data._id.toString());
-    expect(res.body.postId).toBe(posts[0]._id.toString());
+    expect(res.body.postId).toBe(post._id.toString());
     expect(res.body.content).toBe(data.comments[0].content);
     expect(res.body.likedBy).toEqual([]);
   });
@@ -300,7 +360,7 @@ describe('POST /api/comments', () => {
 
     const res = await api
       .post('/api/comments')
-      .query({ postid: posts[0]._id.toString() })
+      .query({ postid: post._id.toString() })
       .set('Cookie', users[1].cookie)
       .send({ content: longContent });
 
@@ -312,7 +372,7 @@ describe('POST /api/comments', () => {
   it('should return 400 if content is missing', async () => {
     const res = await api
       .post('/api/comments')
-      .query({ postid: posts[0]._id.toString() })
+      .query({ postid: post._id.toString() })
       .set('Cookie', users[1].cookie)
       .send()
 
@@ -322,8 +382,39 @@ describe('POST /api/comments', () => {
 });
 
 describe('PUT /api/comments/:id', () => {
+  let users = [];
+  let post;
+  let comment;
+
   // Seed database
-  const { users, posts, comments } = seeds.likeComment();
+  beforeEach(async () => {
+    // Seed users
+    for (let i = 0; i < 2; i++) {
+      const _user = new models.User(data.users[i]);
+      await _user.save();
+
+      users.push({ data: _user });
+    }
+
+    // Seed a post
+    const _post = new models.Post({
+      postedBy: users[0].data._id,
+      content: data.posts[0].content,
+    });
+
+    await _post.save();
+    post = _post;
+
+    // Seed a comment
+    const _comment = new models.Comment({
+      postedBy: users[1].data._id,
+      postId: post._id,
+      content: data.comments[0].content,
+    });
+
+    await _comment.save();
+    comment = _comment;
+  });
 
   // Authenticate users
   beforeEach(async () => {
@@ -341,16 +432,12 @@ describe('PUT /api/comments/:id', () => {
     }
   });
 
-  // Clear arrays after each test
-  afterEach(() => {
-    users.length = 0;
-    posts.length = 0;
-    comments.length = 0;
-  });
+  // Clear array after each test
+  afterEach(() => users = []);
 
   it('should like a comment', async () => {
     const res = await api
-      .put(`/api/comments/${ comments[0]._id }`)
+      .put(`/api/comments/${ comment._id }`)
       .set('Cookie', users[0].cookie);
 
     expect(res.statusCode).toBe(200);
@@ -361,12 +448,12 @@ describe('PUT /api/comments/:id', () => {
   it('should unlike a comment', async () => {
     // Like comment
     await api
-      .put(`/api/comments/${ comments[0]._id }`)
+      .put(`/api/comments/${ comment._id }`)
       .set('Cookie', users[0].cookie);
 
     // Unlike comment
     const res = await api
-      .put(`/api/comments/${ comments[0]._id }`)
+      .put(`/api/comments/${ comment._id }`)
       .set('Cookie', users[0].cookie);
 
     expect(res.statusCode).toBe(200);
@@ -400,7 +487,7 @@ describe('PUT /api/comments/:id', () => {
 
   it('should return 403 if user attempts to like own comment', async () => {
     const res = await api
-      .put(`/api/comments/${ comments[0]._id }`)
+      .put(`/api/comments/${ comment._id }`)
       .set('Cookie', users[1].cookie);
 
     expect(res.statusCode).toBe(403);

@@ -2,7 +2,7 @@ const { faker } = require('@faker-js/faker');
 
 const users = [];
 
-for (let i = 0; i < 3; i++) {
+for (let i = 0; i < 4; i++) {
   users.push({
     firstName: faker.name.firstName(),
     lastName: faker.name.lastName(),

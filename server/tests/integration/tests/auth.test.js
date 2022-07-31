@@ -3,9 +3,8 @@ const { faker } = require('@faker-js/faker');
 
 const app = require('../../../src/app');
 const dbUtil = require('../../utils/db.util');
-const seeds = require('../seeds/auth.seed');
 const data = require('../data/index.data');
-const User = require('../../../src/models/user.model');
+const models = require('../../../src/models/index.model');
 
 const api = supertest(app);
 
@@ -17,17 +16,21 @@ afterAll(async () => await dbUtil.closeDatabase());
 
 describe('POST /api/auth/email', () => {
   // Seed database
-  let users = seeds.signInWithEmail();
-
-  // Clear array after each test
-  afterEach(() => users.length = 0);
+  beforeEach(async () => {
+    // Seed a user
+    const _user = new models.User(data.users[0]);
+    await _user.save();
+  });
 
   it('should return 200 and JSON payload if successful', async () => {
-    const { firstName, lastName, ...userLogin } = data.users[0];
+    const userInfo = {
+      email: data.users[0].email,
+      password: data.users[0].password,
+    };
 
     const res = await api
       .post('/api/auth/email')
-      .send(userLogin);
+      .send(userInfo);
 
     expect(res.statusCode).toBe(200);
     expect(res.body.currentUser).toBeDefined();
@@ -36,25 +39,42 @@ describe('POST /api/auth/email', () => {
 
 
   it('should set a JWT cookie if successful', async () => {
-    const { firstName, lastName, ...userLogin } = data.users[0];
+    const userInfo = {
+      email: data.users[0].email,
+      password: data.users[0].password,
+    };
 
     const res = await api
       .post('/api/auth/email')
-      .send(userLogin);
+      .send(userInfo);
     
     expect(res.headers['set-cookie']).toBeDefined();
   });
 
+  
+  it('should mark user as online', async () => {
+    const userInfo = {
+      email: data.users[0].email,
+      password: data.users[0].password,
+    };
+
+    const res = await api
+      .post('/api/auth/email')
+      .send(userInfo);
+
+    expect(res.body.currentUser.isOnline).toBeTruthy();
+  });
+
 
   it('should return 401 if email doesn\'t exist', async () => {
-    const userLogin = {
+    const userInfo = {
       email: faker.internet.email(),
       password: data.users[0].password,
     };
 
     const res = await api
       .post('/api/auth/email')
-      .send(userLogin);
+      .send(userInfo);
 
     expect(res.statusCode).toBe(401);
     expect(res.body.message).toBe('Email doesn\'t exist');
@@ -62,11 +82,11 @@ describe('POST /api/auth/email', () => {
 
 
   it('should return 400 if email is missing', async () => {
-    const userWithMissingEmail = { password: data.users[0].password };
+    const userInfo = { password: data.users[0].password };
 
     const res = await api
       .post('/api/auth/email')
-      .send(userWithMissingEmail);
+      .send(userInfo);
 
     expect(res.statusCode).toBe(400);
     expect(res.body.message).toBe('Email is required');
@@ -74,14 +94,14 @@ describe('POST /api/auth/email', () => {
 
 
   it('should return 400 if email format is invalid', async () => {
-    const userWithInvalidEmail = {
+    const userInfo = {
       email: 'name@domain',
       password: data.users[0].password,
     };
 
     const res = await api 
       .post('/api/auth/email')
-      .send(userWithInvalidEmail);
+      .send(userInfo);
 
     expect(res.statusCode).toBe(400);
     expect(res.body.message).toBe('Invalid email');
@@ -89,14 +109,14 @@ describe('POST /api/auth/email', () => {
 
 
   it('should return 401 if password is incorrect', async () => {
-    const userLogin = {
+    const userInfo = {
       email: data.users[0].email,
       password: faker.internet.password(),
     };
 
     const res = await api
       .post('/api/auth/email')
-      .send(userLogin);
+      .send(userInfo);
 
     expect(res.statusCode).toBe(401);
     expect(res.body.message).toBe('Incorrect password');
@@ -104,11 +124,11 @@ describe('POST /api/auth/email', () => {
 
   
   it('should return 400 if password is missing', async () => {
-    const userWithMissingPassword = { email: data.users[0].email };
+    const userInfo = { email: data.users[0].email };
 
     const res = await api
       .post('/api/auth/email')
-      .send(userWithMissingPassword);
+      .send(userInfo);
 
     expect(res.statusCode).toBe(400);
     expect(res.body.message).toBe('Password is required');
@@ -137,7 +157,7 @@ describe('POST /api/auth/register', () => {
 
 
   it('should ignore input fields not defined in schema', async () => {
-    const userWithInvalidFields = {
+    const userInfo = {
       ...data.users[0],
       favouriteColour: 'blue',
       favouriteNumber: 7,
@@ -145,7 +165,7 @@ describe('POST /api/auth/register', () => {
 
     const res = await api
       .post('/api/auth/register')
-      .send(userWithInvalidFields);
+      .send(userInfo);
     
     expect(res.statusCode).toBe(201);
     expect(res.body.currentUser).toBeDefined();
@@ -156,8 +176,8 @@ describe('POST /api/auth/register', () => {
 
   it('should return 409 if email already exists', async () => {
     // Seed a user
-    const _user = new User(data.users[0]);
-    await _user.save();
+    const user = new models.User(data.users[0]);
+    await user.save();
 
     // Create a second user with same email address
     const user2 = {
@@ -175,11 +195,15 @@ describe('POST /api/auth/register', () => {
 
 
   it('should return 400 if email is missing', async () => {
-    const { email, ...userWithMissingEmail } = data.users[0];
+    const userInfo = {
+      firstName: data.users[0].firstName,
+      lastName: data.users[0].lastName,
+      password: data.users[0].password,
+    };
 
     const res = await api
       .post('/api/auth/register')
-      .send(userWithMissingEmail);
+      .send(userInfo);
 
     expect(res.statusCode).toBe(400);
     expect(res.body.message).toBe('Email is required');
@@ -187,14 +211,16 @@ describe('POST /api/auth/register', () => {
 
 
   it('should return 400 if email format is invalid', async () => {
-    const userWithInvalidEmail = {
-      ...data.users[0],
+    const userInfo = {
+      firstName: data.users[0].firstName,
+      lastName: data.users[0].lastName,
       email: 'name@doman',
+      password: data.users[0].password,
     };
 
     const res = await api
       .post('/api/auth/register')
-      .send(userWithInvalidEmail);
+      .send(userInfo);
 
     expect(res.statusCode).toBe(400);
     expect(res.body.message).toBe('Invalid email');
@@ -202,11 +228,15 @@ describe('POST /api/auth/register', () => {
 
 
   it('should return 400 if first name is missing', async () => {
-    const { firstName, ...userWithMissingFirstName } = data.users[0];
+    const userInfo = {
+      lastName: data.users[0].lastName,
+      email: data.users[0].email,
+      password: data.users[0].password,
+    };
 
     const res = await api
       .post('/api/auth/register')
-      .send(userWithMissingFirstName);
+      .send(userInfo);
 
     expect(res.statusCode).toBe(400);
     expect(res.body.message).toBe('First name is required');
@@ -214,11 +244,15 @@ describe('POST /api/auth/register', () => {
 
 
   it('should return 400 if last name is missing', async () => {
-    const { lastName, ...userWithMissingLastName } = data.users[0];
+    const userInfo = {
+      firstName: data.users[0].firstName,
+      email: data.users[0].email,
+      password: data.users[0].password,
+    };
 
     const res = await api
       .post('/api/auth/register')
-      .send(userWithMissingLastName);
+      .send(userInfo);
 
     expect(res.statusCode).toBe(400);
     expect(res.body.message).toBe('Last name is required');
@@ -226,11 +260,15 @@ describe('POST /api/auth/register', () => {
 
 
   it('should return 400 if password is missing', async () => {
-    const { password, ...userWithMissingPassword } = data.users[0];
+    const userInfo = {
+      firstName: data.users[0].firstName,
+      lastName: data.users[0].lastName,
+      email: data.users[0].email,
+    };
 
     const res = await api
       .post('/api/auth/register')
-      .send(userWithMissingPassword);
+      .send(userInfo);
 
     expect(res.statusCode).toBe(400);
     expect(res.body.message).toBe('Password is required');
@@ -238,14 +276,16 @@ describe('POST /api/auth/register', () => {
 
   
   it('should return 400 if password is too short', async () => {
-    const userWithShortPassword = {
-      ...data.users[0],
+    const userInfo = {
+      firstName: data.users[0].firstName,
+      lastName: data.users[0].lastName,
+      email: data.users[0].email,
       password: 'abc',
     };
 
     const res = await api
       .post('/api/auth/register')
-      .send(userWithShortPassword);
+      .send(userInfo);
 
     expect(res.statusCode).toBe(400);
     expect(res.body.message).toBe('Password must be at least 8 characters');
@@ -253,14 +293,16 @@ describe('POST /api/auth/register', () => {
 
 
   it('should return 400 if password is too long', async () => {
-    const userWithLongPassword = {
-      ...data.users[0],
+    const userInfo = {
+      firstName: data.users[0].firstName,
+      lastName: data.users[0].lastName,
+      email: data.users[0].email,
       password: 'abcdefghijklmnopqrstuvwxyz',
     };
 
     const res = await api
       .post('/api/auth/register')
-      .send(userWithLongPassword);
+      .send(userInfo);
 
     expect(res.statusCode).toBe(400);
     expect(res.body.message).toBe('Password must be less than 20 characters');

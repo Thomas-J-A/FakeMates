@@ -5,9 +5,8 @@ const { faker } = require('@faker-js/faker');
 
 const app = require('../../../src/app');
 const dbUtil = require('../../utils/db.util');
-const seeds = require('../seeds/post.seed');
 const data = require('../data/index.data');
-const Comment = require('../../../src/models/comment.model');
+const models = require('../../../src/models/index.model');
 
 // Calling supertest with the initialization 
 // app creates a clearer syntax in requests
@@ -25,9 +24,18 @@ afterAll(async () => await dbUtil.closeDatabase());
 describe('GET /api/posts', () => {
   // Seed db per describe block/endpoint in order to reduce redundancy
   // and handle references between documents more easily
+  let users = [];
 
   // Seed database
-  let { users, posts } = seeds.fetchPosts();
+  beforeEach(async () => {
+    // Seed users
+    for (let i = 0; i < 2; i++) {
+      const _user = new models.User(data.users[i]);
+      await _user.save();
+      
+      users.push({ data: _user });
+    }
+  });
 
   // Authenticate users
   beforeEach(async () => {
@@ -45,16 +53,21 @@ describe('GET /api/posts', () => {
     }
   });
 
-  // Clear arrays after each test
-  afterEach(() => {
-    // users/posts variables are references and so
-    // users = [] would overwrite them with a new value;
-    // users.length = 0 empties the referenced value itself
-    users.length = 0;
-    posts.length = 0;
-  });
+  // Clear array after each test
+  afterEach(() => users = []);
   
   it('should fetch all user\'s posts', async () => {
+    // Seed posts
+    for (let i = 0; i < 2; i++) {
+      const post = new models.Post({
+        postedBy: users[0].data._id,
+        content: data.posts[i].content,
+      });
+      
+      await post.save();
+    }
+    
+    // Fetch all posts
     const res = await api
       .get('/api/posts')
       .query({ userid: users[0].data._id.toString() })
@@ -63,28 +76,37 @@ describe('GET /api/posts', () => {
     expect(res.statusCode).toBe(200);
     expect(res.body).toBeInstanceOf(Array);
     expect(res.body).toHaveLength(2);
-    // expect(res.body).toEqual(posts);
   });
 
 
-  it('should fetch another user\'s posts', async () => {  
+  it('should fetch another user\'s posts', async () => {
+    // Seed posts
+    for (let i = 0; i < 2; i++) {
+      const post = new models.Post({
+        postedBy: users[1].data._id,
+        content: data.posts[i].content,
+      });
+      
+      await post.save();
+    }
+
+    // Fetch all posts
     const res = await api
       .get('/api/posts')
-      .query({ userid: users[0].data._id.toString() })
-      .set('Cookie', users[1].cookie);
+      .query({ userid: users[1].data._id.toString() })
+      .set('Cookie', users[0].cookie);
 
     expect(res.statusCode).toBe(200);
     expect(res.body).toBeInstanceOf(Array);
     expect(res.body).toHaveLength(2);
-    // expect(res.body).toEqual(posts);
   });
 
 
   it('should return an empty array if no posts available', async () => {
     const res = await api
       .get('/api/posts')
-      .query({ userid: users[1].data._id.toString() })
-      .set('Cookie', users[1].cookie);
+      .query({ userid: users[0].data._id.toString() })
+      .set('Cookie', users[0].cookie);
     
     expect(res.statusCode).toBe(200);
     expect(res.body).toEqual([]);
@@ -103,7 +125,7 @@ describe('GET /api/posts', () => {
   it('should return 400 if userid query parameter is missing', async () => {
     const res = await api
       .get('/api/posts')
-      .set('Cookie', users[1].cookie);
+      .set('Cookie', users[0].cookie);
 
     expect(res.statusCode).toBe(400);
     expect(res.body.message).toBe('userid is required');
@@ -116,7 +138,7 @@ describe('GET /api/posts', () => {
     const res = await api
       .get('/api/posts')
       .query({ userid: invalidId })
-      .set('Cookie', users[1].cookie);
+      .set('Cookie', users[0].cookie);
 
     expect(res.statusCode).toBe(400);
     expect(res.body.message).toBe('userid must be a valid ObjectId');
@@ -129,7 +151,7 @@ describe('GET /api/posts', () => {
     const res = await api
       .get('/api/posts')
       .query({ userid: fakeId })
-      .set('Cookie', users[1].cookie);
+      .set('Cookie', users[0].cookie);
 
     expect(res.statusCode).toBe(400);
     expect(res.body.message).toBe('User doesn\'t exist');
@@ -137,8 +159,16 @@ describe('GET /api/posts', () => {
 });
 
 describe('POST /api/posts', () => {
+  let user;
+
   // Seed database
-  let users = seeds.createPost();
+  beforeEach(async () => {
+    // Seed a user
+    const _user = new models.User(data.users[0]);
+    await _user.save();
+
+    user = { data: _user };
+  });
 
   // Authenticate user
   beforeEach(async () => {
@@ -151,21 +181,18 @@ describe('POST /api/posts', () => {
       .post('/api/auth/email')
       .send(userInfo);
 
-    users[0].cookie = res.headers['set-cookie'][0];
+    user.cookie = res.headers['set-cookie'][0];
   });
-
-  // Clear array after each test
-  afterEach(() => users.length = 0);
   
   it('should create a post with an image', async () => {
     const res = await api
       .post('/api/posts')
       .field('content', data.posts[0].content) 
       .attach('image', data.posts[0].image)
-      .set('Cookie', users[0].cookie);
+      .set('Cookie', user.cookie);
       
     expect(res.statusCode).toBe(201);
-    expect(res.body.postedBy).toBe(users[0].data._id.toString());
+    expect(res.body.postedBy).toBe(user.data._id.toString());
     expect(res.body.content).toBe(data.posts[0].content);
     expect(res.body.imageUrl).toBeDefined();
     expect(res.body.likedBy).toEqual([]);
@@ -181,10 +208,10 @@ describe('POST /api/posts', () => {
     const res = await api
       .post('/api/posts')
       .field('content', data.posts[0].content)
-      .set('Cookie', users[0].cookie);
+      .set('Cookie', user.cookie);
 
     expect(res.statusCode).toBe(201);
-    expect(res.body.postedBy).toBe(users[0].data._id.toString());
+    expect(res.body.postedBy).toBe(user.data._id.toString());
     expect(res.body.content).toBe(data.posts[0].content);;
     expect(res.body.imageUrl).not.toBeDefined();
     expect(res.body.likedBy).toEqual([]);
@@ -206,7 +233,7 @@ describe('POST /api/posts', () => {
     const res = await api
       .post('/api/posts')
       .attach('image', data.posts[0].image)
-      .set('Cookie', users[0].cookie);
+      .set('Cookie', user.cookie);
 
     expect(res.statusCode).toBe(400);
     expect(res.body.message).toBe('Content is required');
@@ -220,7 +247,7 @@ describe('POST /api/posts', () => {
       .post('/api/posts')
       .field('content', longContent)
       .attach('image', data.posts[0].image)
-      .set('Cookie', users[0].cookie);
+      .set('Cookie', user.cookie);
 
     expect(res.statusCode).toBe(400);
     expect(res.body.message).toBe('Content must be less than 100 characters');
@@ -234,7 +261,7 @@ describe('POST /api/posts', () => {
       .post('/api/posts')
       .field('content', data.posts[0].content)
       .attach('image', gifImage)
-      .set('Cookie', users[0].cookie);
+      .set('Cookie', user.cookie);
 
     expect(res.statusCode).toBe(400);
     expect(res.body.message).toBe('Image must be in PNG, JPG, or JPEG format');
@@ -249,7 +276,7 @@ describe('POST /api/posts', () => {
       .field('content', data.posts[0].content)
       .attach('image', data.posts[0].image)
       .attach('image', extraImage)
-      .set('Cookie', users[0].cookie);
+      .set('Cookie', user.cookie);
 
     expect(res.statusCode).toBe(400);
     expect(res.body.message).toBe('Too many files');
@@ -263,7 +290,7 @@ describe('POST /api/posts', () => {
       .post('/api/posts')
       .field('content', data.posts[0].content)
       .attach('image', largeImage)
-      .set('Cookie', users[0].cookie);
+      .set('Cookie', user.cookie);
 
     expect(res.statusCode).toBe(400);
     expect(res.body.message).toBe('File too large');
@@ -271,8 +298,28 @@ describe('POST /api/posts', () => {
 });
 
 describe('PUT /api/posts/:id', () => {
+  let users = [];
+  let post;
+
   // Seed database
-  let { users, posts } = seeds.likePost();
+  beforeEach(async () => {
+    // Seed users
+    for (let i = 0; i < 2; i++) {
+      const _user = new models.User(data.users[i]);
+      await _user.save();
+
+      users.push({ data: _user });
+    }
+
+    // Seed a post
+    const _post = new models.Post({
+      postedBy: users[0].data._id,
+      content: data.posts[0].content,
+    });
+
+    await _post.save();
+    post = _post;
+  });
 
   // Authenticate users
   beforeEach(async () => {
@@ -290,15 +337,12 @@ describe('PUT /api/posts/:id', () => {
     }
   });
 
-  // Clear arrays after each test
-  afterEach(() => {
-    users.length = 0;
-    posts.length = 0;
-  });
+  // Clear array after each test
+  afterEach(() => users = []);
 
   it('should like a post', async () => {
     const res = await api
-      .put(`/api/posts/${ posts[0]._id }`)
+      .put(`/api/posts/${ post._id }`)
       .set('Cookie', users[1].cookie);
 
     expect(res.statusCode).toBe(200);
@@ -309,12 +353,12 @@ describe('PUT /api/posts/:id', () => {
   it('should unlike a post', async () => {
     // Like post
     await api
-      .put(`/api/posts/${ posts[0]._id }`)
+      .put(`/api/posts/${ post._id }`)
       .set('Cookie', users[1].cookie);
 
     // Unlike post
     const res = await api
-      .put(`/api/posts/${ posts[0]._id }`)
+      .put(`/api/posts/${ post._id }`)
       .set('Cookie', users[1].cookie);
 
     expect(res.statusCode).toBe(200);
@@ -324,7 +368,7 @@ describe('PUT /api/posts/:id', () => {
 
   it('should return 401 if not authenticated', async () => { 
     const res = await api
-      .put(`/api/posts/${ posts[0]._id }`);
+      .put(`/api/posts/${ post._id }`);
 
     expect(res.statusCode).toBe(401);
   });
@@ -356,7 +400,7 @@ describe('PUT /api/posts/:id', () => {
 
   it('should return 403 if user attempts to like own post', async () => {
     const res = await api
-      .put(`/api/posts/${ posts[0]._id }`)
+      .put(`/api/posts/${ post._id }`)
       .set('Cookie', users[0].cookie);
 
     expect(res.statusCode).toBe(403);
@@ -365,8 +409,28 @@ describe('PUT /api/posts/:id', () => {
 });
 
 describe('DELETE /api/posts/:id', () => {
+  let users = [];
+  let post;
+
   // Seed database
-   let { users, posts } = seeds.removePost();
+  beforeEach(async () => {
+    // Seed users
+    for (let i = 0; i < 2; i++) {
+      const _user = new models.User(data.users[i]);
+      await _user.save();
+
+      users.push({ data: _user });
+    }
+
+    // Seed a post
+    const _post = new models.Post({
+      postedBy: users[0].data._id,
+      content: data.posts[0].content,
+    });
+
+    await _post.save();
+    post = _post;
+  });
 
   // Authenticate users
   beforeEach(async () => {
@@ -384,15 +448,12 @@ describe('DELETE /api/posts/:id', () => {
     }
   });
 
-  // Clear arrays after each test
-  afterEach(() => {
-    users.length = 0;
-    posts.length = 0;
-  });
+  // Clear array after each test
+  afterEach(() => users = []);
 
   it('should delete a post', async () => {
     const res = await api
-      .delete(`/api/posts/${ posts[0]._id }`)
+      .delete(`/api/posts/${ post._id }`)
       .set('Cookie', users[0].cookie);
 
     expect(res.statusCode).toBe(204);
@@ -400,57 +461,33 @@ describe('DELETE /api/posts/:id', () => {
 
 
   it('should delete associated comments', async () => {
-      const userCount = users.length;
+    // Seed comments
+    const userCount = users.length;
 
-    // Seed comments for first post
-    for (let i = 0; i < 3; i++) {
+    for (let i = 0; i < 5; i++) {
       // Cycle through users to simulate a chat in comments
-      const _user = users[i % userCount];
-      const _comment = new Comment({
-        postedBy: _user.data._id,
-        postId: posts[0]._id,
+      const user = users[i % userCount];
+
+      const comment = new models.Comment({
+        postedBy: user.data._id,
+        postId: post._id,
         content: data.comments[i].content,
       });
 
-      await _comment.save();
+      await comment.save();
     }
 
-    // Seed comments for second post
-    for (let i = 0; i < 3; i++) {
-      const _user = users[i % userCount];
-      const _comment = new Comment({
-        postedBy: _user.data._id,
-        postId: posts[1]._id,
-        content: data.comments[i + 3].content,
-      });
-
-      await _comment.save();
-    }
-
-    // Delete post one
-    await api
-      .delete(`/api/posts/${ posts[0]._id }`)
-      .set('Cookie', users[0].cookie);
-
-    // Verify that no comments with first post's id remain in db
+    // Delete post
     const res = await api
-      .get('/api/comments')
-      .query({ postid: posts[0]._id.toString() })
-      .query({ page: 1 })
+      .delete(`/api/posts/${ post._id }`)
       .set('Cookie', users[0].cookie);
 
-    expect(res.statusCode).toBe(400);
-    expect(res.body.message).toBe('Post doesn\'t exist');
+    expect(res.statusCode).toBe(204);
 
-    // Verify that comments with second post's id still remain in db, unaffected
-    const res2 = await api
-      .get('/api/comments')
-      .query({ postid: posts[1]._id.toString() })
-      .query({ page: 1 })
-      .set('Cookie', users[0].cookie);
+    // Verify that no comments exist for post
+    const comments = await models.Comment.find({ postId: post._id }).exec();
 
-    expect(res2.statusCode).toBe(200);
-    expect(res2.body.comments).toHaveLength(3);
+    expect(comments).toEqual([]);
   });
 
 
@@ -461,7 +498,7 @@ describe('DELETE /api/posts/:id', () => {
 
   it('should return 401 if not authenticated', async () => {
     const res = await api
-      .delete(`/api/posts/${ posts[0]._id }`)
+      .delete(`/api/posts/${ post._id }`)
 
     expect(res.statusCode).toBe(401);
   });
@@ -493,7 +530,7 @@ describe('DELETE /api/posts/:id', () => {
 
   it('should return 403 if user attempts to delete another user\'s post', async () => {
     const res = await api
-      .delete(`/api/posts/${ posts[0]._id }`)
+      .delete(`/api/posts/${ post._id }`)
       .set('Cookie', users[1].cookie);
 
     expect(res.statusCode).toBe(403);

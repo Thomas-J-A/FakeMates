@@ -1,11 +1,10 @@
 const supertest = require('supertest');
+const { faker } = require('@faker-js/faker');
 
 const app = require('../../../src/app');
 const dbUtil = require('../../utils/db.util');
-const seeds = require('../seeds/friend-request.seed');
 const data = require('../data/index.data');
-const User = require('../../../src/models/user.model');
-const FriendRequest = require('../../../src/models/friend-request.model');
+const models = require('../../../src/models/index.model');
 
 const api = supertest(app);
 
@@ -16,8 +15,18 @@ afterEach(async () => await dbUtil.clearDatabase());
 afterAll(async () => await dbUtil.closeDatabase());
 
 describe('GET /api/friend-requests', () => {
+  let users = [];
+
   // Seed database
-  const { users, friendRequests } = seeds.fetchFriendRequests();
+  beforeEach(async () => {
+    // Seed users
+    for (let i = 0; i < 3; i++) {
+      const _user = new models.User(data.users[i]);
+      await _user.save();
+
+      users.push({ data: _user });
+    }
+  });
 
   // Authenticate users
   beforeEach(async () => {
@@ -35,13 +44,21 @@ describe('GET /api/friend-requests', () => {
     }
   });
 
-  // Clear arrays after each test
-  afterEach(() => {
-    users.length = 0;
-    friendRequests.length = 0;
-  });
+  // Clear array after each test
+  afterEach(() => users = []);
 
   it('should fetch all pending friend requests', async () => {
+    // Seed friend requests
+    for (let i = 0; i < 2; i++) {
+      const friendRequest = new models.FriendRequest({
+        from: users[i + 1].data._id,
+        to: users[0].data._id,
+      });
+
+      await friendRequest.save();
+    }
+
+    // Fetch friend requests
     const res = await api
       .get('/api/friend-requests')
       .set('Cookie', users[0].cookie);
@@ -49,6 +66,7 @@ describe('GET /api/friend-requests', () => {
     expect(res.statusCode).toBe(200);
     expect(res.body).toHaveLength(2);
 
+    // Verify that all returned friend requests are in a pending state
     res.body.forEach((fr) => {
       // 1=Pending, 2=Accepted, 3=Rejected
       expect(fr.status).toBe(1);
@@ -57,6 +75,15 @@ describe('GET /api/friend-requests', () => {
 
 
   it('should populate some details about requester', async () => {
+    // Seed a friend request
+    const friendRequest = new models.FriendRequest({
+      from: users[1].data._id,
+      to: users[0].data._id,
+    });
+
+    await friendRequest.save();
+
+    // Fetch friend requests
     const res = await api
       .get('/api/friend-requests')
       .set('Cookie', users[0].cookie);
@@ -73,7 +100,7 @@ describe('GET /api/friend-requests', () => {
   it('should return valid response if there are no pending requests', async () => {
     const res = await api
       .get('/api/friend-requests')
-      .set('Cookie', users[1].cookie);
+      .set('Cookie', users[0].cookie);
 
     expect(res.statusCode).toBe(200);
     expect(res.body).toEqual([]);
@@ -81,11 +108,14 @@ describe('GET /api/friend-requests', () => {
 
 
   it('should not return any accepted requests', async () => {
-    // Accept friend request
-    await api
-      .put(`/api/friend-requests/${ friendRequests[0]._id }`)
-      .query({ accept: true })
-      .set('Cookie', users[0].cookie);
+    // Seed an accepted friend request
+    const friendRequest = new models.FriendRequest({
+      from: users[1].data._id,
+      to: users[0].data._id,
+      status: 2,
+    });
+
+    await friendRequest.save();
 
     // Fetch all pending requests
     const res = await api
@@ -93,17 +123,19 @@ describe('GET /api/friend-requests', () => {
       .set('Cookie', users[0].cookie);
 
     expect(res.statusCode).toBe(200);
-    expect(res.body).toHaveLength(1);
-    expect(res.body[0]._id).not.toBe(friendRequests[0]._id.toString());
+    expect(res.body).toEqual([]);
   });
 
 
   it('should not return any rejected requests', async () => {
-    // Reject friend request
-    await api
-      .put(`/api/friend-requests/${ friendRequests[0]._id }`)
-      .query({ accept: false })
-      .set('Cookie', users[0].cookie);
+    // Seed a rejected friend request
+    const friendRequest = new models.FriendRequest({
+      from: users[1].data._id,
+      to: users[0].data._id,
+      status: 3,
+    });
+
+    await friendRequest.save();
 
     // Fetch all pending requests
     const res = await api
@@ -111,14 +143,23 @@ describe('GET /api/friend-requests', () => {
       .set('Cookie', users[0].cookie);
 
     expect(res.statusCode).toBe(200);
-    expect(res.body).toHaveLength(1);
-    expect(res.body[0]._id).not.toBe(friendRequests[0]._id.toString());
+    expect(res.body).toEqual([]);
   });
 });
 
 describe('POST /api/friend-request', () => {
+  let users = [];
+
   // Seed database
-  const users = seeds.sendFriendRequest();
+  beforeEach(async () => {
+    // Seed users
+    for (let i = 0; i < 2; i++) {
+      const _user = new models.User(data.users[i]);
+      await _user.save();
+
+      users.push({ data: _user });
+    }
+  });
 
   // Authenticate users
   beforeEach(async () => {
@@ -137,7 +178,7 @@ describe('POST /api/friend-request', () => {
   });
 
   // Clear array after each test
-  afterEach(() => users.length = 0);
+  afterEach(() => users = []);
 
   it('should create a friend request', async () => {
     const res = await api
@@ -199,13 +240,13 @@ describe('POST /api/friend-request', () => {
 
 
   it('should return 403 if there is already a pending request - user one initiating', async () => {
-    // Seed a friend request
-    const _friendRequest = new FriendRequest({
+    // Seed a pending friend request
+    const friendRequest = new models.FriendRequest({
       from: users[0].data._id,
       to: users[1].data._id,
     });
 
-    await _friendRequest.save();
+    await friendRequest.save();
 
     // User one sends a friend request
     const res = await api
@@ -219,13 +260,13 @@ describe('POST /api/friend-request', () => {
 
   
   it('should return 403 if there is already a pending request - user two initiating', async () => {
-    // Seed a friend request
-    const _friendRequest = new FriendRequest({
+    // Seed a pending friend request
+    const friendRequest = new models.FriendRequest({
       from: users[0].data._id,
       to: users[1].data._id,
     });
 
-    await _friendRequest.save();
+    await friendRequest.save();
 
     // User two sends a friend request
     const res = await api
@@ -239,14 +280,14 @@ describe('POST /api/friend-request', () => {
 
 
   it('should return 403 if the users are already friends - user one initiating', async () => {
-    // Seed a friend request
-    const _friendRequest = new FriendRequest({
+    // Seed a friend request where users are already friends
+    const friendRequest = new models.FriendRequest({
       from: users[0].data._id,
       to: users[1].data._id,
       status: 2,
     });
 
-    await _friendRequest.save();
+    await friendRequest.save();
 
     // User one sends a friend request
     const res = await api
@@ -260,14 +301,14 @@ describe('POST /api/friend-request', () => {
 
 
   it('should return 403 if the users are already friends - user two initiating', async () => {
-    // Seed a friend request
-    const _friendRequest = new FriendRequest({
+    // Seed a friend request where users are already friends
+    const friendRequest = new models.FriendRequest({
       from: users[0].data._id,
       to: users[1].data._id,
       status: 2,
     });
 
-    await _friendRequest.save();
+    await friendRequest.save();
 
     // User two sends a friend request
     const res = await api
@@ -281,14 +322,14 @@ describe('POST /api/friend-request', () => {
 
 
   it('should return 403 if a friend request has previously been rejected - user one initiating', async () => {
-    // Seed a database
-    const _friendRequest = new FriendRequest({
+    // Seed a rejected friend request
+    const friendRequest = new models.FriendRequest({
       from: users[0].data._id,
       to: users[1].data._id,
       status: 3,
     });
 
-    await _friendRequest.save();
+    await friendRequest.save();
 
     // User one sends a friend request
     const res = await api
@@ -302,14 +343,14 @@ describe('POST /api/friend-request', () => {
 
 
   it('should return 403 if a friend request has previously been rejected - user two initiating', async () => {
-    // Seed a database
-    const _friendRequest = new FriendRequest({
+    // Seed a rejected friend request
+    const friendRequest = new models.FriendRequest({
       from: users[0].data._id,
       to: users[1].data._id,
       status: 3,
     });
 
-    await _friendRequest.save();
+    await friendRequest.save();
 
     // User two sends a friend request
     const res = await api
@@ -323,8 +364,29 @@ describe('POST /api/friend-request', () => {
 });
 
 describe('PUT /api/friend-request/:id', () => {
+  let users = [];
+  let friendRequest;
+
   // Seed database
-  const { users, friendRequests } = seeds.handleFriendRequest();
+  beforeEach(async () => {
+    // Seed users
+    for (let i = 0; i < 3; i++) {
+      const _user = new models.User(data.users[i]);
+      await _user.save();
+
+      users.push({ data: _user });
+    }
+
+    // Seed a friend request
+    const _friendRequest = new models.FriendRequest({
+      from: users[1].data._id,
+      to: users[0].data._id,
+    });
+
+    await _friendRequest.save();
+
+    friendRequest = _friendRequest;
+  });
 
   // Authenticate users
   beforeEach(async () => {
@@ -342,15 +404,12 @@ describe('PUT /api/friend-request/:id', () => {
     }
   });
 
-  // Clear arrays after each test
-  afterEach(() => {
-    users.length = 0;
-    friendRequests.length = 0;
-  });
+  // Clear array after each test
+  afterEach(() => users = []);
 
   it('should accept a friend request', async () => {
     const res = await api
-      .put(`/api/friend-requests/${ friendRequests[0]._id }`)
+      .put(`/api/friend-requests/${ friendRequest._id }`)
       .query({ accept: true })
       .set('Cookie', users[0].cookie);
 
@@ -360,14 +419,13 @@ describe('PUT /api/friend-request/:id', () => {
 
 
   it('should add recipient to requesters\'s friends list if accepted', async () => {
-    // Accept friend request
     await api
-      .put(`/api/friend-requests/${ friendRequests[0]._id }`)
+      .put(`/api/friend-requests/${ friendRequest._id }`)
       .query({ accept: true })
       .set('Cookie', users[0].cookie);
 
     // Verify that recipient is in requester's friends list
-    const requester = await User.findById(users[1].data._id);
+    const requester = await models.User.findById(users[1].data._id);
     
     // Friends array contains ObjectIds since it comes straight from database
     // and these are objects rather than primitive data types, hence toContainEqual
@@ -377,7 +435,7 @@ describe('PUT /api/friend-request/:id', () => {
 
   it('should reject a friend request', async () => {
     const res = await api
-      .put(`/api/friend-requests/${ friendRequests[0]._id }`)
+      .put(`/api/friend-requests/${ friendRequest._id }`)
       .query({ accept: false })
       .set('Cookie', users[0].cookie);
 
@@ -386,30 +444,30 @@ describe('PUT /api/friend-request/:id', () => {
 
 
   it('should change status of friend request to 2 (accepted)', async () => {
-     // Accept friend request
-     await api
-      .put(`/api/friend-requests/${ friendRequests[0]._id }`)
+    // Accept friend request
+    await api
+      .put(`/api/friend-requests/${ friendRequest._id }`)
       .query({ accept: true })
       .set('Cookie', users[0].cookie);
 
     // Verify friend request status
-    const friendRequest = await FriendRequest.findById(friendRequests[0]._id);
+    const returnedFriendRequest = await models.FriendRequest.findById(friendRequest._id);
 
-    expect(friendRequest.status).toBe(2);
+    expect(returnedFriendRequest.status).toBe(2);
   });
 
 
   it('should change status of friend request to 3 (rejected)', async () => {
     // Reject friend request
     await api
-      .put(`/api/friend-requests/${ friendRequests[0]._id }`)
+      .put(`/api/friend-requests/${ friendRequest._id }`)
       .query({ accept: false })
       .set('Cookie', users[0].cookie);
 
     // Verify friend request status
-    const friendRequest = await FriendRequest.findById(friendRequests[0]._id);
+    const returnedFriendRequest = await models.FriendRequest.findById(friendRequest._id);
 
-    expect(friendRequest.status).toBe(3);
+    expect(returnedFriendRequest.status).toBe(3);
   });
 
 
@@ -428,7 +486,7 @@ describe('PUT /api/friend-request/:id', () => {
 
   it('should return 400 if accept query parameter is missing', async () => {
     const res = await api
-      .put(`/api/friend-requests/${ friendRequests[0]._id }`)
+      .put(`/api/friend-requests/${ friendRequest._id }`)
       .set('Cookie', users[0].cookie);
 
     expect(res.statusCode).toBe(400);
@@ -437,9 +495,11 @@ describe('PUT /api/friend-request/:id', () => {
 
 
   it('should return 400 if accept query parameter is not a Boolean', async () => {
+    const accept = faker.word.noun();
+
     const res = await api
-      .put(`/api/friend-requests/${ friendRequests[0]._id }`)
-      .query({ accept: 'horse' })
+      .put(`/api/friend-requests/${ friendRequest._id }`)
+      .query({ accept })
       .set('Cookie', users[0].cookie);
 
     expect(res.statusCode).toBe(400);
@@ -461,19 +521,11 @@ describe('PUT /api/friend-request/:id', () => {
 
 
   it('should return 403 if current user is not the recipient of friend request', async () => {
-    // Seed a friend request involving users 2 and 3
-    const _friendRequest = new FriendRequest({
-      from: users[2].data._id,
-      to: users[1].data._id,
-    });
-
-    await _friendRequest.save();
-
-    // Attempt to handle request with user 1
+    // Attempt to handle request with user 3
     const res = await api
-      .put(`/api/friend-requests/${ _friendRequest._id }`)
+      .put(`/api/friend-requests/${ friendRequest._id }`)
       .query({ accept: true })
-      .set('Cookie', users[0].cookie);
+      .set('Cookie', users[2].cookie);
 
     expect(res.statusCode).toBe(403);
     expect(res.body.message).toBe('Only the recipient can handle this friend request');

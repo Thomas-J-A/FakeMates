@@ -14,19 +14,19 @@ const removeFile = async (path, next) => {
 // property parameter is one of 'body', 'query', 'params', or 'headers'
 module.exports = (schema, property) => (req, res, next) => {
   const { error, value } = schema.validate(req[property], { stripUnknown: true });
-
+  
   if (error) {
     if (req.file) {
       // Remove file from uploads directory if there is any validation error
       // to prevent duplicate data on subsequent requests
       removeFile(req.file.path, next);
     }
-    
+
     return res.status(400).json({ message: error.details[0].message });
   }
-  
+
   // Replace req[property] with sanitized/validated data
   req[property] = value;
-  
+
   next();
 };
