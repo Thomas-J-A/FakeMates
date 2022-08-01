@@ -2,7 +2,7 @@ exports.fetchFriendRequests = async (req, res, next) => {
   try {
     // Fetch all pending friend requests for current user
     const friendRequests = await req.models.FriendRequest.find({ to: req.user._id, status: 1 })
-      .populate('from', 'firstName lastName avatarUrl')
+      .populate('from', 'fullName avatarUrl')
       .exec();
 
     return res.status(200).json(friendRequests);

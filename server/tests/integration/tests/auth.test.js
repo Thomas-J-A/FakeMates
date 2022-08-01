@@ -174,6 +174,16 @@ describe('POST /api/auth/register', () => {
   });
 
 
+  it('should populate fullName field', async () => {
+    const res = await api
+      .post('/api/auth/register')
+      .send(data.users[0]);
+
+    expect(res.statusCode).toBe(201);
+    expect(res.body.currentUser.fullName).toBeDefined();
+  })
+
+
   it('should return 409 if email already exists', async () => {
     // Seed a user
     const user = new models.User(data.users[0]);

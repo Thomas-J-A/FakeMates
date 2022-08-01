@@ -17,7 +17,7 @@ exports.fetchComments = async (req, res, next) => {
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit)
-      .populate('postedBy', 'firstName lastName avatarUrl')
+      .populate('postedBy', 'fullName avatarUrl')
       .exec();
 
     // Check if there are more results

@@ -95,7 +95,7 @@ exports.signUpWithEmail = async (req, res, next) => {
       email: req.body.email,
       password: req.body.password,
     });
-
+    
     await user.save();
 
     const token = generateToken(user);

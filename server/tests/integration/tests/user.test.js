@@ -96,8 +96,7 @@ describe('GET /api/users/:id', () => {
       .set('Cookie', users[0].cookie);
 
     expect(res.statusCode).toBe(200);
-    expect(res.body.friends[0]).toHaveProperty('firstName');
-    expect(res.body.friends[0]).toHaveProperty('lastName');
+    expect(res.body.friends[0]).toHaveProperty('fullName');
     expect(res.body.friends[0]).toHaveProperty('avatarUrl');
     expect(res.body.friends[0]).toHaveProperty('friends');
 

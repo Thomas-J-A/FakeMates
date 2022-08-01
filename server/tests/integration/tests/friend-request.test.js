@@ -89,8 +89,7 @@ describe('GET /api/friend-requests', () => {
       .set('Cookie', users[0].cookie);
 
     expect(res.statusCode).toBe(200);
-    expect(res.body[0].from).toHaveProperty('firstName');
-    expect(res.body[0].from).toHaveProperty('lastName');
+    expect(res.body[0].from).toHaveProperty('fullName');
     expect(res.body[0].from).toHaveProperty('avatarUrl');
     expect(res.body[0].from).not.toHaveProperty('email');
     expect(res.body[0].from).not.toHaveProperty('location');

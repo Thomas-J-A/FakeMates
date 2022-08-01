@@ -122,8 +122,7 @@ describe('GET /api/comments', () => {
       .set('Cookie', users[0].cookie);
 
     expect(res.statusCode).toBe(200);
-    expect(res.body.comments[0].postedBy).toHaveProperty('firstName');
-    expect(res.body.comments[0].postedBy).toHaveProperty('lastName');
+    expect(res.body.comments[0].postedBy).toHaveProperty('fullName');
     expect(res.body.comments[0].postedBy).toHaveProperty('avatarUrl');
     expect(res.body.comments[0].postedBy).not.toHaveProperty('email');
     expect(res.body.comments[0].postedBy).not.toHaveProperty('location');

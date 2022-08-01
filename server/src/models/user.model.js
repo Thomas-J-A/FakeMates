@@ -8,6 +8,7 @@ const { Schema } = mongoose;
 const userSchema = new Schema({
   firstName: String,
   lastName: String,
+  fullName: String,
   email: String,
   password: String,
   location: String,
@@ -33,6 +34,12 @@ const userSchema = new Schema({
   }],
 }, { timestamps: true });
 
+// userSchema
+//   .virtual('fullName')
+//   .get(function() {
+//     return `${ this.firstName } ${ this.lastName }`;
+//   });
+
 // Hash password before saving document to db
 // In middleware, 'this' refers to the document itself
 userSchema.pre('save', async function(next) {
@@ -41,6 +48,18 @@ userSchema.pre('save', async function(next) {
 
     this.password = await bcrypt.hash(this.password, 10);
     next();
+  } catch (err) {
+    next(err);
+  }
+});
+
+// Store a fullName field to enable complete regex matches when searching users
+userSchema.pre('save', async function(next) {
+  try {
+    if (!(this.isModified('firstName') || this.isModified('lastName'))) return next();
+
+    this.fullName = `${ this.firstName } ${ this.lastName }`;
+    next(); 
   } catch (err) {
     next(err);
   }

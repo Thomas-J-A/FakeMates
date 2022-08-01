@@ -4,7 +4,7 @@ exports.fetchUserInfo = async (req, res, next) => {
 
     // Verify that user exists
     const user = await req.models.User.findById(id)
-      .populate('friends', 'firstName lastName avatarUrl friends')
+      .populate('friends', 'fullName avatarUrl friends')
       .exec();
 
     if(!user) {

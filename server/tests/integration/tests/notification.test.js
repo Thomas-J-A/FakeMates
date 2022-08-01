@@ -173,8 +173,7 @@ describe('GET /api/notifications', () => {
       .set('Cookie', users[0].cookie);
 
     expect(res.statusCode).toBe(200);
-    expect(res.body.notifications[0].actor).toHaveProperty('firstName');
-    expect(res.body.notifications[0].actor).toHaveProperty('lastName');
+    expect(res.body.notifications[0].actor).toHaveProperty('fullName');
     expect(res.body.notifications[0].actor).toHaveProperty('avatarUrl');
     expect(res.body.notifications[0].actor).not.toHaveProperty('email');
     expect(res.body.notifications[0].actor).not.toHaveProperty('location');
