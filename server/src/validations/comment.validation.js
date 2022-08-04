@@ -7,14 +7,16 @@ const fetchCommentsQuery = Joi.object({
     .regex(objectId)
     .required()
     .messages({
-      'string.pattern.base': 'postid must be a valid ObjectId',
-      'any.required': 'postid is required',
+      'string.empty': 'Post ID must not be empty',
+      'string.pattern.base': 'Post ID must be a valid ObjectId',
+      'any.required': 'Post ID is required',
     }),
   page: Joi.number()
     .integer()
     .min(1)
     .required()
     .messages({
+      'number.base': 'Page must be a number',
       'number.integer': 'Page must be an integer',
       'number.min': 'Page must be greater than or equal to one',
       'any.required': 'Page is required',
@@ -26,8 +28,9 @@ const createCommentQuery = Joi.object({
     .regex(objectId)
     .required()
     .messages({
-      'string.pattern.base': 'postid must be a valid ObjectId',
-      'any.required': 'postid is required',
+      'string.empty': 'Post ID must not be empty',
+      'string.pattern.base': 'Post ID must be a valid ObjectId',
+      'any.required': 'Post ID is required',
     }),
 });
 
@@ -36,6 +39,7 @@ const createCommentBody = Joi.object({
     .max(100)
     .required()
     .messages({
+      'string.empty': 'Content must not be empty',
       'string.max': 'Content must be less than 100 characters', 
       'any.required': 'Content is required',
     }),
@@ -46,8 +50,8 @@ const likeCommentParams = Joi.object({
     .regex(objectId)
     .required()
     .messages({
-      'string.pattern.base': 'id must be a valid ObjectId',
-      'any.required': 'id is required',
+      'string.pattern.base': 'ID must be a valid ObjectId',
+      'any.required': 'ID is required',
     }),
 });
 

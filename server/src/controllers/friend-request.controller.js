@@ -30,12 +30,12 @@ exports.sendFriendRequest = async (req, res, next) => {
     // Verify that you don't already have a pending/accepted/rejected friend request
     // There can only be one FriendRequest instance per pair of users, therefore
     // you must check with both as a requester/recipient
-    const existingFriendRequest = await req.models.FriendRequest.findOne({})
-      .and([
-        { $or: [{ from: req.user._id }, { from: to }]},
-        { $or: [{ to: req.user._id }, { to }]},
-      ])
-      .exec();
+    const existingFriendRequest = await req.models.FriendRequest.findOne({
+      $or: [
+        { from: req.user._id, to },
+        { from: to, to: req.user._id },
+      ],
+    }).exec();
 
     if (existingFriendRequest) {
       switch (existingFriendRequest.status) {

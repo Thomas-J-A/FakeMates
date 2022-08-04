@@ -1,6 +1,6 @@
 exports.fetchPosts = async (req, res, next) => {
   try {
-    const { userid } = req.query;
+    const { userid, page } = req.query;
 
     // Verify that a user with userid exists
     const user = userid === req.user._id
@@ -11,10 +11,25 @@ exports.fetchPosts = async (req, res, next) => {
       return res.status(400).json({ message: 'User doesn\'t exist' });
     }
 
-    // Fetch all posts belonging to userid
-    const posts = await req.models.Post.find({ postedBy: userid }).exec();
+    // Fetch paginated posts belonging to userid
+    const limit = 10;
+    const skip = (page - 1) * limit;
 
-    return res.status(200).json(posts);
+    const posts = await req.models.Post.find({ postedBy: userid })
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit)
+      .exec();
+
+    // Check if there are more results
+    const endIndex = page * limit;
+    const totalCount = await req.models.Post.countDocuments({ postedBy: userid }).exec();
+    const hasMore = endIndex < totalCount;
+
+    return res.status(200).json({
+      posts,
+      hasMore,
+    });
   } catch (err) {
     next(err);
   }

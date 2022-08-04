@@ -10,11 +10,45 @@ exports.fetchUserInfo = async (req, res, next) => {
     if(!user) {
       return res.status(400).json({ message: 'User doesn\'t exist' });
     }
+    
+    // Find relationship status between current user and 'id';
+    // client must know if they should display a friend request button, etc
+    let relationshipStatus;
+
+    const friendRequest = await req.models.FriendRequest.findOne({
+      $or: [
+        { from: req.user._id, to: user._id },
+        { from: user._id, to: req.user._id },
+      ],
+    }).exec();
+    
+    if (friendRequest) {
+      switch (friendRequest.status) {
+        case 1:
+          relationshipStatus = 'pending';
+          break;
+        case 2:
+          relationshipStatus = 'accepted';
+          break;
+        case 3:
+          relationshipStatus = 'rejected';
+          break;
+      }
+    } else if (user._id.equals(req.user._id)) {
+      // Current user fetched his own user information
+      relationshipStatus = 'oneself';
+    } else {
+      // Users are strangers
+      relationshipStatus = 'none';
+    }
 
     // Remove unnecessary/vulnerable fields from user data
     const { email, password, ...rest } = user._doc;
 
-    return res.status(200).json(rest);
+    return res.status(200).json({
+      ...rest,
+      relationshipStatus,
+    });
   } catch (err) {
     next(err);
   }

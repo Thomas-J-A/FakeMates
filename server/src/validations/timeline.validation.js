@@ -1,13 +1,6 @@
 const Joi = require('joi');
 
-const fetchResultsQuery = Joi.object({
-  q: Joi.string()
-    .trim()
-    .required()
-    .messages({
-      'string.empty': 'Query must not be empty',
-      'any.required': 'Query is required',
-    }),
+const fetchTimelineQuery = Joi.object({
   page: Joi.number()
     .integer()
     .min(1)
@@ -21,7 +14,7 @@ const fetchResultsQuery = Joi.object({
 });
 
 module.exports = {
-  fetchResults: {
-    query: fetchResultsQuery,
+  fetchTimeline: {
+    query: fetchTimelineQuery,
   },
 };

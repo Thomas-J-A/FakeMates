@@ -7,8 +7,8 @@ const fetchUserInfoParams = Joi.object({
   .regex(objectId)
   .required()
   .messages({
-    'string.pattern.base': ':id must be a valid ObjectId',
-    'any.required': ':id is required',
+    'string.pattern.base': 'ID must be a valid ObjectId',
+    'any.required': 'ID is required',
   }),
 });
 
@@ -17,8 +17,8 @@ const updateUserInfoParams = Joi.object({
     .regex(objectId)
     .required()
     .messages({
-      'string.pattern.base': ':id must be a valid ObjectId',
-      'any.required': ':id is required',
+      'string.pattern.base': 'ID must be a valid ObjectId',
+      'any.required': 'ID is required',
     }),
 });
 
@@ -27,8 +27,8 @@ const updateUserInfoQuery = Joi.object({
     .valid('edit', 'unfriend', 'logout')
     .required()
     .messages({
-      'any.only': 'action must be one of \'edit\', \'unfriend\', or \'logout\'',
-      'any.required': 'action is required',
+      'any.only': 'Action must be one of \'edit\', \'unfriend\', or \'logout\'',
+      'any.required': 'Action is required',
     }),
 
   // if action === unfriend, additionally validate friendid query parameter
@@ -38,8 +38,9 @@ const updateUserInfoQuery = Joi.object({
       .regex(objectId)
       .required()
       .messages({
-        'string.pattern.base': 'friendid must be a valid ObjectId',
-        'any.required': 'friendid is required',
+        'string.empty': 'Friend ID must not be empty',
+        'string.pattern.base': 'Friend ID must be a valid ObjectId',
+        'any.required': 'Friend ID is required',
       }),
   }),
 });
@@ -70,8 +71,8 @@ const deleteAccountParams = Joi.object({
     .regex(objectId)
     .required()
     .messages({
-      'string.pattern.base': ':id must be a valid ObjectId',
-      'any.required': ':id is required',
+      'string.pattern.base': 'ID must be a valid ObjectId',
+      'any.required': 'ID is required',
     }),
 });
 

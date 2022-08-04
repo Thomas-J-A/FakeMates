@@ -7,8 +7,9 @@ const sendFriendRequestQuery = Joi.object({
     .regex(objectId)
     .required()
     .messages({
-      'string.pattern.base': 'to must be a valid ObjectId',
-      'any.required': 'to is required',
+      'string.empty': 'Recipient must not be empty',
+      'string.pattern.base': 'Recipient must be a valid ObjectId',
+      'any.required': 'Recipient is required',
     }),
 });
 
@@ -17,8 +18,8 @@ const handleFriendRequestParams = Joi.object({
     .regex(objectId)
     .required()
     .messages({
-      'string.pattern.base': ':id must be a valid ObjectId',
-      'any.required': ':id is required',
+      'string.pattern.base': 'ID must be a valid ObjectId',
+      'any.required': 'ID is required',
     }),
 })
 
@@ -26,8 +27,8 @@ const handleFriendRequestQuery = Joi.object({
   accept: Joi.boolean()
     .required()
     .messages({
-      'boolean.base': 'accept must be a Boolean value',
-      'any.required': 'accept is required',
+      'boolean.base': 'Accept must be a Boolean value',
+      'any.required': 'Accept is required',
     }),
 });
 

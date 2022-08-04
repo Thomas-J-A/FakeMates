@@ -8,6 +8,7 @@ const fetchNotificationsQuery = Joi.object({
     .min(1)
     .required()
     .messages({
+      'number.base': 'Page must be a number',
       'number.integer': 'Page must be an interger',
       'number.min': 'Page must be greater than or equal to one',
       'any.required': 'Page is required',
@@ -19,8 +20,8 @@ const handleNotificationParams = Joi.object({
     .regex(objectId)
     .required()
     .messages({
-      'string.pattern.base': ':id must be a valid ObjectId',
-      'any.required': ':id is required',
+      'string.pattern.base': 'ID must be a valid ObjectId',
+      'any.required': 'ID is required',
     }),
 });
 
@@ -29,8 +30,8 @@ const handleNotificationQuery = Joi.object({
     .valid('read', 'delete')
     .required()
     .messages({
-      'any.only': 'action must be either \'read\' or \'delete\'',
-      'any.required': 'action is required',
+      'any.only': 'Action must be either \'read\' or \'delete\'',
+      'any.required': 'Action is required',
     }),
 });
 

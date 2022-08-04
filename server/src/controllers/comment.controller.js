@@ -68,6 +68,7 @@ exports.createComment = async (req, res, next) => {
 exports.likeComment = async (req, res, next) => {
   try {
     const { id } = req.params;
+    
     const comment = await req.models.Comment.findById(id).exec();
 
     // Verify that the comment exists

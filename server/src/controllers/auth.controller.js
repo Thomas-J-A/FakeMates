@@ -5,11 +5,13 @@ const generateToken = require('../utils/generateToken.util');
 
 exports.continueWithGoogle = async (req, res, next) => {
   try {
-    // Flag user as online if signing in
-    // If registering, default is true so unnecessary
     if (!req.isCreated) {
+      // Flag user as online if signing in (if registering, default is true so unnecessary)
       req.user.isOnline = true;
       await req.user.save();
+      
+      // Populate friends field in order to display friend info (if registering, user has no friends)
+      await req.user.populate('friends', 'fullName avatarUrl');
     }
 
     const token = generateToken(req.user);
@@ -42,7 +44,9 @@ exports.continueWithGoogle = async (req, res, next) => {
 
 exports.signInWithEmail = async (req, res, next) => {
   try {
-    const user = await req.models.User.findOne({ email: req.body.email });
+    const user = await req.models.User.findOne({ email: req.body.email })
+      .populate('friends', 'fullName avatarUrl')
+      .exec();
 
     if (user === null) {
       return res.status(401).json({ message: 'Email doesn\'t exist' });
