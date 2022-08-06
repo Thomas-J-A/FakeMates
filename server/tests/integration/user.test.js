@@ -525,7 +525,7 @@ describe('PUT /api/users/:id', () => {
         .set('Cookie', currentUser.cookie);
 
       expect(res.statusCode).toBe(200);
-      expect(res.body.avatarUrl).not.toContain('avatar.svg');
+      expect(res.body.avatarUrl).not.toContain('avatar.svg'); // This is the default image file
 
       // Remove file from uploads directory
       await fs.unlink(res.body.avatarUrl);
@@ -542,7 +542,7 @@ describe('PUT /api/users/:id', () => {
         .set('Cookie', currentUser.cookie);
 
       expect(res.statusCode).toBe(200);
-      expect(res.body.backgroundUrl).not.toContain('background.jpg');
+      expect(res.body.backgroundUrl).not.toContain('background.jpg'); // This is the default image file
 
       // Remove file from uploads directory
       await fs.unlink(res.body.backgroundUrl);
