@@ -18,7 +18,7 @@ router.get('/',
 
 router.post('/',
   passport.authenticate('jwt', { session: false }),
-  upload, // file validation done here
+  upload('single', 'image'), // file validation done here
   validate(postValidation.createPost.body, 'body'), // all other validation done here
   postController.createPost
 );

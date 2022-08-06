@@ -1,7 +1,6 @@
 // Regular fs methods don't return Promises yet, 
 // so use fs.promises - aliased as fs - with async/await
 const { promises: fs } = require('fs');
-const Joi = require('joi');
 
 const removeFile = async (path, next) => {
   try {
@@ -16,10 +15,16 @@ module.exports = (schema, property) => (req, res, next) => {
   const { error, value } = schema.validate(req[property], { stripUnknown: true });
   
   if (error) {
+    // Remove file/s from uploads directory if there is any validation error
+    // to prevent duplicate data on subsequent requests
     if (req.file) {
-      // Remove file from uploads directory if there is any validation error
-      // to prevent duplicate data on subsequent requests
+      // Remove post image (upload.single stores file in req.file)
       removeFile(req.file.path, next);
+    } 
+
+    if (req.files) {
+      // Remove profile/background image (upload.any stores file/s in req.files)
+      removeFile(req.files[0].path, next);
     }
 
     return res.status(400).json({ message: error.details[0].message });

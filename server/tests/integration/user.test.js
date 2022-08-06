@@ -1,3 +1,5 @@
+const path = require('path');
+const { promises: fs } = require('fs');
 const supertest = require('supertest');
 const mongoose = require('mongoose');
 const { faker } = require('@faker-js/faker');
@@ -512,6 +514,44 @@ describe('PUT /api/users/:id', () => {
     }); 
   });
 
+  describe('action=upload', () => {
+    it('should upload an avatar image', async () => {
+      const avatarUrl = path.resolve(__dirname, '../images/test.jpg');
+
+      const res = await api
+        .put(`/api/users/${ currentUser.data._id }`)
+        .query({ action: 'upload' })
+        .attach('avatar', avatarUrl)
+        .set('Cookie', currentUser.cookie);
+
+      expect(res.statusCode).toBe(200);
+      expect(res.body.avatarUrl).not.toContain('avatar.svg');
+
+      // Remove file from uploads directory
+      await fs.unlink(res.body.avatarUrl);
+    });
+
+
+    it('should upload a background image', async () => {
+      const backgroundUrl = path.resolve(__dirname, '../images/test.jpg');
+
+      const res = await api
+        .put(`/api/users/${ currentUser.data._id }`)
+        .query({ action: 'upload'})
+        .attach('background', backgroundUrl)
+        .set('Cookie', currentUser.cookie);
+
+      expect(res.statusCode).toBe(200);
+      expect(res.body.backgroundUrl).not.toContain('background.jpg');
+
+      // Remove file from uploads directory
+      await fs.unlink(res.body.backgroundUrl);
+    });
+
+    // Tests for image size, quantity, and format found
+    // in the 'post' test suite
+  });
+
   it('should return 400 if \':id\' is invalid', async () => {
     const invalidId = 'abc123';
     
@@ -567,7 +607,7 @@ describe('PUT /api/users/:id', () => {
   });
 
 
-  it('should return 400 if \'action\' is not one of \'edit\', \'unfriend\', or \'logout\'', async () => {
+  it('should return 400 if \'action\' is not one of \'edit\', \'unfriend\', \'logout\', or \'upload\'', async () => {
     const invalidAction = faker.word.verb();
     
     const res = await api
@@ -576,7 +616,7 @@ describe('PUT /api/users/:id', () => {
       .set('Cookie', currentUser.cookie);
     
     expect(res.statusCode).toBe(400);
-    expect(res.body.message).toBe('Action must be one of \'edit\', \'unfriend\', or \'logout\'');
+    expect(res.body.message).toBe('Action must be one of \'edit\', \'unfriend\', \'logout\', or \'upload\'');
   });
 });
 

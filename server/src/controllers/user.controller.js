@@ -1,3 +1,5 @@
+const { promises: fs } = require('fs');
+
 exports.fetchUserInfo = async (req, res, next) => {
   try {
     const { id } = req.params;
@@ -63,11 +65,21 @@ exports.updateUserInfo = async (req, res, next) => {
     const user = await req.models.User.findById(id).exec();
     
     if (!user) {
+      if (action === 'upload') {
+        // Remove uploaded file
+        await fs.unlink(req.files[0].path);
+      }
+
       return res.status(400).json({ message: 'User doesn\'t exist' });
     }
     
     // Verify that 'id' belongs to current user
     if (id !== req.user._id.toString()) {
+      if (action === 'upload') {
+        // Remove uploaded file
+        await fs.unlink(req.files[0].path);
+      }
+
       return res.status(403).json({ message: 'You may only update your own profile' });
     }
 
@@ -115,10 +127,19 @@ exports.updateUserInfo = async (req, res, next) => {
 
         break;
       case 'logout':
-        // Single responsibility - PUT request just to update user record; 
+        // Single responsibility - PUT request is just to update user record; 
         // also call /api/auth/logout in a second fetch request from client
         user.isOnline = false;
         user.lastOnline = new Date();
+
+        break;
+      case 'upload':
+        // Ascertain whether uploaded file is an avatar or background image
+        const field = req.files[0].fieldname === 'avatar' ? 'avatarUrl' : 'backgroundUrl';
+
+        // Update user profile
+        user[field] = req.files[0].path;
+
         break;
     }
 

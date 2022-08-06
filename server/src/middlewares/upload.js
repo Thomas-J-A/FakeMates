@@ -29,10 +29,19 @@ const multerInstance = multer({
   fileFilter,
 });
 
-// Explicitly call middleware for finer control over errors
-const upload = (req, res, next) => {
-  const uploadMiddleware = multerInstance.single('image');
-
+const upload = (type, fieldName) => (req, res, next) => {
+  let uploadMiddleware;
+  
+  switch (type) {
+    case 'single':
+      uploadMiddleware = multerInstance.single(fieldName);
+      break;
+    case 'any':
+      uploadMiddleware = multerInstance.any();
+      break;
+  }
+      
+  // Explicitly call middleware for finer control over errors
   uploadMiddleware(req, res, (err) => {
     if (err instanceof multer.MulterError) {
       // Multer error - bad request
@@ -48,5 +57,24 @@ const upload = (req, res, next) => {
 
 module.exports = upload;
 
-// TODO: add params to middleware to handle single/arrays, and different field names
-// to make a single middleware work for all file uploads (profile pic, background, posts, etc)
+
+
+
+// Upload middleware without params (in case of bugs)
+
+// // Explicitly call middleware for finer control over errors
+// const upload = (req, res, next) => {
+//   const uploadMiddleware = multerInstance.single('image');
+
+//   uploadMiddleware(req, res, (err) => {
+//     if (err instanceof multer.MulterError) {
+//       // Multer error - bad request
+//       return res.status(400).json({ message: err.message });
+//     } else if (err) {
+//       // Server error
+//       next(err);
+//     }
+
+//     next();
+//   });
+// };

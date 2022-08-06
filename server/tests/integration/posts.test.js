@@ -8,7 +8,6 @@ const app = require('../../src/app');
 const dbUtil = require('../utils/db.util');
 const createAuthedUser = require('../utils/createAuthedUser.util');
 const models = require('../../src/models/index.model');
-const { query } = require('express');
 
 // Calling supertest with the initialization 
 // app creates a clearer syntax in requests

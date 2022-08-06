@@ -24,10 +24,10 @@ const updateUserInfoParams = Joi.object({
 
 const updateUserInfoQuery = Joi.object({
   action: Joi.string()
-    .valid('edit', 'unfriend', 'logout')
+    .valid('edit', 'unfriend', 'logout', 'upload')
     .required()
     .messages({
-      'any.only': 'Action must be one of \'edit\', \'unfriend\', or \'logout\'',
+      'any.only': 'Action must be one of \'edit\', \'unfriend\', \'logout\', or \'upload\'',
       'any.required': 'Action is required',
     }),
 
