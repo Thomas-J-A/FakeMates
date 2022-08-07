@@ -2,6 +2,29 @@ const mongoose = require('mongoose');
 
 const { Schema } = mongoose;
 
+const actionSourcesSchema = new Schema({
+  friendRequest: {
+    type: Schema.Types.ObjectId,
+    ref: 'FriendRequest',
+  },
+  post: {
+    type: Schema.Types.ObjectId,
+    ref: 'Post',
+  },
+  comment: {
+    type: Schema.Types.ObjectId,
+    ref: 'Comment',
+  },
+  conversation: {
+    type: Schema.Types.ObjectId,
+    ref: 'Conversation',
+  },
+  message: {
+    type: Schema.Types.ObjectId,
+    ref: 'Message',
+  },
+});
+
 const notificationSchema = new Schema({
   actor: {
     type: Schema.Types.ObjectId,
@@ -15,10 +38,11 @@ const notificationSchema = new Schema({
     type: Number,
     enum: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
   },
-  actionSource: {
-    type: Schema.Types.ObjectId, 
-    // ref: <Specify 'model' option dynamically in 'populate' call>
-  },
+  // actionSource: {
+  //   type: Schema.Types.ObjectId, 
+  //   // ref: <Specify 'model' option dynamically in 'populate' call>
+  // },
+  actionSources: actionSourcesSchema,
   readBy: [{
     type: Schema.Types.ObjectId,
     ref: 'User',

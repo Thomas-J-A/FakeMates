@@ -329,6 +329,50 @@ describe('POST /api/posts', () => {
   });
 });
 
+describe('GET /api/posts/:id', () => {
+  const currentUser = createAuthedUser();
+
+  it('should fetch a single post', async () => {
+    // Seed a post
+    const post = new models.Post({
+      postedBy: fakeUserId,
+      content: faker.lorem.sentence(),
+    });
+
+    await post.save();
+
+    // Fetch post
+    const res = await api
+      .get(`/api/posts/${ post._id }`)
+      .set('Cookie', currentUser.cookie);
+
+    expect(res.statusCode).toBe(200);
+    expect(res.body._id).toBe(post._id.toString());
+  });
+
+
+  it('should return 400 if \':id\' is invalid', async () => {
+    const invalidId = 'abc123';
+
+    const res = await api
+      .get(`/api/posts/${ invalidId }`)
+      .set('Cookie', currentUser.cookie);
+
+    expect(res.statusCode).toBe(400);
+    expect(res.body.message).toBe('ID must be a valid ObjectId');
+  });
+
+
+  it('should return 400 if post doesn\'t exist', async () => {
+    const res = await api
+      .get(`/api/posts/${ fakePostId }`)
+      .set('Cookie', currentUser.cookie);
+
+    expect(res.statusCode).toBe(400);
+    expect(res.body.message).toBe('Post doesn\'t exist');
+  });
+});
+
 describe('PUT /api/posts/:id', () => {
   const currentUser = createAuthedUser();
 

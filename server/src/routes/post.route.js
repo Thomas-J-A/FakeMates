@@ -23,6 +23,12 @@ router.post('/',
   postController.createPost
 );
 
+router.get('/:id',
+  passport.authenticate('jwt', { session: false }),
+  validate(postValidation.fetchPost.params, 'params'),
+  postController.fetchPost
+);
+
 router.put('/:id',
   passport.authenticate('jwt', { session: false }),
   validate(postValidation.likePost.params, 'params'),

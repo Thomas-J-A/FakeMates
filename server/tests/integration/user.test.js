@@ -793,14 +793,35 @@ describe('DELETE /api/users/:id', () => {
   });
 
 
-  it('should remove user\'s avatar from uploads', async () => {
-    // Add an avatar to user's profile
-  });
+  // it('should remove user\'s avatar from uploads', async () => {
+  //   const avatarUrl = path.resolve(__dirname, '../images/test.jpg');
+
+  //   // Add an avatar to user's profile
+  //   const res = await api
+  //     .put(`/api/users/${ currentUser.data._id }`)
+  //     .query({ action: 'upload' })
+  //     .attach('avatar', avatarUrl)
+  //     .set('Cookie', currentUser.cookie);
+
+  //   expect(res.statusCode).toBe(200);
+
+  //   const uploadPath = res.body.avatarUrl; 
+
+  //   // expect file to be in fs
+
+  //   // Delete account
+  //   const res2 = await api
+  //     .delete(`/api/users/${ currentUser.data._id }`)
+  //     .set('Cookie', currentUser.cookie);
+
+  //   expect(res2.statusCode).toBe(204);
+  //   // expect file to not be in fs
+  // });
 
 
-  it('should remove user\'s background image from uploads', async () => {
-    // TODO
-  });
+  // it('should remove user\'s background image from uploads', async () => {
+  //   // TODO
+  // });
 
 
   it('should remove user\'s like from another user\'s post', async () => {

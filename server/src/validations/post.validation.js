@@ -34,6 +34,16 @@ const createPostBody = Joi.object({
     }),
 });
 
+const fetchPostParams = Joi.object({
+  id: Joi.string()
+    .regex(objectId)
+    .required()
+    .messages({
+      'string.pattern.base': 'ID must be a valid ObjectId',
+      'any.required': 'ID is required',
+    }),
+})
+
 const likePostParams = Joi.object({
   id: Joi.string()
     .regex(objectId)
@@ -60,6 +70,9 @@ module.exports = {
   },
   createPost: {
     body: createPostBody,
+  },
+  fetchPost: {
+    params: fetchPostParams,
   },
   likePost: {
     params: likePostParams,

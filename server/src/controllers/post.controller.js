@@ -56,9 +56,27 @@ exports.createPost = async (req, res, next) => {
   }
 };
 
+exports.fetchPost = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+
+    const post = await req.models.Post.findById(id).exec();
+
+    // Verify that the post exists
+    if (!post) {
+      return res.status(400).json({ message: 'Post doesn\'t exist' });
+    }
+
+    return res.status(200).json(post);    
+  } catch (err) {
+    next(err);
+  }
+};
+
 exports.likePost = async (req, res, next) => {
   try {
     const { id } = req.params;
+    
     const post = await req.models.Post.findById(id).exec();
 
     // Verify that the post exists
