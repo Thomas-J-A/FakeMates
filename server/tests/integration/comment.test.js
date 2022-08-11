@@ -18,15 +18,11 @@ afterAll(async () => await dbUtil.closeDatabase());
 
 describe('GET /api/comments', () => {
   const currentUser = createAuthedUser();
-  
-  // Seed a post
-  let post;
-  
-  beforeEach(async () => {
-    post = await seedPost({ postedBy: currentUser.data._id });
-  })
 
   it('should paginate results and let client know if there are more', async () => {
+    // Seed a post
+    const post = await seedPost({ postedBy: currentUser.data._id });
+
     // Seed enough comments for two pages
     for (let i = 0; i < 7; i++) {
       await seedComment({
@@ -69,6 +65,9 @@ describe('GET /api/comments', () => {
 
 
   it('should populate some details about comment author', async () => {
+    // Seed a post
+    const post = await seedPost({ postedBy: currentUser.data._id });
+
     // Seed a comment
     await seedComment({
       postedBy: currentUser.data._id,
@@ -91,6 +90,9 @@ describe('GET /api/comments', () => {
 
 
   it('should return latest comments first', async () => {
+    // Seed a post
+    const post = await seedPost({ postedBy: currentUser.data._id });
+
     // Seed comments
     for (let i = 0; i < 2; i++) {
       await seedComment({
@@ -117,6 +119,9 @@ describe('GET /api/comments', () => {
 
 
   it('should return valid response if no comments are available', async () => {
+    // Seed a post
+    const post = await seedPost({ postedBy: currentUser.data._id });
+
     const res = await api
       .get('/api/comments')
       .query({ postid: post._id.toString() })
