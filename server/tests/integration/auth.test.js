@@ -3,6 +3,7 @@ const { faker } = require('@faker-js/faker');
 
 const app = require('../../src/app');
 const dbUtil = require('../utils/db.util');
+const { seedUser } = require('../utils/seeds.util');
 const models = require('../../src/models/index.model');
 
 const api = supertest(app);
@@ -16,14 +17,12 @@ afterAll(async () => await dbUtil.closeDatabase());
 describe('POST /api/auth/email', () => {
   // Seed a user
   beforeEach(async () => {
-    const user = new models.User({
+    await seedUser({
       firstName: 'Marcus',
       lastName: 'Aurelius',
       email: 'marco@gmail.com',
       password: 'password',
     });
-
-    await user.save();
   });
 
   it('should return 200 and JSON payload if successful', async () => {
@@ -66,14 +65,7 @@ describe('POST /api/auth/email', () => {
 
   it('should populate some details about friends', async () => {
     // Seed a second user
-    const user = new models.User({
-      firstName: faker.name.firstName(),
-      lastName: faker.name.lastName(),
-      email: faker.internet.email(),
-      password: faker.internet.password(),
-    });
-
-    await user.save();
+    const user = await seedUser();
 
     // Give first user a friend
     await models.User.findOneAndUpdate(
@@ -261,14 +253,7 @@ describe('POST /api/auth/register', () => {
 
   it('should return 409 if email already exists', async () => {
     // Seed a user
-    const user = new models.User({
-      firstName: 'Marcus',
-      lastName: 'Aurelius',
-      email: 'marco@gmail.com',
-      password: 'password',
-    });
-
-    await user.save();
+    await seedUser({ email: 'marco@gmail.com' });
 
     // Create a second user with same email address
     const user2 = {

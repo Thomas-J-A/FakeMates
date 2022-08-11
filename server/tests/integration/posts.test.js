@@ -1,12 +1,13 @@
 const path = require('path');
 const { promises: fs } = require('fs');
 const supertest = require('supertest');
-const mongoose = require('mongoose');
 const { faker } = require('@faker-js/faker');
 
 const app = require('../../src/app');
 const dbUtil = require('../utils/db.util');
 const createAuthedUser = require('../utils/createAuthedUser.util');
+const { seedUser, seedPost, seedComment } = require('../utils/seeds.util');
+const fakeIds = require('../utils/fakeIds.util');
 const models = require('../../src/models/index.model');
 
 // Calling supertest with the initialization 
@@ -22,22 +23,13 @@ afterEach(async () => await dbUtil.clearDatabase());
 
 afterAll(async () => await dbUtil.closeDatabase());
 
-// Validation checks for strings not ObjectId types
-const fakeUserId = new mongoose.Types.ObjectId().toString();
-const fakePostId = new mongoose.Types.ObjectId().toString();
-
 describe('GET /api/posts', () => {
   const currentUser = createAuthedUser();
 
   it('should paginate results and let client know if there are more', async () => {
     // Seed enough posts for two pages (current user's posts)
     for (let i = 0; i < 12; i++) {
-      const post = new models.Post({
-        postedBy: currentUser.data._id,
-        content: faker.lorem.sentence(),
-      });
-      
-      await post.save();
+      await seedPost({ postedBy: currentUser.data._id });
     }
 
     // Fetch page one
@@ -66,23 +58,11 @@ describe('GET /api/posts', () => {
 
   it('should fetch another user\'s posts', async () => {
     // Seed a second user
-    const user = new models.User({
-      firstName: faker.name.firstName(),
-      lastName: faker.name.lastName(),
-      email: faker.internet.email(),
-      password: faker.internet.password(),
-    });
-
-    await user.save();
+    const user = await seedUser();
 
     // Seed posts created by second user
     for (let i = 0; i < 2; i++) {
-      const post = new models.Post({
-        postedBy: user._id,
-        content: faker.lorem.sentence(),
-      });
-      
-      await post.save();
+      await seedPost({ postedBy: user._id });
     }
 
     // Fetch all posts for second user
@@ -114,7 +94,7 @@ describe('GET /api/posts', () => {
   it('should return 401 if not authenticated', async () => {
     const res = await api
       .get('/api/posts')
-      .query({ userid: fakeUserId })
+      .query({ userid: fakeIds[0] })
       .query({ page: 1 });
 
     expect(res.statusCode).toBe(401);
@@ -161,7 +141,7 @@ describe('GET /api/posts', () => {
   it('should return 400 if user doesn\'t exist', async () => {
     const res = await api
       .get('/api/posts')
-      .query({ userid: fakeUserId })
+      .query({ userid: fakeIds[0] })
       .query({ page: 1 })
       .set('Cookie', currentUser.cookie);
 
@@ -172,16 +152,16 @@ describe('GET /api/posts', () => {
   it('should return 400 if \'page\' is missing', async () => {
     const res = await api
       .get('/api/posts')
-      .query({ userid: fakeUserId })
+      .query({ userid: fakeIds[0] })
       .set('Cookie', currentUser.cookie);
 
     expect(res.statusCode).toBe(400);
     expect(res.body.message).toBe('Page is required');
   });
 
-  // Other page parameter related tests can be found in other
-  // test files which make the same paginated request and
-  // are validated in exactly the same manner
+  // Other page query parameter related tests can be found in 
+  // other test files which make the same paginated request
+  // and are validated in exactly the same manner
 });
 
 describe('POST /api/posts', () => {
@@ -334,12 +314,7 @@ describe('GET /api/posts/:id', () => {
 
   it('should fetch a single post', async () => {
     // Seed a post
-    const post = new models.Post({
-      postedBy: fakeUserId,
-      content: faker.lorem.sentence(),
-    });
-
-    await post.save();
+    const post = await seedPost();
 
     // Fetch post
     const res = await api
@@ -365,7 +340,7 @@ describe('GET /api/posts/:id', () => {
 
   it('should return 400 if post doesn\'t exist', async () => {
     const res = await api
-      .get(`/api/posts/${ fakePostId }`)
+      .get(`/api/posts/${ fakeIds[0] }`)
       .set('Cookie', currentUser.cookie);
 
     expect(res.statusCode).toBe(400);
@@ -378,12 +353,7 @@ describe('PUT /api/posts/:id', () => {
 
   it('should like a post', async () => {
     // Seed a post
-    const post = new models.Post({
-      postedBy: fakeUserId,
-      content: faker.lorem.sentence(),
-    });
-
-    await post.save();
+    const post = await seedPost();
 
     const res = await api
       .put(`/api/posts/${ post._id }`)
@@ -396,12 +366,7 @@ describe('PUT /api/posts/:id', () => {
 
   it('should unlike a post', async () => {
     // Seed a post
-    const post = new models.Post({
-      postedBy: fakeUserId,
-      content: faker.lorem.sentence(),
-    });
-
-    await post.save();
+    const post = await seedPost();
 
     // Like post
     await api
@@ -420,7 +385,7 @@ describe('PUT /api/posts/:id', () => {
 
   it('should return 401 if not authenticated', async () => {
     const res = await api
-      .put(`/api/posts/${ fakePostId }`);
+      .put(`/api/posts/${ fakeIds[0] }`);
 
     expect(res.statusCode).toBe(401);
   });
@@ -440,7 +405,7 @@ describe('PUT /api/posts/:id', () => {
 
   it('should return 400 if post doesn\'t exist', async () => {
     const res = await api
-      .put(`/api/posts/${ fakePostId }`)
+      .put(`/api/posts/${ fakeIds[0] }`)
       .set('Cookie', currentUser.cookie);
 
     expect(res.statusCode).toBe(400);
@@ -450,12 +415,7 @@ describe('PUT /api/posts/:id', () => {
 
   it('should return 403 if user attempts to like own post', async () => {
     // Seed a post
-    const post = new models.Post({
-      postedBy: currentUser.data._id,
-      content: faker.lorem.sentence(),
-    });
-
-    await post.save();
+    const post = await seedPost({ postedBy: currentUser.data._id });
 
     const res = await api
       .put(`/api/posts/${ post._id }`)
@@ -471,12 +431,7 @@ describe('DELETE /api/posts/:id', () => {
 
   it('should delete a post', async () => {
     // Seed a post
-    const post = new models.Post({
-      postedBy: currentUser.data._id,
-      content: faker.lorem.sentence(),
-    });
-
-    await post.save();
+    const post = await seedPost({ postedBy: currentUser.data._id });
 
     const res = await api
       .delete(`/api/posts/${ post._id }`)
@@ -493,22 +448,14 @@ describe('DELETE /api/posts/:id', () => {
 
   it('should delete associated comments', async () => {
     // Seed a post
-    const post = new models.Post({
-      postedBy: currentUser.data._id,
-      content: faker.lorem.sentence(),
-    });
-
-    await post.save();
+    const post = await seedPost({ postedBy: currentUser.data._id });
 
     // Seed comments
     for (let i = 0; i < 5; i++) {
-      const comment = new models.Comment({
+      await seedComment({
         postedBy: currentUser.data._id,
         postId: post._id,
-        content: faker.lorem.sentence(),
       });
-
-      await comment.save();
     }
 
     // Delete post
@@ -532,7 +479,7 @@ describe('DELETE /api/posts/:id', () => {
 
   it('should return 401 if not authenticated', async () => {
     const res = await api
-      .delete(`/api/posts/${ fakePostId }`)
+      .delete(`/api/posts/${ fakeIds[0] }`)
 
     expect(res.statusCode).toBe(401);
   });
@@ -552,7 +499,7 @@ describe('DELETE /api/posts/:id', () => {
 
   it('should return 400 if post doesn\'t exist', async () => {
     const res = await api
-      .delete(`/api/posts/${ fakePostId }`)
+      .delete(`/api/posts/${ fakeIds[0] }`)
       .set('Cookie', currentUser.cookie);
 
     expect(res.statusCode).toBe(400);
@@ -562,12 +509,7 @@ describe('DELETE /api/posts/:id', () => {
 
   it('should return 403 if user attempts to delete another user\'s post', async () => {
     // Seed a post
-    const post = new models.Post({
-      postedBy: fakeUserId,
-      content: faker.lorem.sentence(),
-    });
-
-    await post.save();
+    const post = await seedPost();
 
     const res = await api
       .delete(`/api/posts/${ post._id }`)

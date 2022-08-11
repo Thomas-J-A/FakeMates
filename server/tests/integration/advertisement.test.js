@@ -1,10 +1,9 @@
 const supertest = require('supertest');
-const { faker } = require('@faker-js/faker');
 
 const app = require('../../src/app');
 const dbUtil = require('../utils/db.util');
 const createAuthedUser = require('../utils/createAuthedUser.util');
-const models = require('../../src/models/index.model');
+const { seedAdvertisement } = require('../utils/seeds.util');
 
 const api = supertest(app);
 
@@ -20,13 +19,7 @@ describe('GET /api/advertisements', () => {
   it('should fetch all ads', async () => {
     // Seed ads
     for (let i = 0; i < 3; i++) {
-      const ad = new models.Advertisement({
-        brandName: faker.company.companyName(),
-        tagline: faker.company.bs(),
-        backgroundUrl: faker.internet.url(),
-      });
-
-      await ad.save();
+      await seedAdvertisement();
     }
 
     // Fetch ads

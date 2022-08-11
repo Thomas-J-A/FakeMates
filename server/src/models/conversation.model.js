@@ -7,7 +7,7 @@ const conversationSchema = new Schema({
   avatarUrl: String,
   type: {
     type: String,
-    enum: ['Private', 'Group'],
+    enum: ['private', 'group'],
   },
   createdBy: {
     type: Schema.Types.ObjectId,
@@ -17,10 +17,10 @@ const conversationSchema = new Schema({
     type: Schema.Types.ObjectId,
     ref: 'User'
   }],
-  lastMessage: {
-    type: Schema.Types.ObjectId,
-    ref: 'Message',
-  },
+  // lastMessage: {
+  //   type: Schema.Types.ObjectId,
+  //   ref: 'Message',
+  // },
   deletedBy: [{
     type: Schema.Types.ObjectId,
     ref: 'User',

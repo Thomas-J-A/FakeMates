@@ -1,12 +1,13 @@
 const path = require('path');
 const { promises: fs } = require('fs');
 const supertest = require('supertest');
-const mongoose = require('mongoose');
 const { faker } = require('@faker-js/faker');
 
 const app = require('../../src/app');
 const dbUtil = require('../utils/db.util');
 const createAuthedUser = require('../utils/createAuthedUser.util');
+const { seedFriendRequest, seedNotification, seedUser, seedPost, seedComment } = require('../utils/seeds.util');
+const fakeIds = require('../utils/fakeIds.util');
 const models = require('../../src/models/index.model');
 
 const api = supertest(app);
@@ -17,25 +18,12 @@ afterEach(async () => await dbUtil.clearDatabase());
 
 afterAll(async () => await dbUtil.closeDatabase());
 
-const fakeUserId = new mongoose.Types.ObjectId().toString();
-const anotherFakeUserId = new mongoose.Types.ObjectId().toString();
-const fakePostId = new mongoose.Types.ObjectId().toString();
-
 describe('GET /api/users/:id', () => {
   const currentUser = createAuthedUser();
 
   it('should fetch another user\'s profile information', async () => {
     // Seed a second user
-    const user = new models.User({
-      firstName: faker.name.firstName(),
-      lastName: faker.name.lastName(),
-      email: faker.internet.email(),
-      password: faker.internet.password(),
-      occupation: faker.name.jobTitle(),
-      bio: faker.lorem.sentence(),
-    });
-
-    await user.save();
+    const user = await seedUser();
 
     const res = await api
       .get(`/api/users/${ user._id }`)
@@ -51,23 +39,13 @@ describe('GET /api/users/:id', () => {
 
   it('should return relationship status of \'pending\' if there is a pending request', async () => {
     // Seed a second user
-    const user = new models.User({
-      firstName: faker.name.firstName(),
-      lastName: faker.name.lastName(),
-      email: faker.internet.email(),
-      password: faker.internet.password(),
-    });
-
-    await user.save();
+    const user = await seedUser();
 
     // Seed a pending friend request
-    const friendRequest = new models.FriendRequest({
+    await seedFriendRequest({
       from: currentUser.data._id,
       to: user._id,
-      status: 1,
     });
-
-    await friendRequest.save();
 
     const res = await api
       .get(`/api/users/${ user._id }`)
@@ -80,23 +58,14 @@ describe('GET /api/users/:id', () => {
 
   it('should return relationship status of \'accepted\' if users are friends', async () => {
     // Seed a second user
-    const user = new models.User({
-      firstName: faker.name.firstName(),
-      lastName: faker.name.lastName(),
-      email: faker.internet.email(),
-      password: faker.internet.password(),
-    });
-
-    await user.save();
+    const user = await seedUser();
 
     // Seed an accepted friend request
-    const friendRequest = new models.FriendRequest({
+    await seedFriendRequest({
       from: currentUser.data._id,
       to: user._id,
       status: 2,
     });
-
-    await friendRequest.save();
 
     const res = await api
       .get(`/api/users/${ user._id }`)
@@ -109,23 +78,14 @@ describe('GET /api/users/:id', () => {
 
   it('should return relationship status of \'rejected\' if there is a rejected request', async () => {
     // Seed a second user
-    const user = new models.User({
-      firstName: faker.name.firstName(),
-      lastName: faker.name.lastName(),
-      email: faker.internet.email(),
-      password: faker.internet.password(),
-    });
-
-    await user.save();
+    const user = await seedUser();
 
     // Seed a rejected friend request
-    const friendRequest = new models.FriendRequest({
+    await seedFriendRequest({
       from: currentUser.data._id,
       to: user._id,
       status: 3,
     });
-
-    await friendRequest.save();
 
     const res = await api
       .get(`/api/users/${ user._id }`)
@@ -148,14 +108,7 @@ describe('GET /api/users/:id', () => {
 
   it('should return relationship status of \'none\' if users are strangers', async () => {
     // Seed a second user
-    const user = new models.User({
-      firstName: faker.name.firstName(),
-      lastName: faker.name.lastName(),
-      email: faker.internet.email(),
-      password: faker.internet.password(),
-    });
-
-    await user.save();
+    const user = await seedUser();
 
     const res = await api
       .get(`/api/users/${ user._id }`)
@@ -168,14 +121,7 @@ describe('GET /api/users/:id', () => {
 
   it('should remove vulnerable fields from response', async () => {
     // Seed a second user
-    const user = new models.User({
-      firstName: faker.name.firstName(),
-      lastName: faker.name.lastName(),
-      email: faker.internet.email(),
-      password: faker.internet.password(),
-    });
-
-    await user.save();
+    const user = await seedUser();
 
     const res = await api
       .get(`/api/users/${ user._id }`)
@@ -191,15 +137,8 @@ describe('GET /api/users/:id', () => {
     let users = [];
 
     // Seed two more users
-    for (let i = 0; i < 2; i++) {
-      const user = new models.User({
-        firstName: faker.name.firstName(),
-        lastName: faker.name.lastName(),
-        email: faker.internet.email(),
-        password: faker.internet.password(),
-      });
-      
-      await user.save();
+    for (let i = 0; i < 2; i++) {     
+      const user = await seedUser();
       users.push(user);
     };
 
@@ -233,7 +172,7 @@ describe('GET /api/users/:id', () => {
 
   it('should return 400 if user doesn\'t exist', async () => {
     const res = await api
-      .get(`/api/users/${ fakeUserId }`)
+      .get(`/api/users/${ fakeIds[0] }`)
       .set('Cookie', currentUser.cookie);
 
     expect(res.statusCode).toBe(400);
@@ -341,15 +280,9 @@ describe('PUT /api/users/:id', () => {
 
     // Give current user a friend
     beforeEach(async () => {
-      friend = new models.User({
-        firstName: faker.name.firstName(),
-        lastName: faker.name.lastName(),
-        email: faker.internet.email(),
-        password: faker.internet.password(),
+      friend = await seedUser({
         friends: [currentUser.data._id],
       });
-
-      await friend.save();
 
       currentUser.data.friends.push(friend._id);
       await currentUser.data.save();
@@ -391,13 +324,11 @@ describe('PUT /api/users/:id', () => {
 
     it('should remove corresponding friend request', async () => {
       // Seed an accepted friend request between current user and friend
-      const friendRequest = new models.FriendRequest({
+      await seedFriendRequest({
         from: currentUser.data._id,
         to: friend._id,
         status: 2,
       });
-
-      await friendRequest.save();
 
       // Remove friend
       const res = await api
@@ -461,7 +392,7 @@ describe('PUT /api/users/:id', () => {
       const res = await api
         .put(`/api/users/${ currentUser.data._id }`)
         .query({ action: 'unfriend' })
-        .query({ friendid: fakeUserId })
+        .query({ friendid: fakeIds[0] })
         .set('Cookie', currentUser.cookie);
 
       expect(res.statusCode).toBe(400);
@@ -471,14 +402,7 @@ describe('PUT /api/users/:id', () => {
 
     it('should return 403 if user attempts to unfriend a user who isn\'t a friend', async () => {
       // Seed a user who isn't friends with current user
-      const stranger = new models.User({
-        firstName: faker.name.firstName(),
-        lastName: faker.name.lastName(),
-        email: faker.internet.email(),
-        password: faker.internet.password(),
-      });
-
-      await stranger.save();
+      const stranger = await seedUser();
 
       const res = await api
         .put(`/api/users/${ currentUser.data._id }`)
@@ -567,7 +491,7 @@ describe('PUT /api/users/:id', () => {
 
   it('should return 400 if user doesn\'t exist', async () => {
     const res = await api
-      .put(`/api/users/${ fakeUserId }`)
+      .put(`/api/users/${ fakeIds[0] }`)
       .query({ action: 'logout' })
       .set('Cookie', currentUser.cookie);
     
@@ -578,14 +502,7 @@ describe('PUT /api/users/:id', () => {
 
   it('should return 403 if \':id\' is not of current user', async () => {
     // Seed a stranger
-    const stranger = new models.User({
-      firstName: faker.name.firstName(),
-      lastName: faker.name.lastName(),
-      email: faker.internet.email(),
-      password: faker.internet.password(),
-    });
-
-    await stranger.save();
+    const stranger = await seedUser();
 
     const res = await api
       .put(`/api/users/${ stranger._id }`)
@@ -638,21 +555,13 @@ describe('DELETE /api/users/:id', () => {
 
   it('should remove associated post and its comment', async () => {
     // Seed a post
-    const post = new models.Post({
-      postedBy: currentUser.data._id,
-      content: faker.lorem.sentence(),
-    });
-
-    await post.save();
+    const post = await seedPost({ postedBy: currentUser.data._id });
 
     // Seed a comment
-    const comment = new models.Comment({
+    const comment = await seedComment({
       postedBy: currentUser.data._id,
       postId: post._id,
-      content: faker.lorem.sentence(),
     });
-
-    await comment.save();
 
     // Delete account
     const res = await api
@@ -672,12 +581,7 @@ describe('DELETE /api/users/:id', () => {
 
   it('should remove a friend request user has sent', async () => {
     // Seed a friend request
-    const friendRequest = new models.FriendRequest({
-      from: currentUser.data._id,
-      to: fakeUserId,
-    });
-
-    await friendRequest.save();
+    const friendRequest = await seedFriendRequest({ from: currentUser.data._id });
 
     // Delete account
     const res = await api
@@ -695,12 +599,7 @@ describe('DELETE /api/users/:id', () => {
 
   it('should remove friend request user has received', async () => {
     // Seed a friend request
-    const friendRequest = new models.FriendRequest({
-      from: fakeUserId,
-      to: currentUser.data._id,
-    });
-
-    await friendRequest.save();
+    const friendRequest = await seedFriendRequest({ to: currentUser.data._id });
 
     // Delete account
     const res = await api
@@ -718,14 +617,9 @@ describe('DELETE /api/users/:id', () => {
 
   it('should mark associated notification as deleted', async () => { 
     // Seed a notification
-    const notification = new models.Notification({
-      actor: anotherFakeUserId,
-      recipients: [currentUser.data._id, fakeUserId],
-      actionType: 1,
-      actionSource: fakePostId,
+    const notification = await seedNotification({
+      recipients: [currentUser.data._id, fakeIds[0]],
     });
-
-    await notification.save();
 
     // Delete account
     const res = await api
@@ -743,15 +637,10 @@ describe('DELETE /api/users/:id', () => {
 
   it('should remove associated notification if all recipients mark as deleted', async () => {
     // Seed a notification
-    const notification = new models.Notification({
-      actor: anotherFakeUserId,
-      recipients: [currentUser.data._id, fakeUserId],
-      actionType: 1,
-      actionSource: fakePostId,
-      deletedBy: [fakeUserId],
+    const notification = await seedNotification({
+      recipients: [currentUser.data._id, fakeIds[0]],
+      deletedBy: [fakeIds[0]],
     });
-
-    await notification.save();
 
     // Delete account
     const res = await api
@@ -769,15 +658,9 @@ describe('DELETE /api/users/:id', () => {
 
   it('should remove user from friend\'s friends list', async () => {
     // Seed a second user who is friends with current user
-    const friend = new models.User({
-      firstName: faker.name.firstName(),
-      lastName: faker.name.lastName(),
-      email: faker.internet.email(),
-      password: faker.internet.password(),
+    const friend = await seedUser({
       friends: [currentUser.data._id],
     });
-
-    await friend.save();
 
     // Delete account
     const res = await api
@@ -826,13 +709,9 @@ describe('DELETE /api/users/:id', () => {
 
   it('should remove user\'s like from another user\'s post', async () => {
     // Seed a post, liked by current user who will be deleted
-    const post = new models.Post({
-      postedBy: fakeUserId,
-      content: faker.lorem.sentence(),
+    const post = await seedPost({
       likedBy: [currentUser.data._id],
     });
-
-    await post.save();
 
     // Delete account
     const res = await api
@@ -850,14 +729,9 @@ describe('DELETE /api/users/:id', () => {
 
   it('should remove user\'s like from another user\'s comment', async () => {
     // Seed a comment, liked by current user who will be deleted
-    const comment = new models.Comment({
-      postedBy: fakeUserId,
-      postId: fakePostId,
-      content: faker.lorem.sentence(),
+    const comment = await seedComment({
       likedBy: [currentUser.data._id],
     });
-
-    await comment.save();
 
     // Delete account
     const res = await api
@@ -887,7 +761,7 @@ describe('DELETE /api/users/:id', () => {
 
   it('should return 400 if user doesn\'t exist', async () => {
     const res = await api
-      .delete(`/api/users/${ fakeUserId }`)
+      .delete(`/api/users/${ fakeIds[0] }`)
       .set('Cookie', currentUser.cookie);
 
     expect(res.statusCode).toBe(400);
@@ -897,14 +771,7 @@ describe('DELETE /api/users/:id', () => {
 
   it('should return 403 if \':id\' is not of current user', async () => {
     // Seed a stranger
-    const stranger = new models.User({
-      firstName: faker.name.firstName(),
-      lastName: faker.name.lastName(),
-      email: faker.internet.email(),
-      password: faker.internet.password(),
-    });
-
-    await stranger.save();
+    const stranger = await seedUser();
 
     const res = await api
       .delete(`/api/users/${ stranger._id }`)

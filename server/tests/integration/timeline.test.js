@@ -1,10 +1,9 @@
 const supertest = require('supertest');
-const { faker } = require('@faker-js/faker');
 
 const app = require('../../src/app');
 const dbUtil = require('../utils/db.util');
 const createAuthedUser = require('../utils/createAuthedUser.util');
-const models = require('../../src/models/index.model');
+const { seedUser, seedPost } = require('../utils/seeds.util');
 
 const api = supertest(app);
 
@@ -19,12 +18,7 @@ describe('GET /api/timeline', () => {
 
   it('should return a post created by current user', async () => {
     // Seed a post
-    const post = new models.Post({
-      postedBy: currentUser.data._id,
-      content: faker.lorem.sentence(),
-    });
-
-    await post.save();
+    await seedPost({ postedBy: currentUser.data._id });
 
     const res = await api
       .get('/api/timeline')
@@ -39,25 +33,13 @@ describe('GET /api/timeline', () => {
 
   it('should return a post created by a friend of current user', async () => {
     // Add a second user as a friend
-    const friend = new models.User({
-      firstName: faker.name.firstName(),
-      lastName: faker.name.lastName(),
-      email: faker.internet.email(),
-      password: faker.internet.password(),
-    });
-
-    await friend.save();
+    const friend = await seedUser();
 
     currentUser.data.friends.push(friend._id);
     await currentUser.data.save();
 
     // Create post with second user
-    const post = new models.Post({
-      postedBy: friend._id,
-      content: faker.lorem.sentence(),
-    });
-
-    await post.save();
+    await seedPost({ postedBy: friend._id });
 
     const res = await api
       .get('/api/timeline')
@@ -72,12 +54,7 @@ describe('GET /api/timeline', () => {
 
   it('should populate some details about post author', async () => {
     // Seed a post
-    const post = new models.Post({
-      postedBy: currentUser.data._id,
-      content: faker.lorem.sentence(),
-    });
-
-    await post.save();
+    await seedPost({ postedBy: currentUser.data._id });
 
     const res = await api
       .get('/api/timeline')
@@ -95,12 +72,7 @@ describe('GET /api/timeline', () => {
   it('should paginate results and let client know if there are more', async () => {
     // Seed enough posts for two pages 
     for (let i = 0; i < 12; i++) {
-      const post = new models.Post({
-        postedBy: currentUser.data._id,
-        content: faker.lorem.sentence(),
-      });
-
-      await post.save();
+      await seedPost({ postedBy: currentUser.data._id });
     }
 
     // Fetch page one
@@ -128,12 +100,7 @@ describe('GET /api/timeline', () => {
   it('should return latest posts first', async () => {
     // Seed posts
     for (let i = 0; i < 2; i++) {
-      const post = new models.Post({
-        postedBy: currentUser.data._id,
-        content: faker.lorem.sentence(),
-      });
-      
-      await post.save();
+      await seedPost({ postedBy: currentUser.data._id });
     };
 
     const res = await api

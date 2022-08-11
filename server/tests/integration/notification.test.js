@@ -1,10 +1,11 @@
 const supertest = require('supertest');
-const mongoose = require('mongoose');
 const { faker } = require('@faker-js/faker');
 
 const app = require('../../src/app');
 const dbUtil = require('../utils/db.util');
 const createAuthedUser = require('../utils/createAuthedUser.util');
+const { seedNotification, seedUser } = require('../utils/seeds.util');
+const fakeIds = require('../utils/fakeIds.util');
 const models = require('../../src/models/index.model');
 
 const api = supertest(app);
@@ -15,25 +16,13 @@ afterEach(async () => await dbUtil.clearDatabase());
 
 afterAll(async () => await dbUtil.closeDatabase());
 
-const fakeUserId = new mongoose.Types.ObjectId().toString();
-const anotherFakeUserId = new mongoose.Types.ObjectId().toString();
-const fakePostId = new mongoose.Types.ObjectId().toString();
-const fakeNotificationId = new mongoose.Types.ObjectId().toString();
-
 describe('GET /api/notifications', () => {
   const currentUser = createAuthedUser();
 
   it('should paginate results and let client know if there are more', async () => {
     // Seed enough notifications for two pages
     for (let i = 0; i < 12; i++) {
-      const notification = new models.Notification({
-        actor: fakeUserId,
-        recipients: [currentUser.data._id],
-        actionType: 1,
-        actionSource: fakePostId,
-      });
-
-      await notification.save();
+      await seedNotification({ recipients: [currentUser.data._id] });
     }
 
     // Fetch page one
@@ -61,14 +50,7 @@ describe('GET /api/notifications', () => {
   it('should return latest notifications first', async () => {
     // Seed notifications
     for (let i = 0; i < 2; i++) {
-      const notification = new models.Notification({
-        actor: fakeUserId,
-        recipients: [currentUser.data._id],
-        actionType: 1,
-        actionSource: fakePostId,
-      });
-
-      await notification.save();
+      await seedNotification({ recipients: [currentUser.data._id ] });
     }
 
     // Fetch notifications
@@ -101,15 +83,10 @@ describe('GET /api/notifications', () => {
   it('should return both read and unread notifications', async () => {
     // Seed notifications (read and unread)
     for (let i = 0; i < 2; i++) {
-      const notification = new models.Notification({
-        actor: fakeUserId,
+      await seedNotification({
         recipients: [currentUser.data._id],
-        actionType: 1,
-        actionSource: fakePostId,
         readBy: (i % 2 === 0) ? [currentUser.data._id] : [], // Alternate between read/unread
       });
-
-      await notification.save();
     }
 
     // Fetch notifications
@@ -137,16 +114,11 @@ describe('GET /api/notifications', () => {
 
   it('should not return notifications which user has \'deleted\'', async () => {
     // Seed a deleted notification
-    const deletedNotification = new models.Notification({
-      actor: fakeUserId,
+    await seedNotification({
       recipients: [currentUser.data._id],
-      actionType: 1,
-      actionSource: fakePostId,
       readBy: [currentUser.data._id],
       deletedBy: [currentUser.data._id],
     });
-
-    await deletedNotification.save();
 
     // Fetch notifications
     const res = await api
@@ -168,24 +140,13 @@ describe('GET /api/notifications', () => {
 
   it('should populate some details about user who performed the activity', async () => {
     // Seed a second user
-    const actor = new models.User({
-      firstName: faker.name.firstName(),
-      lastName: faker.name.lastName(),
-      email: faker.internet.email(),
-      password: faker.internet.password(),
-    });
-
-    await actor.save();
+    const user = await seedUser();
 
     // Seed a notification
-    const notification = new models.Notification({
-      actor: actor._id,
+    await seedNotification({
+      actor: user._id,
       recipients: [currentUser.data._id],
-      actionType: 1,
-      actionSource: fakePostId,
     });
-
-    await notification.save();
 
     // Fetch notifications
     const res = await api
@@ -268,14 +229,9 @@ describe('PUT /api/notifications/:id', () => {
 
   it('should mark notification as read', async () => {
     // Seed a notification
-    const notification = new models.Notification({
-      actor: anotherFakeUserId,
-      recipients: [currentUser.data._id, fakeUserId],
-      actionType: 1,
-      actionSource: fakePostId,
+    const notification = await seedNotification({
+      recipients: [currentUser.data._id, fakeIds[0]],
     });
-
-    await notification.save();
 
     // Fetch notifications
     const res = await api
@@ -290,14 +246,9 @@ describe('PUT /api/notifications/:id', () => {
 
   it('should mark notification as deleted', async () => {
     // Seed a notification
-    const notification = new models.Notification({
-      actor: anotherFakeUserId,
-      recipients: [currentUser.data._id, fakeUserId],
-      actionType: 1,
-      actionSource: fakePostId,
+    const notification = await seedNotification({
+      recipients: [currentUser.data._id, fakeIds[0]],
     });
-
-    await notification.save();
 
     const res = await api
       .put(`/api/notifications/${ notification._id }`)
@@ -311,16 +262,11 @@ describe('PUT /api/notifications/:id', () => {
 
   it('should remove notification if all recipients have deleted it', async () => {
     // Seed a notification with one of two recipients already in deletedBy array
-    const notification = new models.Notification({
-      actor: anotherFakeUserId,
-      recipients: [currentUser.data._id, fakeUserId],
-      actionType: 1,
-      actionSource: fakePostId,
-      readBy: [fakeUserId],
-      deletedBy: [fakeUserId],
+    const notification = await seedNotification({
+      recipients: [currentUser.data._id, fakeIds[0]],
+      readBy: [fakeIds[0]],
+      deletedBy: [fakeIds[0]],
     });
-
-    await notification.save();
 
     // Mark notification as deleted for current user
     await api
@@ -350,7 +296,7 @@ describe('PUT /api/notifications/:id', () => {
 
   it('should return 400 if notification doesn\'t exist', async () => {
     const res = await api
-      .put(`/api/notifications/${ fakeNotificationId }`)
+      .put(`/api/notifications/${ fakeIds[0] }`)
       .query({ action: 'read' })
       .set('Cookie', currentUser.cookie);
 
@@ -361,14 +307,9 @@ describe('PUT /api/notifications/:id', () => {
 
   it('should return 403 if user is not a recipient of notification', async () => {
     // Seed a notification
-    const notification = new models.Notification({
-      actor: anotherFakeUserId,
-      recipients: [fakeUserId],
-      actionType: 1,
-      actionSource: fakePostId,
+    const notification = await seedNotification({
+      recipients: [fakeIds[0]],
     });
-
-    await notification.save();
     
     // Fetch notifications
     const res = await api
@@ -383,7 +324,7 @@ describe('PUT /api/notifications/:id', () => {
 
   it('should return 400 if \'action\' is missing', async () => {
     const res = await api
-      .put(`/api/notifications/${ fakeNotificationId }`)
+      .put(`/api/notifications/${ fakeIds[0] }`)
       .set('Cookie', currentUser.cookie);
 
     expect(res.statusCode).toBe(400);
@@ -395,7 +336,7 @@ describe('PUT /api/notifications/:id', () => {
     const invalidAction = faker.word.verb();
 
     const res = await api
-      .put(`/api/notifications/${ fakeNotificationId }`)
+      .put(`/api/notifications/${ fakeIds[0] }`)
       .query({ action: invalidAction })
       .set('Cookie', currentUser.cookie);
 

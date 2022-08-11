@@ -1,10 +1,11 @@
 const supertest = require('supertest');
-const mongoose = require('mongoose');
 const { faker } = require('@faker-js/faker');
 
 const app = require('../../src/app');
 const dbUtil = require('../utils/db.util');
 const createAuthedUser = require('../utils/createAuthedUser.util');
+const { seedUser, seedFriendRequest } = require('../utils/seeds.util');
+const fakeIds = require('../utils/fakeIds.util');
 const models = require('../../src/models/index.model');
 
 const api = supertest(app);
@@ -15,22 +16,13 @@ afterEach(async () => await dbUtil.clearDatabase());
 
 afterAll(async () => await dbUtil.closeDatabase());
 
-const fakeUserId = new mongoose.Types.ObjectId().toString();
-const anotherFakeUserId = new mongoose.Types.ObjectId().toString();
-const fakeFriendRequestId = new mongoose.Types.ObjectId().toString();
-
 describe('GET /api/friend-requests', () => {
   const currentUser = createAuthedUser();
 
   it('should fetch all pending friend requests', async () => {
     // Seed friend requests
     for (let i = 0; i < 2; i++) {
-      const friendRequest = new models.FriendRequest({
-        from: i % 2 === 0 ? fakeUserId: anotherFakeUserId,
-        to: currentUser.data._id,
-      });
-
-      await friendRequest.save();
+      await seedFriendRequest({ to: currentUser.data._id });
     }
 
     // Fetch friend requests
@@ -51,22 +43,13 @@ describe('GET /api/friend-requests', () => {
 
   it('should populate some details about requester', async () => {
     // Seed a second user
-    const user = new models.User({
-      firstName: faker.name.firstName(),
-      lastName: faker.name.lastName(),
-      email: faker.internet.email(),
-      password: faker.internet.password(),
-    });
-
-    await user.save();
+    const user = await seedUser();
 
     // Seed a friend request
-    const friendRequest = new models.FriendRequest({
+    await seedFriendRequest({
       from: user._id,
       to: currentUser.data._id,
     });
-
-    await friendRequest.save();
 
     // Fetch friend requests
     const res = await api
@@ -93,13 +76,10 @@ describe('GET /api/friend-requests', () => {
 
   it('should not return any accepted requests', async () => {
     // Seed an accepted friend request
-    const friendRequest = new models.FriendRequest({
-      from: fakeUserId,
+    await seedFriendRequest({
       to: currentUser.data._id,
       status: 2,
     });
-
-    await friendRequest.save();
 
     // Fetch all pending requests
     const res = await api
@@ -113,13 +93,10 @@ describe('GET /api/friend-requests', () => {
 
   it('should not return any rejected requests', async () => {
     // Seed a rejected friend request
-    const friendRequest = new models.FriendRequest({
-      from: fakeUserId,
+    await seedFriendRequest({
       to: currentUser.data._id,
       status: 3,
     });
-
-    await friendRequest.save();
 
     // Fetch all pending requests
     const res = await api
@@ -134,21 +111,10 @@ describe('GET /api/friend-requests', () => {
 describe('POST /api/friend-request', () => {
   const currentUser = createAuthedUser();
   
-  // Seed a second user
-  let user;
-
-  beforeEach(async () => {
-    user = new models.User({
-      firstName: faker.name.firstName(),
-      lastName: faker.name.lastName(),
-      email: faker.internet.email(),
-      password: faker.internet.password(),
-    });
-    
-    await user.save();
-  })
-
   it('should create a friend request', async () => {
+    // Seed a second user
+    const user = await seedUser();
+
     const res = await api
       .post('/api/friend-requests')
       .query({ to: user._id.toString() })
@@ -208,7 +174,7 @@ describe('POST /api/friend-request', () => {
   it('should return 400 if user doesn\'t exist', async () => {
     const res = await api
       .post('/api/friend-requests')
-      .query({ to: fakeUserId })
+      .query({ to: fakeIds[0] })
       .set('Cookie', currentUser.cookie);
 
     expect(res.statusCode).toBe(400);
@@ -217,13 +183,14 @@ describe('POST /api/friend-request', () => {
 
 
   it('should return 403 if there is already a pending request - user one as original requester', async () => {
+    // Seed a second user
+    const user = await seedUser();
+
     // Seed a pending friend request
-    const friendRequest = new models.FriendRequest({
+    await seedFriendRequest({
       from: currentUser.data._id,
       to: user._id,
     });
-
-    await friendRequest.save();
 
     // Send a friend request
     const res = await api
@@ -237,13 +204,14 @@ describe('POST /api/friend-request', () => {
 
   
   it('should return 403 if there is already a pending request - user two as original requester', async () => {
+    // Seed a second user
+    const user = await seedUser();
+
     // Seed a pending friend request
-    const friendRequest = new models.FriendRequest({
+    await seedFriendRequest({
       from: user._id,
       to: currentUser.data._id,
     });
-
-    await friendRequest.save();
 
     // Send a friend request
     const res = await api
@@ -257,14 +225,15 @@ describe('POST /api/friend-request', () => {
 
 
   it('should return 403 if the users are already friends - user one as original requester', async () => {
+    // Seed a second user
+    const user = await seedUser();
+
     // Seed a friend request where users are already friends
-    const friendRequest = new models.FriendRequest({
+    await seedFriendRequest({
       from: currentUser.data._id,
       to: user._id,
       status: 2,
     });
-
-    await friendRequest.save();
 
     // Send a friend request
     const res = await api
@@ -278,14 +247,15 @@ describe('POST /api/friend-request', () => {
 
 
   it('should return 403 if the users are already friends - user two as original requester', async () => {
+    // Seed a second user
+    const user = await seedUser();
+
     // Seed a friend request where users are already friends
-    const friendRequest = new models.FriendRequest({
+    await seedFriendRequest({
       from: user._id,
       to: currentUser.data._id,
       status: 2,
     });
-
-    await friendRequest.save();
 
     // Send a friend request
     const res = await api
@@ -299,16 +269,17 @@ describe('POST /api/friend-request', () => {
 
 
   it('should return 403 if a friend request has previously been rejected - user one as original requester', async () => {
+    // Seed a second user
+    const user = await seedUser();
+
     // Seed a rejected friend request
-    const friendRequest = new models.FriendRequest({
+    await seedFriendRequest({
       from: currentUser.data._id,
       to: user._id,
       status: 3,
     });
 
-    await friendRequest.save();
-
-    // Seed a friend request
+    // Send a friend request
     const res = await api
       .post('/api/friend-requests')
       .query({ to: user._id.toString() })
@@ -320,14 +291,15 @@ describe('POST /api/friend-request', () => {
 
 
   it('should return 403 if a friend request has previously been rejected - user two as original requester', async () => {
+    // Seed a second user
+    const user = await seedUser();
+
     // Seed a rejected friend request
-    const friendRequest = new models.FriendRequest({
+    await seedFriendRequest({
       from: user._id,
       to: currentUser.data._id,
       status: 3,
     });
-
-    await friendRequest.save();
 
     // Send a friend request
     const res = await api
@@ -342,31 +314,18 @@ describe('POST /api/friend-request', () => {
 
 describe('PUT /api/friend-request/:id', () => {
   const currentUser = createAuthedUser();
-  
-  // Seed a second user and friend request
-  // (done in a beforeEach to keep code DRY although there is some slight redundancy)
-  let user;
-  let friendRequest;
-  
-  beforeEach(async () => {
-    user = new models.User({
-      firstName: faker.name.firstName(),
-      lastName: faker.name.lastName(),
-      email: faker.internet.email(),
-      password: faker.internet.password(),
-    });
 
-    await user.save();
+  it('should accept a friend request', async () => {
+    // Seed a second user
+    const user = await seedUser();
 
-    friendRequest = new models.FriendRequest({
+    // Seed a friend request
+    const friendRequest = await seedFriendRequest({
       from: user._id,
       to: currentUser.data._id,
     });
 
-    await friendRequest.save();
-  })
-
-  it('should accept a friend request', async () => {
+    // Accept friend request
     const res = await api
       .put(`/api/friend-requests/${ friendRequest._id }`)
       .query({ accept: true })
@@ -378,6 +337,16 @@ describe('PUT /api/friend-request/:id', () => {
 
 
   it('should add recipient to requesters\'s friends list if accepted', async () => {
+    // Seed a second user
+    const user = await seedUser();
+
+    // Seed a friend request
+    const friendRequest = await seedFriendRequest({
+      from: user._id,
+      to: currentUser.data._id,
+    });
+
+    // Accept friend request
     await api
       .put(`/api/friend-requests/${ friendRequest._id }`)
       .query({ accept: true })
@@ -393,6 +362,16 @@ describe('PUT /api/friend-request/:id', () => {
 
 
   it('should reject a friend request', async () => {
+    // Seed a second user
+    const user = await seedUser();
+
+    // Seed a friend request
+    const friendRequest = await seedFriendRequest({
+      from: user._id,
+      to: currentUser.data._id,
+    });
+
+    // Reject friend request
     const res = await api
       .put(`/api/friend-requests/${ friendRequest._id }`)
       .query({ accept: false })
@@ -403,6 +382,15 @@ describe('PUT /api/friend-request/:id', () => {
 
 
   it('should change status of friend request to 2 (accepted)', async () => {
+    // Seed a second user
+    const user = await seedUser();
+
+    // Seed a friend request
+    const friendRequest = await seedFriendRequest({
+      from: user._id,
+      to: currentUser.data._id,
+    });
+
     // Accept friend request
     await api
       .put(`/api/friend-requests/${ friendRequest._id }`)
@@ -417,6 +405,15 @@ describe('PUT /api/friend-request/:id', () => {
 
 
   it('should change status of friend request to 3 (rejected)', async () => {
+    // Seed a second user
+    const user = await seedUser();
+
+    // Seed a friend request
+    const friendRequest = await seedFriendRequest({
+      from: user._id,
+      to: currentUser.data._id,
+    });
+
     // Reject friend request
     await api
       .put(`/api/friend-requests/${ friendRequest._id }`)
@@ -445,7 +442,7 @@ describe('PUT /api/friend-request/:id', () => {
 
   it('should return 400 if \'accept\' is missing', async () => {
     const res = await api
-      .put(`/api/friend-requests/${ fakeFriendRequestId }`)
+      .put(`/api/friend-requests/${ fakeIds[0] }`)
       .set('Cookie', currentUser.cookie);
 
     expect(res.statusCode).toBe(400);
@@ -457,7 +454,7 @@ describe('PUT /api/friend-request/:id', () => {
     const accept = faker.word.noun();
 
     const res = await api
-      .put(`/api/friend-requests/${ fakeFriendRequestId }`)
+      .put(`/api/friend-requests/${ fakeIds[0] }`)
       .query({ accept })
       .set('Cookie', currentUser.cookie);
 
@@ -468,7 +465,7 @@ describe('PUT /api/friend-request/:id', () => {
 
   it('should return 400 if friend request doesn\'t exist', async () => {
     const res = await api
-      .put(`/api/friend-requests/${ fakeFriendRequestId }`)
+      .put(`/api/friend-requests/${ fakeIds[0] }`)
       .query({ accept: true })
       .set('Cookie', currentUser.cookie);
 
@@ -478,17 +475,24 @@ describe('PUT /api/friend-request/:id', () => {
 
 
   it('should return 403 if current user is not the recipient of friend request', async () => {
+    // Seed a second user
+    const user = await seedUser();
+
+    // Seed a friend request
+    const friendRequest = await seedFriendRequest({
+      from: user._id,
+      to: currentUser.data._id,
+    });
+
     // Seed and authenticate a third user
     let stranger = {};
 
-    stranger.data = new models.User({
+    stranger.data = await seedUser({
       firstName: 'Musonius',
       lastName: 'Rufus',
       email: 'rufo@gmail.com',
       password: 'password',
     });
-  
-    await stranger.data.save();
     
     const res = await api
       .post('/api/auth/email')

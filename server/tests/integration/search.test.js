@@ -4,7 +4,7 @@ const { faker } = require('@faker-js/faker');
 const app = require('../../src/app');
 const dbUtil = require('../utils/db.util');
 const createAuthedUser = require('../utils/createAuthedUser.util');
-const models = require('../../src/models/index.model');
+const { seedFriendRequest, seedUser } = require('../utils/seeds.util');
 
 const api = supertest(app);
 
@@ -19,14 +19,7 @@ describe('GET /api/search', () => {
 
   it('should return a user when query matches full name', async () => {
     // Seed a second user
-    const user = new models.User({
-      firstName: faker.name.firstName(),
-      lastName: faker.name.lastName(),
-      email: faker.internet.email(),
-      password: faker.internet.password(),
-    });
-
-    await user.save();
+    const user = await seedUser();
 
     const q = user.fullName;
 
@@ -45,14 +38,7 @@ describe('GET /api/search', () => {
 
   it('should return a user when query matches first name', async () => {
     // Seed a second user
-    const user = new models.User({
-      firstName: faker.name.firstName(),
-      lastName: faker.name.lastName(),
-      email: faker.internet.email(),
-      password: faker.internet.password(),
-    });
-
-    await user.save();
+    const user = await seedUser();
 
     const q = user.firstName;
 
@@ -71,14 +57,7 @@ describe('GET /api/search', () => {
 
   it('should return a user when query matches last name', async () => {
     // Seed a second user
-    const user = new models.User({
-      firstName: faker.name.firstName(),
-      lastName: faker.name.lastName(),
-      email: faker.internet.email(),
-      password: faker.internet.password(),
-    });
-
-    await user.save();
+    const user = await seedUser();
 
     const q = user.lastName;
 
@@ -97,14 +76,7 @@ describe('GET /api/search', () => {
 
   it('should return a user when query partially matches name', async () => {
     // Seed a second user (ensure first name is long enough for slice to work)
-    const user = new models.User({
-      firstName: 'Epictetus',
-      lastName: faker.name.lastName(),
-      email: faker.internet.email(),
-      password: faker.internet.password(),
-    });
-
-    await user.save();
+    const user = await seedUser({ firstName: 'Epictetus' });
 
     // Query with substring of first name
     const q = user.firstName.slice(2, 5);
@@ -124,14 +96,7 @@ describe('GET /api/search', () => {
 
   it('should match users regardless of leading/trailing whitespace', async () => {
     // Seed a second user
-    const user = new models.User({
-      firstName: faker.name.firstName(),
-      lastName: faker.name.lastName(),
-      email: faker.internet.email(),
-      password: faker.internet.password(),
-    });
-
-    await user.save();
+    const user = await seedUser();
 
     // Construct a query with whitespace
     const q = ` ${ user.firstName } `;
@@ -151,14 +116,10 @@ describe('GET /api/search', () => {
 
   it('should respect whitespace inside query', async () => {
     // Seed a second user
-    const user = new models.User({
+    const user = await seedUser({
       firstName: 'Musonius',
       lastName: 'Rufus',
-      email: faker.internet.email(),
-      password: faker.internet.password(),
     });
-
-    await user.save();
 
     // Contruct a query which includes end of first name
     // and beginning of last, including the space
@@ -178,14 +139,7 @@ describe('GET /api/search', () => {
 
   it('should match users regardless of case', async () => {
     // Seed a second user
-    const user = new models.User({
-      firstName: 'Seneca',
-      lastName: faker.name.lastName(),
-      email: faker.internet.email(),
-      password: faker.internet.password(),
-    });
-
-    await user.save();
+    const user = await seedUser({ firstName: 'Seneca' });
 
     // Substring of first name with random case
     const q = 'eNeC';
@@ -205,14 +159,7 @@ describe('GET /api/search', () => {
   it('should paginate results and let client know if there are more', async () => {
     // Seed enough users for two pages 
     for (let i = 0; i < 12; i++) {
-      const user = new models.User({
-        firstName: 'Socrates',
-        lastName: faker.name.lastName(),
-        email: faker.internet.email(),
-        password: faker.internet.password(),
-      });
-
-      await user.save();
+      await seedUser({ firstName: 'Socrates' });
     }
 
     const q = 'Socrates';
@@ -262,23 +209,13 @@ describe('GET /api/search', () => {
 
   it('should return relationship status of \'pending\' if there is a pending request', async () => {
     // Seed a second user
-    const user = new models.User({
-      firstName: faker.name.firstName(),
-      lastName: faker.name.lastName(),
-      email: faker.internet.email(),
-      password: faker.internet.password(),
-    });
-
-    await user.save();
+    const user = await seedUser();
 
     // Seed a pending friend request
-    const friendRequest = new models.FriendRequest({
+    await seedFriendRequest({
       from: currentUser.data._id,
       to: user._id,
-      status: 1,
     });
-
-    await friendRequest.save();
 
     // Search for second user
     const res = await api
@@ -294,23 +231,14 @@ describe('GET /api/search', () => {
 
   it('should return relationship status of \'accepted\' if users are friends', async () => {
      // Seed a second user
-     const user = new models.User({
-      firstName: faker.name.firstName(),
-      lastName: faker.name.lastName(),
-      email: faker.internet.email(),
-      password: faker.internet.password(),
-    });
-
-    await user.save();
+     const user = await seedUser();
 
     // Seed an accepted friend request
-    const friendRequest = new models.FriendRequest({
+    await seedFriendRequest({
       from: currentUser.data._id,
       to: user._id,
       status: 2,
     });
-
-    await friendRequest.save();
 
     // Search for second user
     const res = await api
@@ -326,23 +254,14 @@ describe('GET /api/search', () => {
 
   it('should return relationship status of \'rejected\' if there is a rejected request', async () => {
     // Seed a second user
-    const user = new models.User({
-      firstName: faker.name.firstName(),
-      lastName: faker.name.lastName(),
-      email: faker.internet.email(),
-      password: faker.internet.password(),
-    });
-
-    await user.save();
+    const user = await seedUser();
 
     // Seed a rejected friend request
-    const friendRequest = new models.FriendRequest({
+    await seedFriendRequest({
       from: currentUser.data._id,
       to: user._id,
       status: 3,
     });
-
-    await friendRequest.save();
 
     // Search for second user
     const res = await api
@@ -371,14 +290,7 @@ describe('GET /api/search', () => {
 
   it('should return relationship status of \'none\' if users are strangers', async () => {
     // Seed a second user
-    const user = new models.User({
-      firstName: faker.name.firstName(),
-      lastName: faker.name.lastName(),
-      email: faker.internet.email(),
-      password: faker.internet.password(),
-    });
-
-    await user.save();
+    const user = await seedUser();
 
     // Search for second user
     const res = await api
@@ -409,14 +321,7 @@ describe('GET /api/search', () => {
 
   it('should not return a user when name doesn\'t contain the entire query', async () => {
     // Seed a second user
-    const user = new models.User({
-      firstName: 'Rose',
-      lastName: faker.name.lastName(),
-      email: faker.internet.email(),
-      password: faker.internet.password(),
-    });
-
-    await user.save();
+    const user = await seedUser({ firstName: 'Rose' });
 
     // Append to first name
     const q = `${ user.firstName }y`;

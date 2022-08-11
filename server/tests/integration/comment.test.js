@@ -1,10 +1,11 @@
 const supertest = require('supertest');
-const mongoose = require('mongoose');
 const { faker } = require('@faker-js/faker');
 
 const app = require('../../src/app');
 const dbUtil = require('../utils/db.util');
 const createAuthedUser = require('../utils/createAuthedUser.util');
+const { seedPost, seedComment } = require('../utils/seeds.util');
+const fakeIds = require('../utils/fakeIds.util');
 const models = require('../../src/models/index.model');
 
 const api = supertest(app);
@@ -15,10 +16,6 @@ afterEach(async () => await dbUtil.clearDatabase());
 
 afterAll(async () => await dbUtil.closeDatabase());
 
-const fakeUserId = new mongoose.Types.ObjectId().toString();
-const fakePostId = new mongoose.Types.ObjectId().toString();
-const fakeCommentId = new mongoose.Types.ObjectId().toString();
-
 describe('GET /api/comments', () => {
   const currentUser = createAuthedUser();
   
@@ -26,24 +23,16 @@ describe('GET /api/comments', () => {
   let post;
   
   beforeEach(async () => {
-    post = new models.Post({
-      postedBy: currentUser.data._id,
-      content: faker.lorem.sentence(),
-    });
-    
-    await post.save();
+    post = await seedPost({ postedBy: currentUser.data._id });
   })
 
   it('should paginate results and let client know if there are more', async () => {
     // Seed enough comments for two pages
     for (let i = 0; i < 7; i++) {
-      const comment = new models.Comment({
+      await seedComment({
         postedBy: currentUser.data._id,
         postId: post._id,
-        content: faker.lorem.sentence(),
       });
-      
-      await comment.save();
     }
 
     // Fetch page one
@@ -81,13 +70,10 @@ describe('GET /api/comments', () => {
 
   it('should populate some details about comment author', async () => {
     // Seed a comment
-    const comment = new models.Comment({
+    await seedComment({
       postedBy: currentUser.data._id,
       postId: post._id,
-      content: faker.lorem.sentence(),
     });
-    
-    await comment.save();
 
     // Fetch comments
     const res = await api
@@ -107,13 +93,10 @@ describe('GET /api/comments', () => {
   it('should return latest comments first', async () => {
     // Seed comments
     for (let i = 0; i < 2; i++) {
-      const comment = new models.Comment({
+      await seedComment({
         postedBy: currentUser.data._id,
         postId: post._id,
-        content: faker.lorem.sentence(),
       });
-      
-      await comment.save();
     }
 
     // Fetch comments
@@ -186,7 +169,7 @@ describe('GET /api/comments', () => {
   it('should return 400 if post doesn\'t exist', async () => {
     const res = await api
       .get('/api/comments')
-      .query({ postid: fakePostId })
+      .query({ postid: fakeIds[0] })
       .query({ page: 1 })
       .set('Cookie', currentUser.cookie);
 
@@ -198,7 +181,7 @@ describe('GET /api/comments', () => {
   it('should return 400 if \'page\' is missing', async () => {
     const res = await api
       .get('/api/comments')
-      .query({ postid: fakePostId })
+      .query({ postid: fakeIds[0] })
       .set('Cookie', currentUser.cookie);
 
     expect(res.statusCode).toBe(400);
@@ -211,7 +194,7 @@ describe('GET /api/comments', () => {
 
     const res = await api
       .get('/api/comments')
-      .query({ postid: fakePostId })
+      .query({ postid: fakeIds[0] })
       .query({ page })
       .set('Cookie', currentUser.cookie);
 
@@ -225,7 +208,7 @@ describe('GET /api/comments', () => {
 
     const res = await api
     .get('/api/comments')
-    .query({ postid: fakePostId })
+    .query({ postid: fakeIds[0] })
     .query({ page })
     .set('Cookie', currentUser.cookie);
     
@@ -239,7 +222,7 @@ describe('GET /api/comments', () => {
 
     const res = await api
       .get('/api/comments')
-      .query({ postid: fakePostId })
+      .query({ postid: fakeIds[0] })
       .query({ page })
       .set('Cookie', currentUser.cookie);
   
@@ -253,7 +236,7 @@ describe('GET /api/comments', () => {
 
     const res = await api
       .get('/api/comments')
-      .query({ postid: fakePostId })
+      .query({ postid: fakeIds[0] })
       .query({ page })
       .set('Cookie', currentUser.cookie);
 
@@ -267,12 +250,7 @@ describe('POST /api/comments', () => {
 
   it('should create a comment', async () => {
     // Seed a post
-    const post = new models.Post({
-      postedBy: currentUser.data._id,
-      content: faker.lorem.sentence(),
-    });
-
-    await post.save();
+    const post = await seedPost({ postedBy: currentUser.data._id });
 
     // Create a comment
     const content = faker.lorem.sentence();
@@ -293,12 +271,7 @@ describe('POST /api/comments', () => {
 
   it('should update commentsCount field in corresponding post', async () => {
     // Seed a post
-    const post = new models.Post({
-      postedBy: currentUser.data._id,
-      content: faker.lorem.sentence(),
-    });
-
-    await post.save();
+    const post = await seedPost({ postedBy: currentUser.data._id });
 
     // Create a comment
     const content = faker.lorem.sentence();
@@ -358,7 +331,7 @@ describe('POST /api/comments', () => {
   it('should return 400 if post doesn\'t exist', async () => {
     const res = await api
       .post('/api/comments')
-      .query({ postid: fakePostId })
+      .query({ postid: fakeIds[0] })
       .set('Cookie', currentUser.cookie)
       .send({ content: faker.lorem.sentence() });
 
@@ -372,7 +345,7 @@ describe('POST /api/comments', () => {
 
     const res = await api
       .post('/api/comments')
-      .query({ postid: fakePostId })
+      .query({ postid: fakeIds[0] })
       .set('Cookie', currentUser.cookie)
       .send({ content: longContent });
 
@@ -384,7 +357,7 @@ describe('POST /api/comments', () => {
   it('should return 400 if \'content\' is missing', async () => {
     const res = await api
       .post('/api/comments')
-      .query({ postid: fakePostId })
+      .query({ postid: fakeIds[0] })
       .set('Cookie', currentUser.cookie);
 
     expect(res.statusCode).toBe(400);
@@ -395,7 +368,7 @@ describe('POST /api/comments', () => {
   it('should return 400 if \'content\' is an empty string', async () => {
     const res = await api
       .post('/api/comments')
-      .query({ postid: fakePostId })
+      .query({ postid: fakeIds[0] })
       .set('Cookie', currentUser.cookie)
       .send({ content: '' });
 
@@ -409,13 +382,7 @@ describe('PUT /api/comments/:id', () => {
 
   it('should like a comment', async () => {
     // Seed a comment
-    const comment = new models.Comment({
-      postedBy: fakeUserId,
-      postId: fakePostId,
-      content: faker.lorem.sentence(),
-    });
-
-    await comment.save();
+    const comment = await seedComment();
 
     const res = await api
       .put(`/api/comments/${ comment._id }`)
@@ -428,13 +395,7 @@ describe('PUT /api/comments/:id', () => {
 
   it('should unlike a comment', async () => {
     // Seed a comment
-    const comment = new models.Comment({
-      postedBy: fakeUserId,
-      postId: fakePostId,
-      content: faker.lorem.sentence(),
-    });
-
-    await comment.save();
+    const comment = await seedComment();
 
     // Like comment
     await api
@@ -465,7 +426,7 @@ describe('PUT /api/comments/:id', () => {
 
   it('should return 400 if comment doesn\'t exist', async () => {
     const res = await api
-      .put(`/api/comments/${ fakeCommentId }`)
+      .put(`/api/comments/${ fakeIds[0] }`)
       .set('Cookie', currentUser.cookie);
 
     expect(res.statusCode).toBe(400);
@@ -475,13 +436,7 @@ describe('PUT /api/comments/:id', () => {
 
   it('should return 403 if user attempts to like own comment', async () => {
     // Seed a comment
-    const comment = new models.Comment({
-      postedBy: currentUser.data._id,
-      postId: fakePostId,
-      content: faker.lorem.sentence(),
-    });
-
-    await comment.save();
+    const comment = await seedComment({ postedBy: currentUser.data._id });
 
     const res = await api
       .put(`/api/comments/${ comment._id }`)
