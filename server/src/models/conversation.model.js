@@ -4,7 +4,10 @@ const { Schema } = mongoose;
 
 const conversationSchema = new Schema({
   name: String,
-  avatarUrl: String,
+  avatarUrl: {
+    type: String,
+    default: '../../../images/group-avatar.jpg',
+  },
   type: {
     type: String,
     enum: ['private', 'group'],

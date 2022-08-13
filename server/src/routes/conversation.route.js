@@ -3,6 +3,7 @@ const passport = require('passport');
 
 const conversationController = require('../controllers/conversation.controller');
 const conversationValidation = require('../validations/conversation.validation');
+const upload = require('../middlewares/upload');
 const validate = require('../middlewares/validate');
 
 const router = express.Router();
@@ -12,7 +13,17 @@ router.get('/',
   validate(conversationValidation.fetchChats.query, 'query'),
   conversationController.fetchChats
 );
-router.post('/', conversationController.createNewChat);
+router.post('/',
+  passport.authenticate('jwt', { session: false }),
+  upload('single', 'avatar'),
+  validate(conversationValidation.createNewChat.query, 'query'),
+  (req, res, next) => {
+    req.context = { type: req.query.type }; // Validation schema differs when creating private and group chats
+    validate(conversationValidation.createNewChat.body, 'body')(req, res, next);
+  },
+  conversationController.createNewChat
+);
+
 router.put('/:id', conversationController.updateChat);
 router.delete('/:id', conversationController.deleteGroup);
 

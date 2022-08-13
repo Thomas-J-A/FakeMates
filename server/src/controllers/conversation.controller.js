@@ -11,8 +11,8 @@ exports.fetchChats = async (req, res, next) => {
       .match({
         $and: [
           { type },
-          { members: { $in: [req.user._id] }},
-          { deletedBy : { $nin: [req.user._id] }},
+          { members: { $in: [req.user._id] } },
+          { deletedBy : { $nin: [req.user._id] } },
         ]
       })
       .lookup({
@@ -29,7 +29,7 @@ exports.fetchChats = async (req, res, next) => {
         lastMessage: { $first: '$messages' },
         unreadCount: {
           $sum: {
-            $cond: [{ $in: [req.user._id, { $ifNull: ['$messages.readBy', []]}]}, 0, 1]
+            $cond: [{ $in: [req.user._id, { $ifNull: ['$messages.readBy', []] }] }, 0, 1]
           }
         },
       })
@@ -55,7 +55,7 @@ exports.fetchChats = async (req, res, next) => {
               }
             }
           },
-          { $project: { fullName: 1, avatarUrl: 1 }},
+          { $project: { fullName: 1, avatarUrl: 1 } },
         ],
         as: 'data.members',
       })
@@ -72,7 +72,7 @@ exports.fetchChats = async (req, res, next) => {
               }
             }
           },
-          { $project: { fullName: 1 }},
+          { $project: { fullName: 1 } },
         ],
         as: 'lastMessage.sender',
       })
@@ -88,8 +88,8 @@ exports.fetchChats = async (req, res, next) => {
     const totalCount = await req.models.Conversation.countDocuments()
       .and([
         { type },
-        { members: { $in: [req.user._id] }}, 
-        { deletedBy : { $nin: [req.user._id] }},
+        { members: { $in: [req.user._id] } }, 
+        { deletedBy : { $nin: [req.user._id] } },
       ])
       .exec();
 
@@ -104,8 +104,91 @@ exports.fetchChats = async (req, res, next) => {
   }
 };
 
-exports.createNewChat = (req, res) => {
-  res.send('Created new chat');
+exports.createNewChat = async (req, res, next) => {
+  try {
+    const { type } = req.query;
+    
+    if (type === 'private') {
+      const { memberId } = req.body;
+
+      // Verify that a user with memberId exists
+      const user = await req.models.User.findById(memberId).exec();
+
+      if(!user) {
+        return res.status(400).json({ message: 'User doesn\'t exist' });
+      }
+
+      // Check if conversation already exists
+      const conversation = await req.models.Conversation.findOne()
+        .and([
+          { type },
+          { members: { $all: [memberId, req.user._id] } },
+        ])
+        .exec();
+
+      if (conversation) {
+        if (conversation.deletedBy.includes(req.user._id)) {
+          // Current user previously deleted chat - continue chat with same document
+          // Remove user from conversation.deletedBy
+          conversation.deletedBy = conversation.deletedBy.filter((member) => member._id !== req.user._id);
+          await conversation.save();
+
+          // Conversation ID needed clientside to associate this chat with all later messages
+          // Original conversation doc is used so that the user who didn't delete chat can
+          // continue to receive all old messages plus new ones sent after this request in same chat thread
+          return res.status(200).json(conversation);
+        }
+        
+        // Chat already ongoing
+        return res.status(403).json({ message: 'Conversation already exists' });
+      }   
+
+      // Create a new conversation
+      const newConversation = new req.models.Conversation({
+        type: 'private',
+        members: [memberId, req.user._id],
+      });
+
+      await newConversation.save();
+
+      return res.status(201).json(newConversation);
+    }
+
+    // Group chat
+    const { name, memberIds } = req.body;
+
+    // Verify that all other members of conversation exist
+    // Array.prototype.every doesn't work with async/await
+    const promises = memberIds.map(async (id) => {
+      return await req.models.User.findById(id).exec();
+    });
+
+    const users = await Promise.all(promises);
+
+    if (users.includes(null)) {
+      return res.status(400).json({ message: 'At least one of the users doesn\'t exist' });
+    }
+
+    // Create a new conversation
+    const newConversation = new req.models.Conversation({
+      name,
+      type,
+      createdBy: req.user._id,
+      members: [...memberIds, req.user._id],
+    });
+
+    // Add avatarUrl to doc if user uploaded
+    // an (optional) group avatar
+    if (req.file) {
+      newConversation.avatarUrl = req.file.path;
+    }
+
+    await newConversation.save();
+
+    return res.status(201).json(newConversation);
+  } catch (err) {
+    next(err);
+  }
 };
 
 exports.updateChat = (req, res) => {
@@ -144,31 +227,14 @@ exports.deleteGroup = (req, res) => {
     // .limit(limit)
     // .exec();
 
-    // // Calculate amount of unread messages for each conversation
-    // // Create an array of conversationIds
-    // const conversationIds = conversations.map((c) => c._id);
-
-    // const unreadCounts = await req.models.Message.aggregate()
-    //   .match({ conversationId: { $in: conversationIds }})
-    //   .group({
-    //     _id: '$conversationId',
-    //     unreadCount: {
-    //       $sum: {
-    //         $cond: [{ '$messages.readBy': { $nin: [req.user._id]}}, 1, 0]
-    //       }
-    //     },
-    //   })
-    //   .exec();
-
-    // // Add an unreadCount field to corresponding conversation doc
-    // unreadCounts.forEach((count) => {
-
-    // })
-
-
 
 
     // from: 'users',
     // localField: 'conversation.members',
     // foreignField: '_id',
     // as: 'conversation.members',
+
+
+
+    // const index = conversation.deletedBy.indexOf(req.user._id);
+    // conversation.deletedBy.splice(index, 1);

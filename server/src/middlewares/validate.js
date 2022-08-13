@@ -12,7 +12,9 @@ const removeFile = async (path, next) => {
 
 // property parameter is one of 'body', 'query', 'params', or 'headers'
 module.exports = (schema, property) => (req, res, next) => {
-  const { error, value } = schema.validate(req[property], { stripUnknown: true });
+  const context = req.context ? req.context : {};
+  
+  const { error, value } = schema.validate(req[property], { stripUnknown: true, context });
   
   if (error) {
     // Remove file/s from uploads directory if there is any validation error
