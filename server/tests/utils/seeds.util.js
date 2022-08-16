@@ -100,6 +100,8 @@ const seedMessage = async (data) => {
     sender: data.sender,
     conversationId: data.conversationId,
     content: data.content || faker.lorem.sentence(),
+    readBy: data.readBy || [],
+    deletedBy: data.deletedBy || [],
   });
 
   await message.save();

@@ -32,37 +32,6 @@ const createNewChatQuery = Joi.object({
     }),
 });
 
-// const createNewChatBody = Joi.object({
-//   memberIds: Joi.array()
-//     .items(
-//       Joi.string()
-//         .regex(objectId)
-//         .required()
-//     )
-//     .min(1)
-//     .max(8)
-//     .required()
-//     .messages({
-//       'array.includesRequiredUnknowns': 'Member IDs list must contain at least one valid ObjectId', // Array items are not of type ObjectID
-//       'array.max': 'Member IDs list must contain eight or fewer IDs', // Too many members
-//       'array.base': 'Member IDs list must be an array', // MemberIds value isn't an array
-//       'any.required': 'Member IDs list is required', // memberIds field is missing
-//     }),
-
-//   // if type === group, additionally validate group name
-//   name: Joi.when('type', {
-//     is: 'group',
-//     then: Joi.string()
-//       .max(20)
-//       .required()
-//       .messages({
-//         'string.empty': 'Name must not be empty',
-//         'string.max': 'Name must be twenty characters or less',
-//         'any.required': 'Name is required',
-//       }),
-//   }),
-// });
-
 const createNewChatBody = Joi.when('$type', {
   is: 'private',
   then: Joi.object({
@@ -102,6 +71,26 @@ const createNewChatBody = Joi.when('$type', {
   }),
 });
 
+const updateChatParams = Joi.object({
+  id: Joi.string()
+    .regex(objectId)
+    .required()
+    .messages({
+      'string.pattern.base': 'ID must be a valid ObjectId',
+      'any.required': 'ID is required',
+    }),
+});
+
+const updateChatQuery = Joi.object({
+  action: Joi.string()
+    .valid('delete-chat', 'leave-group')
+    .required()
+    .messages({
+      'any.only': 'Action must be either \'delete-chat\' or \'leave-group\'',
+      'any.required': 'Action is required',
+    }),
+});
+
 module.exports = {
   fetchChats: {
     query: fetchChatsQuery,
@@ -109,5 +98,9 @@ module.exports = {
   createNewChat: {
     query: createNewChatQuery,
     body: createNewChatBody,
+  },
+  updateChat: {
+    params: updateChatParams,
+    query: updateChatQuery,
   },
 };

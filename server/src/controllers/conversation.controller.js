@@ -1,3 +1,6 @@
+// TODO: possibly refactor these controller functions by adding for example
+// pre('remove') hooks in model files and moving logic there, etc
+
 exports.fetchChats = async (req, res, next) => {
   try {
     const { type, page } = req.query;
@@ -130,7 +133,7 @@ exports.createNewChat = async (req, res, next) => {
         if (conversation.deletedBy.includes(req.user._id)) {
           // Current user previously deleted chat - continue chat with same document
           // Remove user from conversation.deletedBy
-          conversation.deletedBy = conversation.deletedBy.filter((member) => member._id !== req.user._id);
+          conversation.deletedBy = conversation.deletedBy.filter((id) => !(id.equals(req.user._id))); // Comparing ObjectIds
           await conversation.save();
 
           // Conversation ID needed clientside to associate this chat with all later messages
@@ -191,8 +194,80 @@ exports.createNewChat = async (req, res, next) => {
   }
 };
 
-exports.updateChat = (req, res) => {
-  res.send('Updated chat');
+exports.updateChat = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const { action } = req.query;
+
+    // Verify that conversation exists
+    const conversation = await req.models.Conversation.findById(id).exec();
+    
+    if (!conversation) {
+      return res.status(400).json({ message: 'Conversation doesn\'t exist' });
+    }
+
+    // Verify that current user is part of this conversation
+    if (!(conversation.members.includes(req.user._id))) {
+      return res.status(403).json({ message: 'You must be a member of this conversation to update record' });
+    }
+
+    if (action === 'delete-chat') {
+      // Verify that current user hasn't already 'deleted' this conversation
+      if (conversation.deletedBy.includes(req.user._id)) {
+        return res.status(403).json({ message: 'You have already deleted this conversation' });
+      }
+
+      // Mark conversation as 'deleted' for current user
+      conversation.deletedBy.push(req.user._id);
+    } else {
+      // Leave group             
+      // Remove current user from the list of conversation members
+      conversation.members = conversation.members.filter((id) => !(id.equals(req.user._id))); // Comparing ObjectIds
+    }
+
+    // Check if all members have now deleted this conversation
+    const isDeletedAll = conversation.members.every((member) => conversation.deletedBy.includes(member));
+    
+    if (isDeletedAll) {
+      // Remove record (and cascade deleted associated messages)
+      await conversation.remove();
+
+      return res.sendStatus(204);
+    }
+
+    // Not all members have deleted conversation
+    await conversation.save();
+
+    // Mark all associated messages as 'deleted' for current user
+    // User may have deleted conversation previously so oldest
+    // messages might already be marked as deleted
+    const messages = await req.models.Message.find()
+      .and([
+        { conversationId: id },
+        { deletedBy: { $nin: [req.user._id] } },
+      ])
+      .exec();
+
+    const promises = messages.map(async (message) => {
+      message.deletedBy.push(req.user._id);
+
+      // Mark message as 'read' for current user if not already
+      // (they can also delete chat without looking at message)
+      if (!message.readBy.includes(req.user._id)) {
+        message.readBy.push(req.user._id);
+      }
+
+      // Check if all members have now deleted this message
+      const isDeletedAll = conversation.members.every((member) => message.deletedBy.includes(member));
+      isDeletedAll ? await message.remove() : await message.save();
+    });
+
+    await Promise.all(promises);
+
+    return res.sendStatus(204);
+  } catch (err) {
+    next(err);
+  }
 };
 
 exports.deleteGroup = (req, res) => {
@@ -206,7 +281,10 @@ exports.deleteGroup = (req, res) => {
 
 
 
-
+    // Check if all members have now deleted this message
+    // conversation.members.length === m.deletedBy.length
+    //   ? await m.remove()
+    //   : await m.save();
 
 
 
@@ -238,3 +316,23 @@ exports.deleteGroup = (req, res) => {
 
     // const index = conversation.deletedBy.indexOf(req.user._id);
     // conversation.deletedBy.splice(index, 1);
+
+
+
+
+
+    // if (conversation.deletedBy.includes(req.user._id)) {
+    //   // Sending a leave-group request after having already deleted chat - not via UI but
+    //   // via postman or curl, etc - could result in a bug where members.length equals length
+    //   // of deletedBy array even if the ids are different, so remove from array beforehand
+    //   conversation.deletedBy = conversation.deletedBy.filter((id) => !(id.equals(req.user._id))); // Comparing ObjectIds
+    // }
+
+
+    // // Check if all members have now deleted this conversation
+    // if (conversation.members.length === conversation.deletedBy.length) {
+    //   // Remove record (and cascade deleted associated messages)
+    //   await conversation.remove();
+
+    //   return res.sendStatus(204);
+    // }

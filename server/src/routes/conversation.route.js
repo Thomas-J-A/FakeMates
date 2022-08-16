@@ -24,7 +24,13 @@ router.post('/',
   conversationController.createNewChat
 );
 
-router.put('/:id', conversationController.updateChat);
+router.put('/:id',
+  passport.authenticate('jwt', { session: false }),
+  validate(conversationValidation.updateChat.params, 'params'),
+  validate(conversationValidation.updateChat.query, 'query'),  
+  conversationController.updateChat
+);
+
 router.delete('/:id', conversationController.deleteGroup);
 
 module.exports = router;

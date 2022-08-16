@@ -30,4 +30,15 @@ const conversationSchema = new Schema({
   }],
 }, { timestamps: true });
 
+conversationSchema.pre('remove', async function(next) {
+  try {
+    // Remove all associated messages
+    await mongoose.model('Message').deleteMany({ conversationId: this._id }).exec();
+
+    next();
+  } catch (err) {
+    next(err);
+  }
+})
+
 module.exports = mongoose.model('Conversation', conversationSchema);

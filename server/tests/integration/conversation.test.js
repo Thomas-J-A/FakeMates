@@ -9,6 +9,7 @@ const dbUtil = require('../utils/db.util');
 const createAuthedUser = require('../utils/createAuthedUser.util');
 const { seedUser, seedConversation, seedMessage } = require('../utils/seeds.util');
 const fakeIds = require('../utils/fakeIds.util');
+const models = require('../../src/models/index.model');
 
 const api = supertest(app);
 
@@ -366,7 +367,7 @@ describe('POST /api/conversations', () => {
       deletedBy: [currentUser.data._id],
     });
 
-    // Attempt to create a new chat with second user
+    // Attempt to create a new chat with same members
     const res = await api
       .post('/api/conversations')
       .query({ type: 'private' })
@@ -376,6 +377,7 @@ describe('POST /api/conversations', () => {
     // Verify that returned conversation is original chat document (not newly created)
     expect(res.statusCode).toBe(200);
     expect(res.body._id).toBe(conversation._id.toString());
+    expect(res.body.deletedBy).toHaveLength(0);
   });
 
 
@@ -635,5 +637,287 @@ describe('POST /api/conversations', () => {
 
     expect(res.statusCode).toBe(400);
     expect(res.body.message).toBe('At least one of the users doesn\'t exist');
+  });
+});
+
+describe('PUT /api/conversations/:id', () => {
+  const currentUser = createAuthedUser();
+
+  describe('action=delete-chat', () => {
+    it('should mark a private chat as deleted', async () => {
+      // Seed a private conversation
+      const conversation = await seedConversation({
+        type: 'private',
+        members: [currentUser.data._id, fakeIds[0]],
+      });
+
+      // Delete chat
+      const res = await api
+        .put(`/api/conversations/${ conversation._id }`)
+        .query({ action: 'delete-chat' })
+        .set('Cookie', currentUser.cookie);
+
+      expect(res.statusCode).toBe(204);
+
+      // Verify that chat is marked as deleted by current user
+      const conversationDoc = await models.Conversation.findById(conversation._id).exec();
+
+      expect(conversationDoc.deletedBy).toContainEqual(currentUser.data._id);
+    });
+
+
+    it('should mark a group chat as deleted', async () => {
+      // Seed a group conversation
+      const conversation = await seedConversation({
+        type: 'group',
+        members: [currentUser.data._id, fakeIds[0], fakeIds[1]],
+      });
+
+      // Delete chat
+      const res = await api
+        .put(`/api/conversations/${ conversation._id }`)
+        .query({ action: 'delete-chat' })
+        .set('Cookie', currentUser.cookie);
+
+      expect(res.statusCode).toBe(204);
+
+      // Verify that chat is marked as deleted by current user
+      const conversationDoc = await models.Conversation.findById(conversation._id).exec();
+      
+      expect(conversationDoc.deletedBy).toContainEqual(currentUser.data._id);
+    });
+
+
+    it('should mark associated messages as read and deleted', async () => {
+      // Seed a conversation
+      const conversation = await seedConversation({
+        type: 'private',
+        members: [currentUser.data._id, fakeIds[0]],
+      });
+
+      // Seed a message
+      const message = await seedMessage({
+        sender: currentUser.data._id,
+        conversationId: conversation._id,
+      });
+
+      // Delete chat
+      const res = await api
+        .put(`/api/conversations/${ conversation._id }`)
+        .query({ action: 'delete-chat' })
+        .set('Cookie', currentUser.cookie);
+
+      expect(res.statusCode).toBe(204);
+
+      // Verify that message is marked as read and deleted by current user
+      const messageDoc = await models.Message.findById(message._id).exec();
+
+      expect(messageDoc.readBy).toContainEqual(currentUser.data._id)
+      expect(messageDoc.deletedBy).toContainEqual(currentUser.data._id);
+
+      // Verify that second member can still access message
+      expect(messageDoc.deletedBy).not.toContainEqual(fakeIds[0]);
+    });
+
+
+    it('should return 403 if user has already \'deleted\' chat', async () => {
+      // Seed a conversation marked as deleted by current user
+      const conversation = await seedConversation({
+        type: 'private',
+        members: [currentUser.data._id, fakeIds[0]],
+        deletedBy: [currentUser.data._id],
+      });
+
+      // Delete chat
+      const res = await api
+        .put(`/api/conversations/${ conversation._id }`)
+        .query({ action: 'delete-chat' })
+        .set('Cookie', currentUser.cookie);
+
+      expect(res.statusCode).toBe(403);
+      expect(res.body.message).toBe('You have already deleted this conversation');
+    });
+  });
+  
+  describe('action=leave-group', () => {
+    it('should remove user from group', async () => {
+      // Seed a group conversation
+      const conversation = await seedConversation({
+        type: 'group',
+        members: [currentUser.data._id, fakeIds[0], fakeIds[1]],
+      });
+
+      // Leave group
+      const res = await api
+        .put(`/api/conversations/${ conversation._id }`)
+        .query({ action: 'leave-group' })
+        .set('Cookie', currentUser.cookie);
+
+      expect(res.statusCode).toBe(204);
+
+      // Verify that current user is no longer in group
+      const conversationDoc = await models.Conversation.findById(conversation._id).exec();
+
+      expect(conversationDoc.members).not.toContainEqual(currentUser.data._id);
+    });
+
+
+    it('should mark associated messages as read and deleted', async () => {
+      // Seed a group conversation
+      const conversation = await seedConversation({
+        type: 'group',
+        members: [currentUser.data._id, fakeIds[0]],
+      });
+
+      // Seed a message
+      const message = await seedMessage({
+        sender: currentUser.data._id,
+        conversationId: conversation._id,
+      });
+
+      // Leave group
+      const res = await api
+        .put(`/api/conversations/${ conversation._id }`)
+        .query({ action: 'leave-group' })
+        .set('Cookie', currentUser.cookie);
+
+      expect(res.statusCode).toBe(204);
+
+      // Verify that message is marked as read and deleted by current user
+      const messageDoc = await models.Message.findById(message._id).exec();
+
+      expect(messageDoc.readBy).toContainEqual(currentUser.data._id);
+      expect(messageDoc.deletedBy).toContainEqual(currentUser.data._id);
+    });
+  });
+
+  it('should remove chat and its messages if all members mark as deleted', async () => {
+    // Seed a conversation marked as deleted by one member
+    const conversation = await seedConversation({
+      type: 'private',
+      members: [currentUser.data._id, fakeIds[0]],
+      deletedBy: [fakeIds[0]],
+    });
+
+    // Seed a message
+    const message = await seedMessage({
+      sender: currentUser.data._id,
+      conversationId: conversation._id,
+      readBy: [fakeIds[0]],
+      deletedBy: [fakeIds[0]],
+    });
+
+    // Delete chat
+    const res = await api
+      .put(`/api/conversations/${ conversation._id }`)
+      .query({ action: 'delete-chat' })
+      .set('Cookie', currentUser.cookie);
+
+    expect(res.statusCode).toBe(204);
+    
+    // Verify that conversation has been removed
+    const conversationDoc = await models.Conversation.findById(conversation._id).exec();
+
+    expect(conversationDoc).toBeNull();
+
+    // Verify that associated messages have been removed
+    const messageDocs = await models.Message.find({ conversationId: conversation._id }).exec();
+
+    expect(messageDocs).toHaveLength(0);
+  });
+
+
+  it('should remove message if all members mark as deleted', async () => {
+    // Seed a conversation
+    const conversation = await seedConversation({
+      type: 'private',
+      members: [currentUser.data._id, fakeIds[0]],
+    });
+
+    // Seed a message marked as deleted by one member
+    const message = await seedMessage({
+      sender: currentUser.data._id,
+      conversationId: conversation._id,
+      readBy: [fakeIds[0]],
+      deletedBy: [fakeIds[0]],
+    });
+
+    // Delete chat
+    const res = await api
+      .put(`/api/conversations/${ conversation._id }`)
+      .query({ action: 'delete-chat' })
+      .set('Cookie', currentUser.cookie);
+
+    expect(res.statusCode).toBe(204);
+
+    // Verify that message has been removed
+    const messageDoc = await models.Message.findById(message._id).exec();
+
+    expect(messageDoc).toBeNull();
+  });
+
+
+  it('should return 400 if \':id\' is invalid', async () => {
+    const invalidId = 'abc123';
+
+    const res = await api
+      .put`/api/conversations/${ invalidId }`
+      .query({ action: 'delete-chat' })
+      .set('Cookie', currentUser.cookie);
+
+    expect(res.statusCode).toBe(400);
+    expect(res.body.message).toBe('ID must be a valid ObjectId');
+  });
+
+
+  it('should return 400 if \'action\' is missing', async () => {
+    const res = await api
+      .put(`/api/conversations/${ fakeIds[0] }`)
+      .set('Cookie', currentUser.cookie);
+
+    expect(res.statusCode).toBe(400);
+    expect(res.body.message).toBe('Action is required');
+  });
+
+
+  it('should return 400 if \'action\' is neither \'delete-chat\' nor \'leave-group\'', async () => {
+    const invalidAction = faker.word.verb();
+
+    const res = await api
+      .put(`/api/conversations/${ fakeIds[0] }`)
+      .query({ action: invalidAction })
+      .set('Cookie', currentUser.cookie);
+
+    expect(res.statusCode).toBe(400);
+    expect(res.body.message).toBe('Action must be either \'delete-chat\' or \'leave-group\'');
+  });
+
+
+  it('should return 400 if chat doesn\'t exist', async () => {
+    const res = await api
+      .put(`/api/conversations/${ fakeIds[0] }`)
+      .query({ action: 'delete-chat' })
+      .set('Cookie', currentUser.cookie);
+
+    expect(res.statusCode).toBe(400);
+    expect(res.body.message).toBe('Conversation doesn\'t exist');
+  });
+
+
+  it('should return 403 if user isn\'t part of chat', async () => {
+    // Seed a conversation between two other users
+    const conversation = await seedConversation({
+      type: 'private',
+      members: [fakeIds[0], fakeIds[1]],
+    });
+
+    // Attempt to delete chat with current user
+    const res = await api
+      .put(`/api/conversations/${ conversation._id }`)
+      .query({ action: 'delete-chat' })
+      .set('Cookie', currentUser.cookie);
+
+    expect(res.statusCode).toBe(403);
+    expect(res.body.message).toBe('You must be a member of this conversation to update record');
   });
 });
