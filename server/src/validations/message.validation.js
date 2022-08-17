@@ -2,6 +2,26 @@ const Joi = require('joi');
 
 const objectId = /^[0-9a-fA-F]{24}$/;
 
+const fetchMessagesQuery = Joi.object({
+  conversationId: Joi.string()
+    .regex(objectId)
+    .required()
+    .messages({
+      'string.pattern.base': 'Conversation ID must be a valid ObjectId',
+      'any.required': 'Conversation ID is required',
+    }),
+  page: Joi.number()
+    .integer()
+    .min(1)
+    .required()
+    .messages({
+      'number.base': 'Page must be a number',
+      'number.integer': 'Page must be an integer',
+      'number.min': 'Page must be greater than or equal to one',
+      'any.required': 'Page is required',
+    }),
+});
+
 const sendMessageBody = Joi.object({
   conversationId: Joi.string()
     .regex(objectId)
@@ -21,6 +41,9 @@ const sendMessageBody = Joi.object({
 });
 
 module.exports = {
+  fetchMessages: {
+    query: fetchMessagesQuery,
+  },
   sendMessage: {
     body: sendMessageBody,
   },
