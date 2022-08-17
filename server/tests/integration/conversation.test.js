@@ -861,7 +861,7 @@ describe('PUT /api/conversations/:id', () => {
     const invalidId = 'abc123';
 
     const res = await api
-      .put`/api/conversations/${ invalidId }`
+      .put(`/api/conversations/${ invalidId }`)
       .query({ action: 'delete-chat' })
       .set('Cookie', currentUser.cookie);
 
@@ -919,5 +919,115 @@ describe('PUT /api/conversations/:id', () => {
 
     expect(res.statusCode).toBe(403);
     expect(res.body.message).toBe('You must be a member of this conversation to update record');
+  });
+});
+
+describe('DELETE /api/conversations/:id', () => {
+  const currentUser = createAuthedUser();
+
+  it('should delete a group conversation', async () => {
+    // Seed a group conversation
+    const conversation = await seedConversation({
+      type: 'group',
+      createdBy: currentUser.data._id,
+      members: [currentUser.data._id, fakeIds[0], fakeIds[1]],
+    });
+
+    // Delete group
+    const res = await api
+      .delete(`/api/conversations/${ conversation._id }`)
+      .set('Cookie', currentUser.cookie);
+
+    expect(res.statusCode).toBe(204);
+
+    // Verify that conversation has been removed
+    const conversationDoc = await models.Conversation.findById(conversation._id).exec();
+
+    expect(conversationDoc).toBeNull();
+  });
+
+
+  it('should remove associated messages', async () => {
+    // Seed a group conversation
+    const conversation = await seedConversation({
+      type: 'group',
+      createdBy: currentUser.data._id,
+      members: [currentUser.data._id, fakeIds[0], fakeIds[1]],
+    });
+
+    // Seed a message
+    const message = await seedMessage({
+      sender: currentUser.data._id,
+      conversationId: conversation._id,
+    });
+
+    // Delete group
+    const res = await api
+      .delete(`/api/conversations/${ conversation._id }`)
+      .set('Cookie', currentUser.cookie);
+
+    expect(res.statusCode).toBe(204);
+
+    // Verify that message has been removed
+    const messageDoc = await models.Message.findById(message._id).exec();
+
+    expect(messageDoc).toBeNull();
+  });
+
+
+  it('should return 400 if conversation doesn\'t exist', async () => {
+    const res = await api
+      .delete(`/api/conversations/${ fakeIds[0] }`)
+      .set('Cookie', currentUser.cookie);
+
+    expect(res.statusCode).toBe(400);
+    expect(res.body.message).toBe('Conversation doesn\'t exist');
+  });
+
+
+  it('should return 400 if user attempts to delete a private conversation', async () => {
+    // Seed a private conversation
+    const conversation = await seedConversation({
+      type: 'private',
+      members: [currentUser.data._id, fakeIds[0]],
+    });
+
+    // Delete group
+    const res = await api
+      .delete(`/api/conversations/${ conversation._id }`)
+      .set('Cookie', currentUser.cookie);
+
+    expect(res.statusCode).toBe(400);
+    expect(res.body.message).toBe('You may only unilaterally delete a group conversation');
+  });
+
+
+  it('should return 403 if user is not the creator of conversation', async () => {
+    // Seed a conversation
+    const conversation = await seedConversation({
+      type: 'group',
+      createdBy: fakeIds[0],
+      members: [fakeIds[0], fakeIds[1], currentUser.data._id],
+    });
+
+    // Delete group
+    const res = await api
+      .delete(`/api/conversations/${ conversation._id }`)
+      .set('Cookie', currentUser.cookie);
+
+    expect(res.statusCode).toBe(403);
+    expect(res.body.message).toBe('Only the creator of the group may delete this conversation');
+  });
+
+
+  it('should return 400 if \':id\' is invalid', async () => {
+    const invalidId = 'abc123';
+
+    const res = await api
+      .delete(`/api/conversations/${ invalidId }`)
+      .set('Cookie', currentUser.cookie);
+
+      expect(res.statusCode).toBe(400);
+    expect(res.body.message).toBe('ID must be a valid ObjectId');
   });
 });

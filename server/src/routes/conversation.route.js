@@ -31,6 +31,10 @@ router.put('/:id',
   conversationController.updateChat
 );
 
-router.delete('/:id', conversationController.deleteGroup);
+router.delete('/:id',
+  passport.authenticate('jwt', { session: false }),
+  validate(conversationValidation.deleteGroup.params, 'params'),
+  conversationController.deleteGroup
+);
 
 module.exports = router;

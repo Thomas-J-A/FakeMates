@@ -91,6 +91,16 @@ const updateChatQuery = Joi.object({
     }),
 });
 
+const deleteGroupParams = Joi.object({
+  id: Joi.string()
+    .regex(objectId)
+    .required()
+    .messages({
+      'string.pattern.base': 'ID must be a valid ObjectId',
+      'any.required': 'ID is required',
+    }),
+})
+
 module.exports = {
   fetchChats: {
     query: fetchChatsQuery,
@@ -102,5 +112,8 @@ module.exports = {
   updateChat: {
     params: updateChatParams,
     query: updateChatQuery,
+  },
+  deleteGroup: {
+    params: deleteGroupParams,
   },
 };

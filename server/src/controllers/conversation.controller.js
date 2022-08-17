@@ -270,8 +270,33 @@ exports.updateChat = async (req, res, next) => {
   }
 };
 
-exports.deleteGroup = (req, res) => {
-  res.send('Deleted chat');
+exports.deleteGroup = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+
+    // Verify that conversation exists
+    const conversation = await req.models.Conversation.findById(id).exec();
+
+    if (!conversation) {
+      return res.status(400).json({ message: 'Conversation doesn\'t exist' });
+    }
+
+    // Verify that conversation is for a group, not private
+    if (conversation.type === 'private') {
+      return res.status(400).json({ message: 'You may only unilaterally delete a group conversation' });
+    }
+
+    // Verify that current user is creator of this conversation
+    if (!(conversation.createdBy.equals(req.user._id))) {
+      return res.status(403).json({ message: 'Only the creator of the group may delete this conversation' });
+    }
+
+    await conversation.remove();
+
+    return res.sendStatus(204);
+  } catch (err) {
+    next(err);
+  }
 };
 
 
