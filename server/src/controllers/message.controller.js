@@ -92,10 +92,92 @@ exports.sendMessage = async (req, res, next) => {
   }
 };
 
-exports.markMessageAsRead = async (req, res, next) => {
+exports.markAsRead = async (req, res, next) => {
   try {
+    const { type, conversationId } = req.body;
 
+    // Verify that conversation exists
+    const conversation = await req.models.Conversation.findById(conversationId).exec();
+
+    if (!conversation) {
+      return res.status(400).json({ message: 'Conversation doesn\'t exist' });
+    }
+
+    // Verify that current user is a member of this conversation
+    if (!conversation.members.includes(req.user._id)) {
+      return res.status(403).json({ message: 'You must be a member of this conversation to update its messages' });
+    }
+
+    // Mark all unread messages as read for current user
+    const unreadMessages = await req.models.Message.find()
+      .and([
+        { conversationId },
+        { readBy: { $nin: [req.user._id] } },
+      ])
+      .exec();
+
+    const promises = unreadMessages.map(async (m) => {
+      m.readBy.push(req.user._id);
+
+      await m.save();
+    });
+
+    await Promise.all(promises);
+
+    // No need to return a representation of all messages since they'll be
+    // available on the client anyway, except with an old readBy value;
+    // it just becomes unnecessary data in the response
+    return res.sendStatus(204);
   } catch (err) {
     next(err);
   }
 };
+
+
+
+
+
+
+
+
+// Mark messages as read individually, rather than batch update them at once
+
+// exports.markMessageAsRead = async (req, res, next) => {
+//   try {
+//     const { id } = req.params;
+
+//     // Verify that message exists
+//     const message = await req.models.Message.findById(id).exec();
+
+//     if (!message) {
+//       return res.status(400).json({ message: 'Message doesn\'t exist' });
+//     }
+
+//     // Verify that current user is a member of the
+//     // conversation that message belongs to
+//     const conversation = await req.models.Conversation.findById(message.conversationId).exec();
+
+//     if (!conversation.members.includes(req.user._id)) {
+//       return res.status(403).json({ message: 'You must be a member of this conversation to update this message' });
+//     }
+
+//     // Verify that user hasn't already marked message as deleted
+//     if (message.deletedBy.includes(req.user._id)) {
+//       return res.status(403).json({ message: 'You have already deleted this message' });
+//     }
+
+//     // Verify that user hasn't already marked message as read
+//     if (message.readBy.includes(req.user._id)) {
+//       return res.status(403).json({ message: 'You have already read this message' })
+//     }
+
+//     // Mark message as read
+//     message.readBy.push(req.user._id);
+
+//     await message.save();
+
+//     return res.status(200).json(message);
+//   } catch (err) {
+//     next(err);
+//   }
+// };

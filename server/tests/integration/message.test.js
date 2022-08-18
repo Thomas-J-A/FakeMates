@@ -6,6 +6,7 @@ const dbUtil = require('../utils/db.util');
 const createAuthedUser = require('../utils/createAuthedUser.util');
 const { seedUser, seedConversation, seedMessage } = require('../utils/seeds.util');
 const fakeIds = require('../utils/fakeIds.util');
+const models = require('../../src/models/index.model');
 
 const api = supertest(app);
 
@@ -379,6 +380,144 @@ describe('POST /api/messages', () => {
   });
 });
 
-describe('PUT /api/messages/:id', () => {
+describe('POST /api/messages/actions', () => {
+  const currentUser = createAuthedUser();
 
+  it('should mark all unread messages as read, even if some aren\'t visible in UI', async () => {
+    // Seed a conversation
+    const conversation = await seedConversation({
+      type: 'private',
+      members: [currentUser.data._id, fakeIds[0]],
+    });
+
+    // Seed enough messages for two pages
+    // Only first 20 messages are displayed but messages 21/22 also must be marked as read
+    for (let i = 0; i < 22; i++) {
+      await seedMessage({
+        sender: fakeIds[0],
+        conversationId: conversation._id,
+      });
+    }
+
+    // Body data
+    const body = {
+      type: 'mark-as-read',
+      conversationId: conversation._id,
+    };
+
+    // Mark unread messages as read
+    const res = await api
+      .post('/api/messages/actions')
+      .set('Cookie', currentUser.cookie)
+      .send(body);
+
+    expect(res.statusCode).toBe(204);
+
+    // Verify that all messages have been marked as read for current user
+    const messages = await models.Message.find({ conversationId: conversation._id }).exec();
+
+    messages.forEach((m) => {
+      expect(m.readBy).toContainEqual(currentUser.data._id);
+    });
+  });
+
+
+  it('should return 400 if conversation doesn\'t exist', async () => {
+    const body = {
+      type: 'mark-as-read',
+      conversationId: fakeIds[0],
+    };
+
+    const res = await api
+      .post('/api/messages/actions')
+      .set('Cookie', currentUser.cookie)
+      .send(body);
+
+    expect(res.statusCode).toBe(400);
+    expect(res.body.message).toBe('Conversation doesn\'t exist');
+  });
+
+
+  it('should return 403 if user isn\'t a member of conversation', async () => {
+    // Seed a conversation
+    const conversation = await seedConversation({
+      type: 'private',
+      members: [fakeIds[0], fakeIds[1]],
+    });
+
+    const body = {
+      type: 'mark-as-read',
+      conversationId: conversation._id,
+    };
+
+    const res = await api
+      .post('/api/messages/actions')
+      .set('Cookie', currentUser.cookie)
+      .send(body);
+
+    expect(res.statusCode).toBe(403);
+    expect(res.body.message).toBe('You must be a member of this conversation to update its messages');
+  });
+
+
+  it('should return 400 if \'type\' is missing', async () => {
+    const body = {
+      conversationId: fakeIds[0],
+    };
+
+    const res = await api
+      .post('/api/messages/actions')
+      .set('Cookie', currentUser.cookie)
+      .send(body);
+
+    expect(res.statusCode).toBe(400);
+    expect(res.body.message).toBe('Type is required');
+  });
+
+
+  it('should return 400 if \'type\' is not \'mark-as-read\'', async () => {
+    const body = {
+      type: faker.word.verb(),
+      conversationId: fakeIds[0],
+    };
+
+    const res = await api
+      .post('/api/messages/actions')
+      .set('Cookie', currentUser.cookie)
+      .send(body);
+
+    expect(res.statusCode).toBe(400);
+    expect(res.body.message).toBe('Type must be \'mark-as-read\'');
+  });
+
+
+  it('should return 400 if \'conversationId\' is missing', async () => {
+    const body = {
+      type: 'mark-as-read',
+    };
+
+    const res = await api
+      .post('/api/messages/actions')
+      .set('Cookie', currentUser.cookie)
+      .send(body);
+
+    expect(res.statusCode).toBe(400);
+    expect(res.body.message).toBe('Conversation ID is required');
+  });
+
+
+  it('should return 400 if \'converationId\' is invalid', async () => {
+    const body = {
+      type: 'mark-as-read',
+      conversationId: 'abc123',
+    };
+
+    const res = await api
+      .post('/api/messages/actions')
+      .set('Cookie', currentUser.cookie)
+      .send(body);
+
+    expect(res.statusCode).toBe(400);
+    expect(res.body.message).toBe('Conversation ID must be a valid ObjectId');
+  });
 });

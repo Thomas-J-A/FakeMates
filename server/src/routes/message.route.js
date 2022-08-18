@@ -19,6 +19,20 @@ router.post('/',
   messageController.sendMessage
 );
 
-router.put('/:id', messageController.markMessageAsRead);
+// URL Breaks REST principles but is a sensible way to
+// add batch updates to resources of the same type
+// (Update readBy array for all messages belonging to a particular chat)
+router.post('/actions',
+  passport.authenticate('jwt', { session: false }),
+  validate(messageValidation.markAsRead.body, 'body'),
+  messageController.markAsRead
+);
+
+// Update readBy array for a single message
+// router.put('/:id',
+//   passport.authenticate('jwt', { session: false }),
+//   validate(messageValidation.markMessageAsRead.params, 'params'),
+//   messageController.markMessageAsRead
+// );
 
 module.exports = router;

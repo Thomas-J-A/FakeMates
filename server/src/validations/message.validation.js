@@ -40,6 +40,33 @@ const sendMessageBody = Joi.object({
     }),
 });
 
+const markAsReadBody = Joi.object({
+  type: Joi.string()
+    .valid('mark-as-read')
+    .required()
+    .messages({
+      'any.only': 'Type must be \'mark-as-read\'', // This field is extensible
+      'any.required': 'Type is required',
+    }),
+  conversationId: Joi.string()
+    .regex(objectId)
+    .required()
+    .messages({
+      'string.pattern.base': 'Conversation ID must be a valid ObjectId',
+      'any.required': 'Conversation ID is required',
+    }),
+});
+
+// const markMessageAsReadParams = Joi.object({
+//   id: Joi.string()
+//     .regex(objectId)
+//     .required()
+//     .messages({
+//       'string.pattern.base': 'ID must be a valid ObjectId',
+//       'any.required': 'ID is required',
+//     }),
+// });
+
 module.exports = {
   fetchMessages: {
     query: fetchMessagesQuery,
@@ -47,4 +74,10 @@ module.exports = {
   sendMessage: {
     body: sendMessageBody,
   },
+  markAsRead: {
+    body: markAsReadBody,
+  },
+  // markMessageAsRead: {
+  //   params: markMessageAsReadParams,
+  // },
 };
