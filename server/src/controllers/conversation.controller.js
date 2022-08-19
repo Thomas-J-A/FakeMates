@@ -117,8 +117,13 @@ exports.createNewChat = async (req, res, next) => {
       // Verify that a user with memberId exists
       const user = await req.models.User.findById(memberId).exec();
 
-      if(!user) {
+      if (!user) {
         return res.status(400).json({ message: 'User doesn\'t exist' });
+      }
+
+      // Verify that user is friends with current user
+      if (!req.user.friends.includes(memberId)) {
+        return res.status(403).json({ message: 'You may only chat with friends' });
       }
 
       // Check if conversation already exists
@@ -171,6 +176,13 @@ exports.createNewChat = async (req, res, next) => {
     if (users.includes(null)) {
       return res.status(400).json({ message: 'At least one of the users doesn\'t exist' });
     }
+
+    // Verify that current user is friends with all other members
+    users.forEach((u) => {
+      if (!req.user.friends.includes(u._id)) {
+        return res.status(403).json({ message: 'You may only chat with friends' });
+      }
+    })
 
     // Create a new conversation
     const newConversation = new req.models.Conversation({

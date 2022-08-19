@@ -301,6 +301,11 @@ describe('POST /api/conversations', () => {
     // Seed a second user
     const user = await seedUser();
 
+    // Give current user a friend
+    await models.User.findByIdAndUpdate(currentUser.data._id, {
+      $push: { friends: user._id },
+    }).exec();
+
     const res = await api
       .post('/api/conversations')
       .query({ type: 'private' })
@@ -315,6 +320,11 @@ describe('POST /api/conversations', () => {
     // Seed two users
     const user = await seedUser();
     const user2 = await seedUser();
+
+    // Give current user these two as friends
+    await models.User.findByIdAndUpdate(currentUser.data._id, {
+      $push: { friends: [user._id, user2._id ] },
+    }).exec();
 
     const name = faker.lorem.word(10);
     const memberIds = [user._id.toString(), user2._id.toString()];
@@ -341,6 +351,11 @@ describe('POST /api/conversations', () => {
     const user = await seedUser();
     const user2 = await seedUser();
 
+    // Give current user these two as friends
+    await models.User.findByIdAndUpdate(currentUser.data._id, {
+      $push: { friends: [user._id, user2._id ] },
+    }).exec();
+
     const name = faker.lorem.word(10);
     const memberIds = [user._id.toString(), user2._id.toString()];
 
@@ -359,6 +374,11 @@ describe('POST /api/conversations', () => {
   it('should return existing conversation if user deletes and then resumes chat', async () => {
     // Seed a second user
     const user = await seedUser();
+
+    // Give current user a friend
+    await models.User.findByIdAndUpdate(currentUser.data._id, {
+      $push: { friends: user._id },
+    }).exec();
 
     // Seed a chat which current user has 'deleted'
     const conversation = await seedConversation({
@@ -381,9 +401,49 @@ describe('POST /api/conversations', () => {
   });
 
 
+  it('should return 403 if other member isn\'t a friend in a private conversation', async () => {
+    // Seed a second user
+    const user = await seedUser();
+
+    const res = await api
+      .post('/api/conversations')
+      .query({ type: 'private' })
+      .set('Cookie', currentUser.cookie)
+      .send({ memberId: user._id });
+
+    expect(res.statusCode).toBe(403);
+    expect(res.body.message).toBe('You may only chat with friends');
+  });
+
+
+  it('should return 403 if other members aren\'t friends of current user in a group conversation', async () => {
+    // Seed two users
+    const user = await seedUser();
+    const user2 = await seedUser();
+
+    const name = faker.lorem.word(10);
+    const memberIds = [user._id.toString(), user2._id.toString()];
+
+    const res = await api
+      .post('/api/conversations')
+      .query({ type: 'group' })
+      .field({ name })
+      .field({ memberIds })
+      .set('Cookie', currentUser.cookie);
+
+    expect(res.statusCode).toBe(403);
+    expect(res.body.message).toBe('You may only chat with friends');
+  });
+
+
   it('should return 403 if private conversation already exists', async () => {
     // Seed a second user
     const user = await seedUser();
+
+    // Give current user a friend
+    await models.User.findByIdAndUpdate(currentUser.data._id, {
+      $push: { friends: user._id },
+    }).exec();
 
     // Seed a conversation
     const conversation = await seedConversation({

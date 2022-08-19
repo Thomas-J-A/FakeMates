@@ -13,11 +13,10 @@ exports.fetchResults = async (req, res, next) => {
       .select('fullName avatarUrl')
       .exec();
 
-      
     // Find relationship status between current user and each search result;
     // client must know if they should display a friend request button, etc
     // Results limited to ten per request so no significant response time delay
-    users = await Promise.all(users.map(async (user) => {
+    const promises = users.map(async (user) => {
       let relationshipStatus;
 
       const friendRequest = await req.models.FriendRequest.findOne({
@@ -51,7 +50,9 @@ exports.fetchResults = async (req, res, next) => {
         ...user._doc, // NOTE_1
         relationshipStatus,
       };
-    }));
+    });
+
+    users = await Promise.all(promises);
 
     // Check if there are more results
     const endIndex = page * limit;
