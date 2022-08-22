@@ -6,42 +6,54 @@ exports.fetchUserInfo = async (req, res, next) => {
 
     // Verify that user exists
     const user = await req.models.User.findById(id)
-      .populate('friends', 'fullName avatarUrl friends')
+      .populate('friends', 'fullName avatarUrl isPrivate friends')
       .exec();
 
     if(!user) {
       return res.status(400).json({ message: 'User doesn\'t exist' });
+    }
+
+    // Verify that user isn't a stranger with a private account
+    if (!(req.user.friends.includes(user._id)) && user.isPrivate) {
+      // If current user requests own info and they have a private
+      // account this condition will also pass, so check for that too
+      if (!user._id.equals(req.user._id)) {  
+        return res.status(403).json({ message: 'This account is private' });
+      }
     }
     
     // Find relationship status between current user and 'id';
     // client must know if they should display a friend request button, etc
     let relationshipStatus;
 
-    const friendRequest = await req.models.FriendRequest.findOne({
-      $or: [
-        { from: req.user._id, to: user._id },
-        { from: user._id, to: req.user._id },
-      ],
-    }).exec();
-    
-    if (friendRequest) {
-      switch (friendRequest.status) {
-        case 1:
-          relationshipStatus = 'pending';
-          break;
-        case 2:
-          relationshipStatus = 'accepted';
-          break;
-        case 3:
-          relationshipStatus = 'rejected';
-          break;
-      }
-    } else if (user._id.equals(req.user._id)) {
-      // Current user fetched his own user information
+    if (user._id.equals(req.user._id)) {
+      // User is current user
       relationshipStatus = 'oneself';
     } else {
-      // Users are strangers
-      relationshipStatus = 'none';
+      // User is somebody else
+      const friendRequest = await req.models.FriendRequest.findOne({
+        $or: [
+          { from: req.user._id, to: user._id },
+          { from: user._id, to: req.user._id },
+        ],
+      }).exec();
+      
+      if (friendRequest) {
+        switch (friendRequest.status) {
+          case 1:
+            relationshipStatus = 'pending';
+            break;
+          case 2:
+            relationshipStatus = 'accepted';
+            break;
+          case 3:
+            relationshipStatus = 'rejected';
+            break;
+        }
+      } else {
+        // Users are strangers
+        relationshipStatus = 'none';
+      }
     }
 
     // Remove unnecessary/vulnerable fields from user data
@@ -139,6 +151,11 @@ exports.updateUserInfo = async (req, res, next) => {
 
         // Update user profile
         user[field] = req.files[0].path;
+
+        break;
+      case 'change-visibility':
+        // Toggle isPrivate Boolean
+        user.isPrivate = !user.isPrivate;
 
         break;
     }

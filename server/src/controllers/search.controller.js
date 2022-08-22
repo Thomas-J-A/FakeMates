@@ -10,7 +10,7 @@ exports.fetchResults = async (req, res, next) => {
       .find({ fullName: { $regex: q, $options: 'i' }})
       .skip(skip)
       .limit(limit)
-      .select('fullName avatarUrl')
+      .select('fullName avatarUrl isPrivate')
       .exec();
 
     // Find relationship status between current user and each search result;

@@ -201,6 +201,7 @@ describe('GET /api/search', () => {
     expect(res.statusCode).toBe(200);
     expect(res.body.users[0]).toHaveProperty('fullName');
     expect(res.body.users[0]).toHaveProperty('avatarUrl');
+    expect(res.body.users[0]).toHaveProperty('isPrivate');
     expect(res.body.users[0]).toHaveProperty('relationshipStatus');
     expect(res.body.users[0]).not.toHaveProperty('email');
     expect(res.body.users[0]).not.toHaveProperty('location');

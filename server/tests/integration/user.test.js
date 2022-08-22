@@ -21,9 +21,14 @@ afterAll(async () => await dbUtil.closeDatabase());
 describe('GET /api/users/:id', () => {
   const currentUser = createAuthedUser();
 
-  it('should fetch another user\'s profile information', async () => {
+  it('should fetch profile info if users are friends', async () => {
     // Seed a second user
     const user = await seedUser();
+
+    // Add user to current user's friends
+    await models.User.findByIdAndUpdate(currentUser.data._id, {
+      $push: { friends: user._id },
+    }).exec();
 
     const res = await api
       .get(`/api/users/${ user._id }`)
@@ -37,9 +42,38 @@ describe('GET /api/users/:id', () => {
   });
 
 
-  it('should return relationship status of \'pending\' if there is a pending request', async () => {
+  it('should fetch profile info if account is public', async () => {
+    // Seed a second user with a public profile
+    const user = await seedUser({ isPrivate: 'false' });
+
+    const res = await api
+      .get(`/api/users/${ user._id }`)
+      .set('Cookie', currentUser.cookie);
+
+    expect(res.statusCode).toBe(200);
+    expect(res.body).toHaveProperty('firstName');
+    expect(res.body).toHaveProperty('occupation');
+    expect(res.body).toHaveProperty('bio')
+    expect(res.body).toHaveProperty('friends');
+  });
+
+
+  it('should return 403 if account is private and users are not friends', async () => {
     // Seed a second user
     const user = await seedUser();
+
+    const res = await api
+      .get(`/api/users/${ user._id }`)
+      .set('Cookie', currentUser.cookie);
+
+    expect(res.statusCode).toBe(403);
+    expect(res.body.message).toBe('This account is private');
+  });
+
+
+  it('should return relationship status of \'pending\' if there is a pending request', async () => {
+    // Seed a second user with a public profile
+    const user = await seedUser({ isPrivate: 'false' });
 
     // Seed a pending friend request
     await seedFriendRequest({
@@ -57,8 +91,13 @@ describe('GET /api/users/:id', () => {
 
 
   it('should return relationship status of \'accepted\' if users are friends', async () => {
-    // Seed a second user
+    // Seed a second user (users are friends so private/public doesn't matter)
     const user = await seedUser();
+
+    // Add user to current user's friends
+    await models.User.findByIdAndUpdate(currentUser.data._id, {
+      $push: { friends: user._id },
+    }).exec();
 
     // Seed an accepted friend request
     await seedFriendRequest({
@@ -77,8 +116,8 @@ describe('GET /api/users/:id', () => {
 
 
   it('should return relationship status of \'rejected\' if there is a rejected request', async () => {
-    // Seed a second user
-    const user = await seedUser();
+    // Seed a second user with a public profile
+    const user = await seedUser({ isPrivate: 'false' });
 
     // Seed a rejected friend request
     await seedFriendRequest({
@@ -107,8 +146,8 @@ describe('GET /api/users/:id', () => {
 
 
   it('should return relationship status of \'none\' if users are strangers', async () => {
-    // Seed a second user
-    const user = await seedUser();
+    // Seed a second user with a public profile
+    const user = await seedUser({ isPrivate: 'false' });
 
     const res = await api
       .get(`/api/users/${ user._id }`)
@@ -120,8 +159,8 @@ describe('GET /api/users/:id', () => {
 
 
   it('should remove vulnerable fields from response', async () => {
-    // Seed a second user
-    const user = await seedUser();
+    // Seed a second user with a public profile
+    const user = await seedUser({ isPrivate: 'false' });
 
     const res = await api
       .get(`/api/users/${ user._id }`)
@@ -138,7 +177,7 @@ describe('GET /api/users/:id', () => {
 
     // Seed two more users
     for (let i = 0; i < 2; i++) {     
-      const user = await seedUser();
+      const user = await seedUser({ isPrivate: 'false' });
       users.push(user);
     };
 
@@ -154,6 +193,7 @@ describe('GET /api/users/:id', () => {
     expect(res.statusCode).toBe(200);
     expect(res.body.friends[0]).toHaveProperty('fullName');
     expect(res.body.friends[0]).toHaveProperty('avatarUrl');
+    expect(res.body.friends[0]).toHaveProperty('isPrivate');
     expect(res.body.friends[0]).toHaveProperty('friends');
   });
 
@@ -476,6 +516,35 @@ describe('PUT /api/users/:id', () => {
     // in the 'post' test suite
   });
 
+  describe('action=change-visibility', () => {
+    it('should toggle isPrivate value to false', async () => {
+      const res = await api
+        .put(`/api/users/${ currentUser.data._id }`)
+        .query({ action: 'change-visibility' })
+        .set('Cookie', currentUser.cookie);
+
+      expect(res.statusCode).toBe(200);
+      expect(res.body.isPrivate).toBeFalsy();
+    });
+
+
+    it('should toggle isPrivate value to true', async () => {
+      // Make current user's account public
+      await models.User.findByIdAndUpdate(currentUser.data._id, {
+        isPrivate: false,
+      }).exec();
+
+      // Make current user's account private again
+      const res = await api
+        .put(`/api/users/${ currentUser.data._id }`)
+        .query({ action: 'change-visibility' })
+        .set('Cookie', currentUser.cookie);
+
+      expect(res.statusCode).toBe(200);
+      expect(res.body.isPrivate).toBeTruthy();
+    });
+  });
+
   it('should return 400 if \':id\' is invalid', async () => {
     const invalidId = 'abc123';
     
@@ -524,7 +593,7 @@ describe('PUT /api/users/:id', () => {
   });
 
 
-  it('should return 400 if \'action\' is not one of \'edit\', \'unfriend\', \'logout\', or \'upload\'', async () => {
+  it('should return 400 if \'action\' is not one of \'edit\', \'unfriend\', \'logout\', \'upload\', or \'change-visibility\'', async () => {
     const invalidAction = faker.word.verb();
     
     const res = await api
@@ -533,7 +602,7 @@ describe('PUT /api/users/:id', () => {
       .set('Cookie', currentUser.cookie);
     
     expect(res.statusCode).toBe(400);
-    expect(res.body.message).toBe('Action must be one of \'edit\', \'unfriend\', \'logout\', or \'upload\'');
+    expect(res.body.message).toBe('Action must be one of \'edit\', \'unfriend\', \'logout\', \'upload\', or \'change-visibility\'');
   });
 });
 

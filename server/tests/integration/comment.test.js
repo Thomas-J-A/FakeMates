@@ -4,7 +4,7 @@ const { faker } = require('@faker-js/faker');
 const app = require('../../src/app');
 const dbUtil = require('../utils/db.util');
 const createAuthedUser = require('../utils/createAuthedUser.util');
-const { seedPost, seedComment } = require('../utils/seeds.util');
+const { seedUser, seedPost, seedComment } = require('../utils/seeds.util');
 const fakeIds = require('../utils/fakeIds.util');
 const models = require('../../src/models/index.model');
 
@@ -54,14 +54,62 @@ describe('GET /api/comments', () => {
     expect(res2.body.hasMore).toBeFalsy();
   });
 
-  // it('should let client know if there are no more comments', async () => {
 
-  // });
+  it('should fetch comments for a post created by a friend', async () => {
+    // Seed a second user
+    const user = await seedUser({ friends: [currentUser.data._id ] });
+
+    // Add user to current user's friends
+    await models.User.findByIdAndUpdate(currentUser.data._id, {
+      $push: { friends: user._id },
+    }).exec();
+
+    // Seed a post created by second user
+    const post = await seedPost({ postedBy: user._id });
+
+    // Seed a comment
+    const comment = await seedComment({
+      postedBy: user._id,
+      postId: post._id,
+    });
+
+    // Fetch comment
+    const res = await api
+      .get('/api/comments')
+      .query({ postid: post._id.toString() })
+      .query({ page: 1 })
+      .set('Cookie', currentUser.cookie);
+
+    expect(res.statusCode).toBe(200);
+    expect(res.body.comments).toHaveLength(1);
+    expect(res.body.comments[0]._id).toBe(comment._id.toString());
+  });
 
 
-  // it('should return 400 if page number is too high', async () => {
+  it('should fetch comments for a post belonging to a public account', async () => {
+    // Seed a second user with a public account
+    const user = await seedUser({ isPrivate: 'false' });
 
-  // });
+    // Seed a post created by second user
+    const post = await seedPost({ postedBy: user._id });
+
+    // Seed a comment
+    const comment = await seedComment({
+      postedBy: user._id,
+      postId: post._id,
+    });
+
+    // Fetch comment
+    const res = await api
+      .get('/api/comments')
+      .query({ postid: post._id.toString() })
+      .query({ page: 1 })
+      .set('Cookie', currentUser.cookie);
+
+    expect(res.statusCode).toBe(200);
+    expect(res.body.comments).toHaveLength(1);
+    expect(res.body.comments[0]._id).toBe(comment._id.toString());
+  });
 
 
   it('should populate some details about comment author', async () => {
@@ -84,6 +132,7 @@ describe('GET /api/comments', () => {
     expect(res.statusCode).toBe(200);
     expect(res.body.comments[0].postedBy).toHaveProperty('fullName');
     expect(res.body.comments[0].postedBy).toHaveProperty('avatarUrl');
+    expect(res.body.comments[0].postedBy).toHaveProperty('isPrivate');
     expect(res.body.comments[0].postedBy).not.toHaveProperty('email');
     expect(res.body.comments[0].postedBy).not.toHaveProperty('location');
   });
@@ -131,6 +180,31 @@ describe('GET /api/comments', () => {
     expect(res.statusCode).toBe(200);
     expect(res.body.comments).toHaveLength(0);
     expect(res.body.hasMore).toBeFalsy();
+  });
+
+
+  it('should return 403 if comments belong to a private post and users aren\'t friends', async () => {
+    // Seed a second user
+    const user = await seedUser();
+
+    // Seed a post created by second user
+    const post = await seedPost({ postedBy: user._id });
+
+    // Seed a comment
+    const comment = await seedComment({
+      postedBy: user._id,
+      postId: post._id,
+    });
+
+    // Fetch comment
+    const res = await api
+      .get('/api/comments')
+      .query({ postid: post._id.toString() })
+      .query({ page: 1 })
+      .set('Cookie', currentUser.cookie);
+
+    expect(res.statusCode).toBe(403);
+    expect(res.body.message).toBe('You can\'t view these comments');
   });
 
 
@@ -253,7 +327,7 @@ describe('GET /api/comments', () => {
 describe('POST /api/comments', () => {
   const currentUser = createAuthedUser();
 
-  it('should create a comment', async () => {
+  it('should create a comment on own post', async () => {
     // Seed a post
     const post = await seedPost({ postedBy: currentUser.data._id });
 
@@ -271,6 +345,31 @@ describe('POST /api/comments', () => {
     expect(res.body.postId).toBe(post._id.toString());
     expect(res.body.content).toBe(content);
     expect(res.body.likedBy).toEqual([]);
+  });
+
+
+  it('should create a comment on a friend\'s post', async () => {
+    // Seed a second user, with current user as a friend
+    const user = await seedUser({ friends: [currentUser.data._id] });
+
+    // Add user to current user's friends
+    await models.User.findByIdAndUpdate(currentUser.data._id, {
+      $push: { friends: user._id },
+    }).exec();
+
+    // Seed a post, created by second user
+    const post = await seedPost({ postedBy: user._id });
+
+    // Create a comment on friend's post
+    const content = faker.lorem.sentence();
+
+    const res = await api
+      .post('/api/comments')
+      .query({ postid: post._id.toString() })
+      .set('Cookie', currentUser.cookie)
+      .send({ content });
+
+    expect(res.statusCode).toBe(201);
   });
 
 
@@ -293,6 +392,48 @@ describe('POST /api/comments', () => {
     const postDoc = await models.Post.findById(post._id).exec();
 
     expect(postDoc.commentsCount).toBe(1);
+  });
+
+
+  it('should return 403 if post belongs to a public account and users are not friends', async () => {
+    // Seed a second user with a public account
+    const user = await seedUser({ isPrivate: 'false' });
+
+    // Seed a post, created by second user
+    const post = await seedPost({ postedBy: user._id });
+
+    // Create a comment
+    const content = faker.lorem.sentence();
+
+    const res = await api
+      .post('/api/comments')
+      .query({ postid: post._id.toString() })
+      .set('Cookie', currentUser.cookie)
+      .send({ content });
+
+    expect(res.statusCode).toBe(403);
+    expect(res.body.message).toBe('You cannot comment on this post');
+  });
+
+
+  it('should return 403 if post belongs to a private account and users are not friends', async () => {
+    // Seed a second user
+    const user = await seedUser();
+
+    // Seed a post, created by second user
+    const post = await seedPost({ postedBy: user._id });
+
+    // Create a comment
+    const content = faker.lorem.sentence();
+
+    const res = await api
+      .post('/api/comments')
+      .query({ postid: post._id.toString() })
+      .set('Cookie', currentUser.cookie)
+      .send({ content });
+
+    expect(res.statusCode).toBe(403);
+    expect(res.body.message).toBe('You cannot comment on this post');
   });
 
 
@@ -385,10 +526,25 @@ describe('POST /api/comments', () => {
 describe('PUT /api/comments/:id', () => {
   const currentUser = createAuthedUser();
 
-  it('should like a comment', async () => {
-    // Seed a comment
-    const comment = await seedComment();
+  it('should like someone\'s comment on own post', async () => {
+    // Seed a second user with current user as a friend
+    const user = await seedUser({ friends: [currentUser.data._id ]});
 
+    // Add user to current user's friends
+    await models.User.findByIdAndUpdate(currentUser.data._id, {
+      $push: { friends: user._id },
+    }).exec();
+
+    // Seed a post, created by current user
+    const post = await seedPost({ postedBy: currentUser.data._id });
+
+    // Seed a comment, created by second user
+    const comment = await seedComment({
+      postedBy: user._id,
+      postId: post._id,
+    });
+
+    // Like comment
     const res = await api
       .put(`/api/comments/${ comment._id }`)
       .set('Cookie', currentUser.cookie);
@@ -398,14 +554,75 @@ describe('PUT /api/comments/:id', () => {
   });
 
 
-  it('should unlike a comment', async () => {
-    // Seed a comment
-    const comment = await seedComment();
+  it('should like someone\'s comment on a friend\'s post', async () => {
+    // Seed a second user with current user as a friend
+    const user = await seedUser({ friends: [currentUser.data._id] });
+
+    // Add user to current user's friends
+    await models.User.findByIdAndUpdate(currentUser.data._id, {
+      $push: { friends: user._id },
+    }).exec();
+
+    // Seed a post, created by second user
+    const post = await seedPost({ postedBy: user._id });
+
+    // Seed a comment, created by second user
+    const comment = await seedComment({
+      postedBy: user._id,
+      postId: post._id,
+    });
 
     // Like comment
-    await api
+    const res = await api
       .put(`/api/comments/${ comment._id }`)
       .set('Cookie', currentUser.cookie);
+
+    expect(res.statusCode).toBe(200);
+    expect(res.body.likedBy).toContain(currentUser.data._id.toString());
+  });
+
+
+  it('should like someone\'s comment on a post belonging to a public account', async () => {
+    // Seed a second user with a public account
+    const user = await seedUser({ isPrivate: 'false' });
+
+    // Seed a post, created by second user
+    const post = await seedPost({ postedBy: user._id });
+
+    // Seed a comment, created by second user
+    const comment = await seedComment({
+      postedBy: user._id,
+      postId: post._id,
+    });
+
+    // Like comment
+    const res = await api
+      .put(`/api/comments/${ comment._id }`)
+      .set('Cookie', currentUser.cookie);
+
+    expect(res.statusCode).toBe(200);
+    expect(res.body.likedBy).toContain(currentUser.data._id.toString());
+  });
+
+
+  it('should unlike a comment (on own post)', async () => {
+    // Seed a second user with current user as a friend
+    const user = await seedUser({ friends: [currentUser.data._id ]});
+
+    // Add user to current user's friends
+    await models.User.findByIdAndUpdate(currentUser.data._id, {
+      $push: { friends: user._id },
+    }).exec();
+
+    // Seed a post, created by current user
+    const post = await seedPost({ postedBy: currentUser.data._id });
+
+    // Seed a comment, created by second user, liked by current user
+    const comment = await seedComment({
+      postedBy: user._id,
+      postId: post._id,
+      likedBy: [currentUser.data._id],
+    });
 
     // Unlike comment
     const res = await api
@@ -414,6 +631,19 @@ describe('PUT /api/comments/:id', () => {
 
     expect(res.statusCode).toBe(200);
     expect(res.body.likedBy).not.toContain(currentUser.data._id.toString());
+  });
+
+
+  it('should return 403 if user attempts to like own comment', async () => {
+    // Seed a comment
+    const comment = await seedComment({ postedBy: currentUser.data._id });
+
+    const res = await api
+      .put(`/api/comments/${ comment._id }`)
+      .set('Cookie', currentUser.cookie);
+
+    expect(res.statusCode).toBe(403);
+    expect(res.body.message).toBe('You can\'t like your own comment');
   });
 
 
@@ -436,18 +666,5 @@ describe('PUT /api/comments/:id', () => {
 
     expect(res.statusCode).toBe(400);
     expect(res.body.message).toBe('Comment doesn\'t exist');
-  });
-
-
-  it('should return 403 if user attempts to like own comment', async () => {
-    // Seed a comment
-    const comment = await seedComment({ postedBy: currentUser.data._id });
-
-    const res = await api
-      .put(`/api/comments/${ comment._id }`)
-      .set('Cookie', currentUser.cookie);
-
-    expect(res.statusCode).toBe(403);
-    expect(res.body.message).toBe('You can\'t like your own comment');
   });
 });

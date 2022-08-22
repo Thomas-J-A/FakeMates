@@ -1,7 +1,7 @@
 const supertest = require('supertest');
 
 const app = require('../../src/app');
-const models = require('../../src/models/index.model');
+const { seedUser } = require('./seeds.util');
 
 const api = supertest(app);
 
@@ -12,14 +12,12 @@ module.exports = createAuthedUser = () => {
   
   // Seed user
   beforeEach(async () => {
-    user.data = new models.User({
+    user.data = await seedUser({
       firstName: 'Marcus',
       lastName: 'Aurelius',
       email: 'marco@gmail.com',
       password: 'password',
     });
-  
-    await user.data.save();
   });
   
   // Authenticate user

@@ -2,27 +2,38 @@ exports.fetchComments = async (req, res, next) => {
   try {
     const { postid, page } = req.query;
     
-    // Verify that the post exists
-    const post = await req.models.Post.findById(postid).exec();
-
+    const post = await req.models.Post.findById(postid)
+      .populate('postedBy', 'isPrivate')
+      .exec();
+    
+    // Verify that post exists
     if (!post) {
       return res.status(400).json({ message: 'Post doesn\'t exist' });
     }
-    
+
+    // Verify that post doesn't belong to a stranger with a private account
+    if (!(req.user.friends.includes(post.postedBy._id)) && post.postedBy.isPrivate) {
+      // If post belongs to current user and they have a private account
+      // this condition will also pass, so check for that too
+      if (!post.postedBy._id.equals(req.user._id)) {  
+        return res.status(403).json({ message: 'You can\'t view these comments' });
+      }
+    }
+      
     // Fetch paginated comments
     const limit = 5;
     const skip = (page - 1) * limit;
 
-    const comments = await req.models.Comment.find({ postId: postid })
+    const comments = await req.models.Comment.find({ postId: post._id })
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit)
-      .populate('postedBy', 'fullName avatarUrl')
+      .populate('postedBy', 'fullName avatarUrl isPrivate')
       .exec();
 
     // Check if there are more results
     const endIndex = page * limit;
-    const totalCount = await req.models.Comment.countDocuments({ postId: postid }).exec();
+    const totalCount = await req.models.Comment.countDocuments({ postId: post._id }).exec();
     const hasMore = endIndex < totalCount; 
 
     return res.status(200).json({
@@ -39,11 +50,18 @@ exports.createComment = async (req, res, next) => {
     const { postid } = req.query;
     const { content } = req.body;
 
-    // Verify that the post exists
-    const post = await req.models.Post.findById(postid).exec();
-
+    const post = await req.models.Post.findById(postid)
+      .populate('postedBy', 'isPrivate')
+      .exec();
+    
+    // Verify that post exists
     if (!post) {
       return res.status(400).json({ message: 'Post doesn\'t exist' });
+    }
+
+    // Verify that post belongs to either current user or a friend
+    if (!(post.postedBy._id.equals(req.user._id) || req.user.friends.includes(post.postedBy._id))) {
+      return res.status(403).json({ message: 'You cannot comment on this post' });
     }
 
     // Create a new comment
@@ -66,19 +84,35 @@ exports.createComment = async (req, res, next) => {
 };
 
 exports.likeComment = async (req, res, next) => {
+  // Users can like comments (not their own) on their own posts,
+  // their friend's posts, and posts of other user's with a public
+  // account, but not posts on private accounts
   try {
     const { id } = req.params;
     
     const comment = await req.models.Comment.findById(id).exec();
 
-    // Verify that the comment exists
+    // Verify that comment exists
     if (!comment) {
       return res.status(400).json({ message: 'Comment doesn\'t exist' });
     }
 
-    // Make sure the user isn't liking their own post
+    // Verify that current user isn't liking their own comment
     if (comment.postedBy.equals(req.user._id)) {
       return res.status(403).json({ message: 'You can\'t like your own comment' });
+    }
+
+    // Verify that post doesn't belong to a stranger with a private account
+    const post = await req.models.Post.findById(comment.postId)
+      .populate('postedBy', 'isPrivate')
+      .exec();
+
+    if (!(req.user.friends.includes(post.postedBy._id)) && post.postedBy.isPrivate) { 
+      // If post belongs to current user and they have a private account
+      // this condition will also pass, so check for that too
+      if (!post.postedBy._id.equals(req.user._id)) {
+        return res.status(403).json({ message: 'You can\'t view these comments' });
+      }
     }
 
     // Update comment

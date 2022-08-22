@@ -23,6 +23,10 @@ const userSchema = new Schema({
     type: String,
     default: '../../../public/images/background.jpg',
   },
+  isPrivate: {
+    type: Boolean,
+    default: true,
+  },
   isOnline: {
     type: Boolean,
     default: true,
@@ -137,7 +141,8 @@ userSchema.pre('remove', async function(next) {
       { $pull: { likedBy: this._id }},
     ).exec();
       
-    // TODO: Remove messages and conversations
+    // Remove conversations and their messages
+    
     
     // Continue to remove user document itself
     next();

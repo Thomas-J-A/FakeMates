@@ -56,9 +56,14 @@ describe('GET /api/posts', () => {
   });
   
 
-  it('should fetch another user\'s posts', async () => {
+  it('should fetch posts if users are friends', async () => {
     // Seed a second user
-    const user = await seedUser();
+    const user = await seedUser({ friends: [currentUser.data._id ]});
+
+    // Add user to current user's friends
+    await models.User.findByIdAndUpdate(currentUser.data._id, {
+      $push: { friends: user._id },
+    }).exec();
 
     // Seed posts created by second user
     for (let i = 0; i < 2; i++) {
@@ -78,6 +83,27 @@ describe('GET /api/posts', () => {
   });
 
 
+  it('should fetch posts if account is public', async () => {
+    // Seed a second user with a public profile
+    const user = await seedUser({ isPrivate: 'false' });
+
+    // Seed posts created by second user
+    for (let i = 0; i < 2; i++) {
+      await seedPost({ postedBy: user._id });
+    }
+
+    // Fetch all posts for second user
+    const res = await api
+      .get('/api/posts')
+      .query({ userid: user._id.toString() })
+      .query({ page: 1 })
+      .set('Cookie', currentUser.cookie);
+
+    expect(res.statusCode).toBe(200);
+    expect(res.body.posts).toHaveLength(2);
+    expect(res.body.hasMore).toBeFalsy();
+  });
+
   it('should return valid response if no posts available', async () => {
     const res = await api
       .get('/api/posts')
@@ -88,6 +114,21 @@ describe('GET /api/posts', () => {
     expect(res.statusCode).toBe(200);
     expect(res.body.posts).toHaveLength(0);
     expect(res.body.hasMore).toBeFalsy();
+  });
+
+
+  it('should return 403 if account is private and users are not friends', async () => {
+    // Seed a second user
+    const user = await seedUser();
+
+    const res = await api
+      .get('/api/posts')
+      .query({ userid: user._id.toString() })
+      .query({ page: 1 })
+      .set('Cookie', currentUser.cookie);
+
+    expect(res.statusCode).toBe(403);
+    expect(res.body.message).toBe('These posts belong to a private account');
   });
 
 
@@ -312,9 +353,30 @@ describe('POST /api/posts', () => {
 describe('GET /api/posts/:id', () => {
   const currentUser = createAuthedUser();
 
-  it('should fetch a single post', async () => {
+  it('should fetch a single post if it belongs to current user', async () => {
     // Seed a post
-    const post = await seedPost();
+    const post = await seedPost({ postedBy: currentUser.data._id });
+
+    const res = await api
+      .get(`/api/posts/${ post._id }`)
+      .set('Cookie', currentUser.cookie);
+
+    expect(res.statusCode).toBe(200);
+    expect(res.body._id).toBe(post._id.toString());
+  });
+
+
+  it('should fetch a single post if users are friends', async () => {
+    // Seed a second user
+    const user = await seedUser({ friends: [currentUser.data._id ]});
+
+    // Add user to current user's friends
+    await models.User.findByIdAndUpdate(currentUser.data._id, {
+      $push: { friends: user._id },
+    }).exec();
+
+    // Seed a post by second user
+    const post = await seedPost({ postedBy: user._id });
 
     // Fetch post
     const res = await api
@@ -323,6 +385,40 @@ describe('GET /api/posts/:id', () => {
 
     expect(res.statusCode).toBe(200);
     expect(res.body._id).toBe(post._id.toString());
+  });
+
+
+  it('should fetch a single post if account is public', async () => {
+    // Seed a second user with a public account
+    const user = await seedUser({ isPrivate: 'false' });
+
+    // Seed a post by second user
+    const post = await seedPost({ postedBy: user._id });
+
+    // Fetch post
+    const res = await api
+      .get(`/api/posts/${ post._id }`)
+      .set('Cookie', currentUser.cookie);
+
+    expect(res.statusCode).toBe(200);
+    expect(res.body._id).toBe(post._id.toString());
+  });
+
+
+  it('should return 403 if account is private and users are not friends', async () => {
+    // Seed a second user
+    const user = await seedUser();
+
+    // Seed a post by second user
+    const post = await seedPost({ postedBy: user._id });
+
+    // Fetch post
+    const res = await api
+      .get(`/api/posts/${ post._id }`)
+      .set('Cookie', currentUser.cookie);
+
+    expect(res.statusCode).toBe(403);
+    expect(res.body.message).toBe('This post belongs to a private account');
   });
 
 
@@ -351,10 +447,19 @@ describe('GET /api/posts/:id', () => {
 describe('PUT /api/posts/:id', () => {
   const currentUser = createAuthedUser();
 
-  it('should like a post', async () => {
-    // Seed a post
-    const post = await seedPost();
+  it('should like a post if users are friends', async () => {
+    // Seed a second user
+    const user = await seedUser({ friends: [currentUser.data._id] });
 
+    // Add user to current user's friends
+    await models.User.findByIdAndUpdate(currentUser.data._id, {
+      $push: { friends: user._id },
+    }).exec();
+
+    // Seed a post by second user
+    const post = await seedPost({ postedBy: user._id });
+
+    // Like post
     const res = await api
       .put(`/api/posts/${ post._id }`)
       .set('Cookie', currentUser.cookie);
@@ -364,14 +469,37 @@ describe('PUT /api/posts/:id', () => {
   });
 
 
-  it('should unlike a post', async () => {
-    // Seed a post
-    const post = await seedPost();
+  it('should like a post if account is public', async () => {
+    // Seed a second user with a public account
+    const user = await seedUser({ isPrivate: 'false' });
+
+    // Seed a post by second user
+    const post = await seedPost({ postedBy: user._id });
 
     // Like post
-    await api
+    const res = await api
       .put(`/api/posts/${ post._id }`)
       .set('Cookie', currentUser.cookie);
+
+    expect(res.statusCode).toBe(200);
+    expect(res.body.likedBy).toContain(currentUser.data._id.toString());
+  });
+
+
+  it('should unlike a friend\'s post', async () => {
+    // Seed a second user
+    const user = await seedUser({ friends: [currentUser.data._id] });
+
+    // Add user to current user's friends
+    await models.User.findByIdAndUpdate(currentUser.data._id, {
+      $push: { friends: user._id },
+    }).exec();
+
+    // Seed a post by second user, liked by current user
+    const post = await seedPost({
+      postedBy: user._id,
+      likedBy: [currentUser.data._id],
+    });
 
     // Unlike post
     const res = await api
@@ -380,6 +508,23 @@ describe('PUT /api/posts/:id', () => {
 
     expect(res.statusCode).toBe(200);
     expect(res.body.likedBy).not.toContain(currentUser.data._id.toString());
+  });
+
+
+  it('should return 403 if account is private and users are not friends', async () => {
+    // Seed a user
+    const user = await seedUser();
+
+    // Seed a post by second user
+    const post = await seedPost({ postedBy: user._id });
+
+    // Like post
+    const res = await api
+      .put(`/api/posts/${ post._id }`)
+      .set('Cookie', currentUser.cookie);
+
+    expect(res.statusCode).toBe(403);
+    expect(res.body.message).toBe('This post belongs to a private account');
   });
 
 

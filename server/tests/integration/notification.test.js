@@ -157,6 +157,7 @@ describe('GET /api/notifications', () => {
     expect(res.statusCode).toBe(200);
     expect(res.body.notifications[0].actor).toHaveProperty('fullName');
     expect(res.body.notifications[0].actor).toHaveProperty('avatarUrl');
+    expect(res.body.notifications[0].actor).toHaveProperty('isPrivate');
     expect(res.body.notifications[0].actor).not.toHaveProperty('email');
     expect(res.body.notifications[0].actor).not.toHaveProperty('location');
   });

@@ -234,7 +234,7 @@ describe('POST /api/auth/register', () => {
   });
 
 
-  it('should populate fullName field', async () => {
+  it('should populate fullName virtual field', async () => {
     const userInfo = {
       firstName: faker.name.firstName(),
       lastName: faker.name.lastName(),

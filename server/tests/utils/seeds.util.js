@@ -50,6 +50,11 @@ const seedUser = async (data = {}) => {
     password: data.password || faker.internet.password(),
     occupation: data.occupation || faker.name.jobTitle(),
     bio: data.bio || faker.lorem.sentence(),
+
+    // isPrivate value will be a string since a Boolean false will
+    // be understood as a failed condition and set value to default true
+    // Mongoose will convert string 'false' into Boolean false anyway
+    isPrivate: data.isPrivate || true,
     friends: data.friends || [],
   });
 
