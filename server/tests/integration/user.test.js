@@ -6,7 +6,15 @@ const { faker } = require('@faker-js/faker');
 const app = require('../../src/app');
 const dbUtil = require('../utils/db.util');
 const createAuthedUser = require('../utils/createAuthedUser.util');
-const { seedFriendRequest, seedNotification, seedUser, seedPost, seedComment } = require('../utils/seeds.util');
+const {
+  seedFriendRequest,
+  seedNotification,
+  seedUser,
+  seedPost,
+  seedComment,
+  seedConversation,
+  seedMessage,
+} = require('../utils/seeds.util');
 const fakeIds = require('../utils/fakeIds.util');
 const models = require('../../src/models/index.model');
 
@@ -814,6 +822,115 @@ describe('DELETE /api/users/:id', () => {
 
     expect(commentDoc.likedBy).not.toContainEqual(currentUser.data._id);
   });
+
+
+  it('should remove user from associated conversations and inform remaining member/s', async () => {
+    // Seed a conversation
+    const conversation = await seedConversation({
+      type: 'private',
+      members: [currentUser.data._id, fakeIds[0]],
+    });
+
+    // Delete account
+    const res = await api
+      .delete(`/api/users/${ currentUser.data._id }`)
+      .set('Cookie', currentUser.cookie);
+
+    expect(res.statusCode).toBe(204);
+
+    // Verify that conversation no longer includes current user
+    const conversationDoc = await models.Conversation.findById(conversation._id).exec();
+
+    expect(conversationDoc.members).not.toContainEqual(currentUser.data._id);
+
+    // Verify that there is a notification message in database
+    const messageDoc = await models.Message.findOne({
+      conversationId: conversation._id,
+      type: 'notification',
+    }).exec();
+
+    expect(messageDoc.content).toBe(`${ currentUser.data.fullName } is no longer available to chat.`);
+  });
+
+
+  it('should assign a new admin and inform remaining member/s if user is current group admin', async () => {
+    // Seed a second user
+    const user = await seedUser();
+
+    // Seed a group conversation with current user as admin
+    const conversation = await seedConversation({
+      type: 'group',
+      admin: currentUser.data._id,
+      members: [currentUser.data._id, user._id],
+    });
+
+    // Delete account
+    const res = await api
+      .delete(`/api/users/${ currentUser.data._id }`)
+      .set('Cookie', currentUser.cookie);
+
+    expect(res.statusCode).toBe(204);
+
+    // Verify that current user is no longer part of conversation,
+    // and that there is a new admin
+    const conversationDoc = await models.Conversation.findById(conversation._id).exec();
+
+    expect(conversationDoc.members).not.toContainEqual(currentUser.data._id);
+    expect(conversationDoc.admin).toEqual(user._id);
+
+    // Verify that there is a notification message in the database
+    const messageDoc = await models.Message.findOne({
+      conversationId: conversation._id,
+      type: 'notification',
+    }).exec();
+
+    expect(messageDoc.content).toContain(`${ user.fullName } is the new admin.`);
+  });
+
+
+  it('should remove conversation and its messages if all members mark as deleted', async () => {
+    // Seed a conversation marked as deleted by one member
+    const conversation = await seedConversation({
+      type: 'private',
+      members: [currentUser.data._id, fakeIds[0]],
+      deletedBy: [fakeIds[0]],
+    });
+
+    // Seed a message
+    await seedMessage({
+      sender: currentUser.data._id,
+      conversationId: conversation._id,
+      readBy: [fakeIds[0]],
+      deletedBy: [fakeIds[0]],
+    });
+
+    // Delete account
+    const res = await api
+      .delete(`/api/users/${ currentUser.data._id }`)
+      .set('Cookie', currentUser.cookie);
+
+    expect(res.statusCode).toBe(204);
+
+    // Verify that conversation has been removed
+    const conversationDoc = await models.Conversation.findById(conversation._id).exec();
+
+    expect(conversationDoc).toBeNull();
+
+    // Verify that associated messages have been removed
+    const messageDocs = await models.Message.find({ conversationId: conversation._id }).exec();
+
+    expect(messageDocs).toHaveLength(0);
+  });
+
+
+  // it('should mark associated messages as read and deleted', async () => {
+
+  // });
+
+
+  // it('should remove associated messages if all members mark as deleted', async () => {
+
+  // });
 
 
   it('should return 400 if \':id\' is invalid', async () => {

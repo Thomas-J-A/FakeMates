@@ -76,6 +76,14 @@ exports.sendMessage = async (req, res, next) => {
       return res.status(403).json({ message: 'You must be a member of this conversation to send a message' });
     }
 
+    // Remove any user ids from deletedBy array so members who deleted the chat
+    // but remain a part of the conversation will be able to view new messages
+    if (conversation.deletedBy.length > 0) {
+      conversation.deletedBy = [];
+
+      await conversation.save();
+    }
+
     // Create a new message
     const message = new req.models.Message({
       sender: req.user._id,
@@ -85,6 +93,8 @@ exports.sendMessage = async (req, res, next) => {
     });
 
     await message.save();
+    
+    // TODO: emit a socket.io event containing this message
 
     return res.status(201).json(message);
   } catch (err) {

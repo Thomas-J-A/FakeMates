@@ -12,7 +12,7 @@ const conversationSchema = new Schema({
     type: String,
     enum: ['private', 'group'],
   },
-  createdBy: {
+  admin: {
     type: Schema.Types.ObjectId,
     ref: 'User',
   },
@@ -20,10 +20,6 @@ const conversationSchema = new Schema({
     type: Schema.Types.ObjectId,
     ref: 'User'
   }],
-  // lastMessage: {
-  //   type: Schema.Types.ObjectId,
-  //   ref: 'Message',
-  // },
   deletedBy: [{
     type: Schema.Types.ObjectId,
     ref: 'User',

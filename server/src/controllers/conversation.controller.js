@@ -1,5 +1,6 @@
-// TODO: possibly refactor these controller functions by adding for example
-// pre('remove') hooks in model files and moving logic there, etc
+// TODO: refactor these controller functions by adding for example
+// pre('remove') hooks in model files and moving logic there, or
+// simply breaking off into smaller functions
 
 exports.fetchChats = async (req, res, next) => {
   try {
@@ -36,7 +37,7 @@ exports.fetchChats = async (req, res, next) => {
           }
         },
       })
-      // $group doesn't output docs in any partdicular order, so re-order
+      // $group doesn't output docs in any particular order, so re-order
       // by latest message again to have convo with latest activity at top of list
       .sort({ 'lastMessage.createdAt': -1 })
       .skip(skip)
@@ -188,7 +189,7 @@ exports.createNewChat = async (req, res, next) => {
     const newConversation = new req.models.Conversation({
       name,
       type,
-      createdBy: req.user._id,
+      admin: req.user._id,
       members: [...memberIds, req.user._id],
     });
 
@@ -223,6 +224,8 @@ exports.updateChat = async (req, res, next) => {
       return res.status(403).json({ message: 'You must be a member of this conversation to update record' });
     }
 
+    let isDeletedAll = false;
+
     if (action === 'delete-chat') {
       // Verify that current user hasn't already 'deleted' this conversation
       if (conversation.deletedBy.includes(req.user._id)) {
@@ -231,14 +234,45 @@ exports.updateChat = async (req, res, next) => {
 
       // Mark conversation as 'deleted' for current user
       conversation.deletedBy.push(req.user._id);
-    } else {
-      // Leave group             
-      // Remove current user from the list of conversation members
-      conversation.members = conversation.members.filter((id) => !(id.equals(req.user._id))); // Comparing ObjectIds
-    }
 
-    // Check if all members have now deleted this conversation
-    const isDeletedAll = conversation.members.every((member) => conversation.deletedBy.includes(member));
+      // Check if all members have now deleted this conversation
+      isDeletedAll = conversation.members.every((member) => conversation.deletedBy.includes(member));
+    } else {
+      // Leave group        
+      // Remove current user from the list of conversation members
+      conversation.members = conversation.members.filter((id) => !id.equals(req.user._id));
+
+      // Check if all members have now deleted this conversation
+      isDeletedAll = conversation.members.every((member) => conversation.deletedBy.includes(member));
+
+      if (!isDeletedAll) {
+        // Let other members know that a member has left the group
+        let messageContent = `${ req.user.fullName } has left the group.`;
+
+        // If user is admin of group, randomly assign a new admin from members
+        if (conversation.admin.equals(req.user._id)) {
+          conversation.admin = conversation.members > 1
+            ? conversation.members[Math.floor(Math.random() * conversation.members.length)]
+            : conversation.members[0];
+
+          // Let other members know who the new admin is
+          await conversation.populate('admin', 'fullName');
+          messageContent += ` ${ conversation.admin.fullName } is the new admin.`;
+        }
+
+        const message = new req.models.Message({
+          conversationId: id,
+          type: 'notification',
+          content: messageContent,
+        });
+
+        await message.save();
+
+        // TODO: emit new message and updated converstion via websockets
+        // so clients can display message and update participants list
+        // (new admin will also have a delete group button newly displayed)
+      }
+    }
     
     if (isDeletedAll) {
       // Remove record (and cascade deleted associated messages)
@@ -299,7 +333,7 @@ exports.deleteGroup = async (req, res, next) => {
     }
 
     // Verify that current user is creator of this conversation
-    if (!(conversation.createdBy.equals(req.user._id))) {
+    if (!(conversation.admin.equals(req.user._id))) {
       return res.status(403).json({ message: 'Only the creator of the group may delete this conversation' });
     }
 
@@ -310,20 +344,6 @@ exports.deleteGroup = async (req, res, next) => {
     next(err);
   }
 };
-
-
-
-
-
-
-
-
-    // Check if all members have now deleted this message
-    // conversation.members.length === m.deletedBy.length
-    //   ? await m.remove()
-    //   : await m.save();
-
-
 
     // // Fetch conversations
     // let conversations = await req.models.Conversation.find()
@@ -348,28 +368,3 @@ exports.deleteGroup = async (req, res, next) => {
     // localField: 'conversation.members',
     // foreignField: '_id',
     // as: 'conversation.members',
-
-
-
-    // const index = conversation.deletedBy.indexOf(req.user._id);
-    // conversation.deletedBy.splice(index, 1);
-
-
-
-
-
-    // if (conversation.deletedBy.includes(req.user._id)) {
-    //   // Sending a leave-group request after having already deleted chat - not via UI but
-    //   // via postman or curl, etc - could result in a bug where members.length equals length
-    //   // of deletedBy array even if the ids are different, so remove from array beforehand
-    //   conversation.deletedBy = conversation.deletedBy.filter((id) => !(id.equals(req.user._id))); // Comparing ObjectIds
-    // }
-
-
-    // // Check if all members have now deleted this conversation
-    // if (conversation.members.length === conversation.deletedBy.length) {
-    //   // Remove record (and cascade deleted associated messages)
-    //   await conversation.remove();
-
-    //   return res.sendStatus(204);
-    // }

@@ -91,7 +91,7 @@ const seedComment = async (data = {}) => {
 const seedConversation = async (data) => {
   const conversation = new models.Conversation({
     type: data.type,
-    createdBy: data.createdBy || new mongoose.Types.ObjectId().toString(),
+    admin: data.admin || null,
     members: data.members,
     deletedBy: data.deletedBy || [],
   });

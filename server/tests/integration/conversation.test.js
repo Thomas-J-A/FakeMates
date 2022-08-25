@@ -185,6 +185,7 @@ describe('GET /api/conversations', () => {
     // Seed a group conversation and message
     const groupConvo = await seedConversation({
       type: 'group',
+      admin: currentUser.data._id,
       members: [currentUser.data._id, user._id],
     });
 
@@ -224,6 +225,7 @@ describe('GET /api/conversations', () => {
     // Seed a group conversation and message
     const groupConvo = await seedConversation({
       type: 'group',
+      admin: currentUser.data._id,
       members: [currentUser.data._id, user._id],
     });
 
@@ -730,6 +732,7 @@ describe('PUT /api/conversations/:id', () => {
       // Seed a group conversation
       const conversation = await seedConversation({
         type: 'group',
+        admin: currentUser.data._id,
         members: [currentUser.data._id, fakeIds[0], fakeIds[1]],
       });
 
@@ -800,10 +803,11 @@ describe('PUT /api/conversations/:id', () => {
   });
   
   describe('action=leave-group', () => {
-    it('should remove user from group', async () => {
+    it('should remove user from group and inform remaining members', async () => {
       // Seed a group conversation
       const conversation = await seedConversation({
         type: 'group',
+        admin: fakeIds[0],
         members: [currentUser.data._id, fakeIds[0], fakeIds[1]],
       });
 
@@ -819,6 +823,50 @@ describe('PUT /api/conversations/:id', () => {
       const conversationDoc = await models.Conversation.findById(conversation._id).exec();
 
       expect(conversationDoc.members).not.toContainEqual(currentUser.data._id);
+
+      // Verify that there is a notification message in database
+      const messageDoc = await models.Message.findOne({
+        conversationId: conversation._id,
+        type: 'notification',
+      }).exec();
+
+      expect(messageDoc.content).toBe(`${ currentUser.data.fullName } has left the group.`);
+    });
+
+
+    it('should assign a new admin and inform remaining members if user is current admin', async () => {
+      // Seed a second user
+      const user = await seedUser();
+
+      // Seed a group conversation with current user as admin
+      const conversation = await seedConversation({
+        type: 'group',
+        admin: currentUser.data._id,
+        members: [currentUser.data._id, user._id],
+      });
+
+      // Leave group
+      const res = await api
+        .put(`/api/conversations/${ conversation._id }`)
+        .query({ action: 'leave-group' })
+        .set('Cookie', currentUser.cookie);
+
+      expect(res.statusCode).toBe(204);
+
+      // Verify that current user is no longer part of conversation,
+      // and that there is a new admin
+      const conversationDoc = await models.Conversation.findById(conversation._id).exec();
+
+      expect(conversationDoc.members).not.toContainEqual(currentUser.data._id);
+      expect(conversationDoc.admin).toEqual(user._id);
+
+      // Verify that there is a notification message in the database
+      const messageDoc = await models.Message.findOne({
+        conversationId: conversation._id,
+        type: 'notification',
+      }).exec();
+
+      expect(messageDoc.content).toContain(`${ user.fullName } is the new admin.`);
     });
 
 
@@ -826,6 +874,7 @@ describe('PUT /api/conversations/:id', () => {
       // Seed a group conversation
       const conversation = await seedConversation({
         type: 'group',
+        admin: fakeIds[0],
         members: [currentUser.data._id, fakeIds[0]],
       });
 
@@ -860,7 +909,7 @@ describe('PUT /api/conversations/:id', () => {
     });
 
     // Seed a message
-    const message = await seedMessage({
+    await seedMessage({
       sender: currentUser.data._id,
       conversationId: conversation._id,
       readBy: [fakeIds[0]],
@@ -989,7 +1038,7 @@ describe('DELETE /api/conversations/:id', () => {
     // Seed a group conversation
     const conversation = await seedConversation({
       type: 'group',
-      createdBy: currentUser.data._id,
+      admin: currentUser.data._id,
       members: [currentUser.data._id, fakeIds[0], fakeIds[1]],
     });
 
@@ -1011,7 +1060,7 @@ describe('DELETE /api/conversations/:id', () => {
     // Seed a group conversation
     const conversation = await seedConversation({
       type: 'group',
-      createdBy: currentUser.data._id,
+      admin: currentUser.data._id,
       members: [currentUser.data._id, fakeIds[0], fakeIds[1]],
     });
 
@@ -1066,7 +1115,7 @@ describe('DELETE /api/conversations/:id', () => {
     // Seed a conversation
     const conversation = await seedConversation({
       type: 'group',
-      createdBy: fakeIds[0],
+      admin: fakeIds[0],
       members: [fakeIds[0], fakeIds[1], currentUser.data._id],
     });
 

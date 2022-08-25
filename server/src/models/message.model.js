@@ -11,6 +11,11 @@ const messageSchema = new Schema({
     type: Schema.Types.ObjectId,
     ref: 'Conversation',
   },
+  type: {
+    type: String,
+    enum: ['regular', 'notification'],
+    default: 'regular',
+  },
   content: String,
   readBy: [{
     type: Schema.Types.ObjectId,

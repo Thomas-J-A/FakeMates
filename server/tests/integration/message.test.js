@@ -85,6 +85,7 @@ describe('GET /api/messages', () => {
     // Seed a group conversation
     const conversation = await seedConversation({
       type: 'group',
+      admin: currentUser.data._id,
       members: [currentUser.data._id, user._id, fakeIds[0]],
     });
 
@@ -236,12 +237,9 @@ describe('POST /api/messages', () => {
       members: [currentUser.data._id, fakeIds[0]],
     });
 
-    // Gather data
-    const content = faker.lorem.sentence();
-
     const messageInfo = {
       conversationId: conversation._id,
-      content,
+      content: faker.lorem.sentence(),
     };
 
     // Send message
@@ -257,13 +255,33 @@ describe('POST /api/messages', () => {
   });
 
 
-  it('should return 400 if conversation doesn\'t exist', async () => {
-    // Gather data
-    const content = faker.lorem.sentence();
+  it('should let other members who have deleted the chat see the message', async () => {
+    // Seed a conversation which one of the members has deleted
+    const conversation = await seedConversation({
+      type: 'private',
+      members: [currentUser.data._id, fakeIds[0]],
+      deletedBy: [fakeIds[0]],
+    });
 
     const messageInfo = {
+      conversationId: conversation._id,
+      content: faker.lorem.sentence(),
+    };
+
+    // Send message
+    const res = await api
+      .post(`/api/messages`)
+      .set('Cookie', currentUser.cookie)
+      .send(messageInfo);
+
+    expect(res.statusCode).toBe(201);
+  });
+
+
+  it('should return 400 if conversation doesn\'t exist', async () => {
+    const messageInfo = {
       conversationId: fakeIds[0],
-      content,
+      content: faker.lorem.sentence(),
     };
 
     const res = await api
@@ -283,12 +301,9 @@ describe('POST /api/messages', () => {
       members: [fakeIds[0], fakeIds[1]],
     });
 
-    // Gather data
-    const content = faker.lorem.sentence();
-
     const messageInfo = {
       conversationId: conversation._id,
-      content,
+      content: faker.lorem.sentence(),
     };
 
     // Send message
