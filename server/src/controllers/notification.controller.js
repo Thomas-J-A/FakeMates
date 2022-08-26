@@ -28,10 +28,12 @@ exports.fetchNotifications = async (req, res, next) => {
       })
       .exec();
     const hasMore = endIndex < totalCount;
+    const resultsRemaining = hasMore ? totalCount - endIndex : 0;
 
     return res.status(200).json({
       notifications,
       hasMore,
+      resultsRemaining,
     });
   } catch (err) {
     next(err);
@@ -56,12 +58,12 @@ exports.handleNotification = async (req, res, next) => {
     }
 
     if (action === 'read') {
-      // Add current user to readBy array
+      // Mark notification as read by current user
       notification.readBy.push(req.user._id);
 
       await notification.save();
     } else {
-      // Add current user to deletedBy array
+      // Mark notification as deleted by current user
       notification.deletedBy.push(req.user._id);
 
       // Check if all recipients have now 'deleted' this notification

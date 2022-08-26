@@ -154,7 +154,7 @@ exports.updateUserInfo = async (req, res, next) => {
 
         break;
       case 'change-visibility':
-        // Toggle isPrivate Boolean
+        // Toggle between private/public
         user.isPrivate = !user.isPrivate;
 
         break;

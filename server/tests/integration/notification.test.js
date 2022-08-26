@@ -34,6 +34,7 @@ describe('GET /api/notifications', () => {
     expect(res.statusCode).toBe(200);
     expect(res.body.notifications).toHaveLength(10);
     expect(res.body.hasMore).toBeTruthy();
+    expect(res.body.resultsRemaining).toBe(2);
 
     // Fetch page two
     const res2 = await api
@@ -44,6 +45,7 @@ describe('GET /api/notifications', () => {
     expect(res2.statusCode).toBe(200);
     expect(res2.body.notifications).toHaveLength(2);
     expect(res2.body.hasMore).toBeFalsy();
+    expect(res2.body.resultsRemaining).toBe(0);
   });
 
 
@@ -77,6 +79,7 @@ describe('GET /api/notifications', () => {
     expect(res.statusCode).toBe(200);
     expect(res.body.notifications).toHaveLength(0);
     expect(res.body.hasMore).toBeFalsy();
+    expect(res.body.resultsRemaining).toBe(0);
   });
 
 

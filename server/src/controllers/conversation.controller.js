@@ -139,7 +139,7 @@ exports.createNewChat = async (req, res, next) => {
         if (conversation.deletedBy.includes(req.user._id)) {
           // Current user previously deleted chat - continue chat with same document
           // Remove user from conversation.deletedBy
-          conversation.deletedBy = conversation.deletedBy.filter((id) => !(id.equals(req.user._id))); // Comparing ObjectIds
+          conversation.deletedBy = conversation.deletedBy.filter((id) => !id.equals(req.user._id));
           await conversation.save();
 
           // Conversation ID needed clientside to associate this chat with all later messages

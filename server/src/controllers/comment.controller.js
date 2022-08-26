@@ -31,14 +31,16 @@ exports.fetchComments = async (req, res, next) => {
       .populate('postedBy', 'fullName avatarUrl isPrivate')
       .exec();
 
-    // Check if there are more results
+    // Check if there are more results, and if so how many
     const endIndex = page * limit;
     const totalCount = await req.models.Comment.countDocuments({ postId: post._id }).exec();
-    const hasMore = endIndex < totalCount; 
+    const hasMore = endIndex < totalCount;
+    const resultsRemaining = hasMore ? totalCount - endIndex : 0;
 
     return res.status(200).json({
       comments,
       hasMore,
+      resultsRemaining,
     });
   } catch (err) {
     next(err);
