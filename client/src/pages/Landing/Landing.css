@@ -1,0 +1,32 @@
+.landing__wrapper {
+  position: relative;
+}
+
+.landing {
+  height: 100%;
+  padding: 0 var(--s-600);
+  background-color: var(--c-neutral-100);
+}
+
+.landing__text {
+  border-bottom: var(--s-200) solid var(--c-black);
+}
+
+.registerForm__namesWrapper {
+  display: flex;
+  column-gap: var(--s-400);
+}
+
+.registerForm__formGroup {
+  display: flex;
+  flex-direction: column;
+}
+
+.registerForm__formGroup--halfSize {
+  flex: 1 1 0;
+}
+
+.registerForm__input,
+.registerForm__submit {
+  width: 100%;
+}

@@ -1,0 +1,38 @@
+.drawer {
+  position: absolute;
+  top: 0;
+  right: 0;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: var(--s-900);
+  z-index: 200;
+  background-color: var(--c-neutral-300);
+  transition: transform .3s ease-in-out;
+  transform: translateX(100%);
+}
+
+.drawer--open {
+  transform: translateX(0);
+  box-shadow: -8px 0 8px 1px rgba(0,0,0,0.5);
+}
+
+.drawerForm__input,
+.drawerForm__submit {
+  width: 100%;
+}
+
+.orSeparator {
+  display: flex;
+  align-items: center;
+}
+
+.orSeparator__text {
+  padding: var(--s-400);
+}
+
+.orSeparator__line {
+  flex: 1;
+  height: var(--s-200);
+  background-color: var(--c-black);
+}

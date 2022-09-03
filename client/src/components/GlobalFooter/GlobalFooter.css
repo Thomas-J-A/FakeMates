@@ -1,0 +1,7 @@
+.globalFooter {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: var(--c-neutral-900);
+  color: var(--c-white);
+}

@@ -1,0 +1,141 @@
+/************************************************
+     CSS RESET
+	Eric Meyers’ CSS reset and tested 
+	box-sizing fix popularized by Paul Irish. 
+************************************************/
+
+html, body, div, span, applet, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+a, abbr, acronym, address, big, cite, code,
+del, dfn, em, img, ins, kbd, q, s, samp,
+small, strike, strong, sub, sup, tt, var,
+b, u, i, center,
+dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td,
+article, aside, canvas, details, embed,
+figure, figcaption, footer, header, hgroup,
+menu, nav, output, ruby, section, summary,
+time, mark, audio, video {
+ margin: 0;
+ padding: 0;
+ border: 0;
+ font-size: 100%;
+ font: inherit;
+ vertical-align: baseline;
+}
+article, aside, details, figcaption, figure,
+footer, header, hgroup, menu, nav, section {
+ display: block;
+}
+html {
+ box-sizing: border-box;
+}
+*, *:before, *:after {
+ box-sizing: inherit;
+}
+body {
+ line-height: 1;
+}
+ol, ul {
+ list-style: none;
+}
+blockquote, q {
+ quotes: none;
+}
+blockquote:before, blockquote:after,
+q:before, q:after {
+ content: '';
+ content: none;
+}
+table {
+ border-collapse: collapse;
+ border-spacing: 0;
+}
+
+/****** End CSS reset ********/
+
+
+/*****************************
+          VARIABLES
+*****************************/
+
+
+:root {
+  /***** Colours *****/
+
+  --c-primary-100: #b1dbff;
+  --c-primary-300: #3ba4ff;
+  --c-primary-500:  #0089ff;
+  --c-primary-700:  #0074d8;
+  --c-primary-900:  #00549d;
+  --c-accent-100:  #ffca99;
+  --c-accent-300:  #ffac61;
+  --c-accent-500:  #ff9900;
+  --c-accent-700:  #cb6100;
+  --c-accent-900:  #a04d00;
+  --c-neutral-100:  #f7f7f7;
+  --c-neutral-300:  #e9e9e9;
+  --c-neutral-500:  #a6a6a6;
+  --c-neutral-700:  #5c5c5c;
+  --c-neutral-900:  #232323;
+  --c-error:  #ff0000;
+  /* --c-success
+  --c-warning
+  --c-info */
+  --c-black: #000;
+  --c-white: #fff;
+
+  /***** Font Sizes *****/
+
+  --fs-100: 9px;
+  --fs-200: 11px;
+  --fs-300: 13px;
+  --fs-400: 16px;
+  --fs-500: 19px;
+  --fs-600: 23px;
+  --fs-700: 28px;
+  --fs-800: 33px;
+  --fs-900: 40px;
+
+  /***** Font Families *****/
+
+  --ff-primary: Helvetica, sans-serif;
+  /* --ff-secondary:
+  --ff-logo: */
+
+  /***** Font Weights *****/
+
+  --fw-semi-bold: 500;
+  --fw-bold: 700;
+  --fw-extra-bold: 900;
+
+  /***** Spacings *****/
+
+  --s-100: 1px;
+  --s-200: 2px;
+  --s-300: 4px;
+  --s-400: 8px;
+  --s-500: 16px;
+  --s-600: 32px;
+  --s-700: 64px;
+  --s-800: 128px;
+  --s-900: 256px;
+}
+
+body {
+  font-family: var(--ff-primary);
+  font-size: var(--fs-400);
+  line-height: 1.5rem;
+  color: var(--c-black);
+}
+
+/*
+  Ensure footer stays at bottom of viewport
+  even when there is little content
+*/
+#root {
+  min-height: 100vh;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+}

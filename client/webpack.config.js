@@ -6,7 +6,7 @@ module.exports = {
   mode: 'development',
   entry: './src/index.jsx',
   output: {
-    path: path.resolve(__dirname, 'dist'),
+    path: path.resolve(__dirname, '../../dist'),
     filename: 'bundle.js',
     clean: true,
   },
@@ -46,9 +46,9 @@ module.exports = {
       template: './public/index.html',
       // favicon: './public/favicon.ico',
     }),
-    // new MiniCssExtractPlugin({
-    //   filename: 'style.css',
-    // }),
+    new MiniCssExtractPlugin({
+      filename: 'style.css',
+    }),
   ],
   devtool: 'eval-cheap-source-map',
 };

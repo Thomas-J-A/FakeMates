@@ -1,0 +1,17 @@
+.globalHeader {
+  display: flex;
+  justify-content: space-between;
+  padding: var(--s-400) var(--s-600);
+  background-color: var(--c-neutral-900);
+  color: var(--c-white);
+}
+
+.globalHeader__logo {
+  display: flex;
+  align-items: baseline;
+  column-gap: var(--s-300);
+}
+
+/* position: sticky;
+top: 0;
+z-index: 99; */

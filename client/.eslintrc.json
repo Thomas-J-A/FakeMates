@@ -5,6 +5,7 @@
     },
     "extends": [
         "plugin:react/recommended",
+        // "plugin:react/jsx-runtime",
         "airbnb"
     ],
     "parserOptions": {
@@ -16,7 +17,13 @@
     },
     "plugins": [
         "react"
-    ]
+    ],
     // "rules": {
+    //   "react/function-component-definition": [1, {
+    //     "namedComponents": "arrow-function",
+    //     "unnamedComponents": "arrow-function"
+    //   }],
+    //   "react/jsx-uses-react": 0,
+    //   "react/react-in-jsx-scope": 0
     // }
 }
