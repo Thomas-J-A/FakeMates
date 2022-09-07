@@ -2,6 +2,14 @@
   display: flex;
   justify-content: center;
   align-items: center;
+  padding: var(--s-400);
+  font-size: var(--fs-300);
   background-color: var(--c-neutral-900);
   color: var(--c-white);
+}
+
+@media screen and (min-width: 810px) {
+  .globalFooter {
+    font-size: var(--fs-400);
+  }
 }

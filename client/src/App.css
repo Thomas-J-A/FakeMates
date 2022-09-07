@@ -100,7 +100,7 @@ table {
 
   /***** Font Families *****/
 
-  --ff-primary: Helvetica, sans-serif;
+  --ff-primary: 'Open Sans', sans-serif;
   /* --ff-secondary:
   --ff-logo: */
 
@@ -121,6 +121,15 @@ table {
   --s-700: 64px;
   --s-800: 128px;
   --s-900: 256px;
+
+  /***** Border Radius *****/
+
+  --br-100: 1px;
+  --br-200: 2px;
+  --br-300: 4px;
+  --br-400: 8px;
+  --br-500: 16px;
+  --br-600: 32px;
 }
 
 body {
@@ -132,10 +141,14 @@ body {
 
 /*
   Ensure footer stays at bottom of viewport
-  even when there is little content
+  even when there isn't much content
 */
 #root {
   min-height: 100vh;
   display: grid;
   grid-template-rows: auto 1fr auto;
+}
+
+button {
+  -webkit-tap-highlight-color: rgba(0,0,0,0); /* :active pseudo-class doesn't work on ios devices */
 }

@@ -1,16 +1,62 @@
 .globalHeader {
   display: flex;
   justify-content: space-between;
-  padding: var(--s-400) var(--s-600);
+  align-items: center;
+  padding: var(--s-500) var(--s-600);
   background-color: var(--c-neutral-900);
   color: var(--c-white);
 }
 
-.globalHeader__logo {
+.logo {
   display: flex;
   align-items: baseline;
-  column-gap: var(--s-300);
+  column-gap: var(--s-400);
 }
+
+.logo__icon {
+  font-size: var(--fs-600);
+}
+
+.logo__name {
+  font-family: 'Patrick Hand', cursive;
+  font-size: var(--fs-800);
+  letter-spacing: var(--s-100);
+}
+
+.globalHeader__signIn {
+  min-height: 40px;
+  padding: var(--s-400);
+  border: var(--s-100) solid var(--c-accent-700);
+  border-radius: var(--br-300);
+  box-shadow: 2px 2px 4px rgba(0,0,0,.2);
+  text-shadow: 2px 2px 4px rgba(0,0,0,.2);
+  font-weight: var(--fw-bold);
+  letter-spacing: var(--s-100);
+  background: linear-gradient(var(--c-accent-300), var(--c-accent-700));
+  color: var(--white);
+  cursor: pointer;
+  outline: none;
+}
+
+.globalHeader__sign-in:hover {
+  background: var(--c-accent-700);
+}
+
+@media screen and (min-width: 810px) {
+  .logo__icon {
+    font-size: var(--fs-700);
+  }
+
+  .logo__name {
+    font-size: var(--fs-900);
+  }
+
+  .globalHeader__signIn {
+    min-height: 45px;
+    font-size: var(--fs-400);
+  }
+}
+
 
 /* position: sticky;
 top: 0;

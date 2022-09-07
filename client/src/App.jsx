@@ -31,7 +31,7 @@ const App = () => {
 
   return (
     <Router>
-      <GlobalHeader toggleDrawer={toggleDrawer} />
+      <GlobalHeader isOpen={isOpen} toggleDrawer={toggleDrawer} />
       <Routes>
         <Route path="/" element={<Landing isOpen={isOpen} closeDrawer={closeDrawer} />} />
         <Route path="/search" element={<Search />} />

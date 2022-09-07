@@ -5,14 +5,14 @@ import { faFaceLaughWink } from '@fortawesome/free-regular-svg-icons';
 
 import './GlobalHeader.css';
 
-const GlobalHeader = ({ toggleDrawer }) => {
+const GlobalHeader = ({ isOpen, toggleDrawer }) => {
   return (
     <header className="globalHeader">
-      <div className="globalHeader__logo">
-        <FontAwesomeIcon icon={faFaceLaughWink} />
-        <h1>FakeMates</h1>
+      <div className="logo">
+        <FontAwesomeIcon className="logo__icon" icon={faFaceLaughWink} />
+        <h1 className="logo__name">FakeMates</h1>
       </div>
-      <button className="globalHeader__sign-in" type="button" onClick={toggleDrawer}>Sign In</button>
+      <button className="globalHeader__signIn" type="button" onClick={toggleDrawer}>{isOpen ? "CLOSE" : "SIGN IN"}</button>
     </header>
   );
 };

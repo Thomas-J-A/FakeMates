@@ -1,12 +1,15 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faGoogle } from '@fortawesome/free-brands-svg-icons';
+import { faChevronRight } from '@fortawesome/free-solid-svg-icons';
 
 import './Drawer.css';
 
 const Drawer = ({ isOpen, closeDrawer }) => {
+  const formRef = useRef(null);
+
   const initialValues = {
     email: '',
     password: '',
@@ -15,9 +18,9 @@ const Drawer = ({ isOpen, closeDrawer }) => {
   const validationSchema = Yup.object({
     email: Yup.string()
       .email('Invalid email')
-      .required('Email is required'),
+      .required('*Required'),
     password: Yup.string()
-      .required('Password is required'),
+      .required('*Required'),
   });
 
   const handleSubmit = async () => {
@@ -32,10 +35,23 @@ const Drawer = ({ isOpen, closeDrawer }) => {
     console.log('Signed in via Google');
   };
 
+  // Clear input fields when drawer closes
+  useEffect(() => {
+    const clearFields = () => {
+      formRef.current.resetForm();
+    };
+
+    if (!isOpen) {
+      setTimeout(clearFields, 300);
+    }
+  }, [isOpen]);
+
   // Close drawer by pressing esc key
   useEffect(() => {
     const handleKeyPress = (e) => {
       if (e.key === 'Escape') {
+        // If any input in drawer is focused, remove focus
+        e.target.blur();
         closeDrawer();
       }
     };
@@ -55,12 +71,13 @@ const Drawer = ({ isOpen, closeDrawer }) => {
         initialValues={initialValues}
         validationSchema={validationSchema}
         onSubmit={handleSubmit}
-        >
+        innerRef={formRef}
+      >
         {({ touched, errors, isSubmitting }) => (
           <Form className="drawerForm" autoComplete="off" noValidate>
-            <div className="drawerForm__form-group">
+            <div className="drawerForm__formGroup">
               <Field
-                className={`drawerForm__input ${ touched.email && errors.email && "drawerForm__fieldError" }`}
+                className={`drawerForm__input ${ (touched.email && errors.email) ? "drawerForm__fieldError" : "" }`}
                 type="email"
                 name="email"
                 placeholder="Email"
@@ -68,9 +85,9 @@ const Drawer = ({ isOpen, closeDrawer }) => {
               />
               <ErrorMessage name="email" component="div" className="drawerForm__feedbackError" />
             </div>
-            <div className="drawerForm__form-group">
+            <div className="drawerForm__formGroup">
               <Field
-                className={`drawerForm__input ${ touched.pasword && errors.email && "drawerForm__fieldError" }`}
+                className={`drawerForm__input ${ (touched.password && errors.password) ? "drawerForm__fieldError" : "" }`}
                 type="password"
                 name="password"
                 placeholder="Password"
@@ -78,7 +95,7 @@ const Drawer = ({ isOpen, closeDrawer }) => {
               />
               <ErrorMessage name="password" component="div" className="drawerForm__feedbackError" />
             </div>
-            <button className="drawerForm__submit" type="submit" disabled={isSubmitting}>Sign In</button>
+            <button className="drawerForm__submit" type="submit" disabled={isSubmitting}>SIGN IN</button>
           </Form>
         )}
       </Formik>
@@ -88,26 +105,25 @@ const Drawer = ({ isOpen, closeDrawer }) => {
         <div className="orSeparator__line" />
       </div>
       <button
-        className="drawer__google"
+        className="googleSignIn"
         type="button"
         onClick={signInWithGoogle}
       >
-        <FontAwesomeIcon icon={faGoogle} />
-        Sign In With Google
+        <FontAwesomeIcon className="googleSignIn__icon" icon={faGoogle} />
+        SIGN IN WITH GOOGLE
       </button>
       <button
-        className="drawer__close"
+        className="closeDrawer"
         type="button"
         onClick={closeDrawer}
       >
-        X
+        <FontAwesomeIcon className="closeDrawer__icon" icon={faChevronRight} />
       </button>
     </div>
   );
 };
 
 export default Drawer;
-
 
 
 // const bodyRef = useRef(document.querySelector('body'));
@@ -124,3 +140,13 @@ export default Drawer;
 
 //   updatePageScroll();
 // }, [isOpen]);
+
+
+
+
+
+  // const isMounted = useRef(false);
+    // // Not necessary to reset fields on mount
+    // if (!isMounted.current) {
+    //   console.log('isMounted ref changed')
+    //   isMounted.current = true;
