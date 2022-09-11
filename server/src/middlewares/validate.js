@@ -29,7 +29,10 @@ module.exports = (schema, property) => (req, res, next) => {
       removeFile(req.files[0].path, next);
     }
 
-    return res.status(400).json({ message: error.details[0].message });
+    return res.status(400).json({
+      key: error.details[0].context.key,
+      message: error.details[0].message,
+    });
   }
 
   // Replace req[property] with sanitized/validated data

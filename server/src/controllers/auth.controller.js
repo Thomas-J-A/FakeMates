@@ -49,13 +49,19 @@ exports.signInWithEmail = async (req, res, next) => {
       .exec();
 
     if (user === null) {
-      return res.status(401).json({ message: 'Email doesn\'t exist' });
+      return res.status(401).json({
+        key: 'email',
+        message: 'Email not found',
+      });
     }
 
     const isMatch = await bcrypt.compare(req.body.password, user.password);
 
     if (!isMatch) {
-      return res.status(401).json({ message: 'Incorrect password' });
+      return res.status(401).json({
+        key: 'password',
+        message: 'Password incorrect',
+      });
     }
 
     // Flag user as online
@@ -90,7 +96,10 @@ exports.signUpWithEmail = async (req, res, next) => {
     const existingUser = await req.models.User.findOne({ email: req.body.email });
 
     if (existingUser) {
-      return res.status(409).json({ message: 'Email already exists' });
+      return res.status(409).json({
+        key: 'email',
+        message: 'Email already exists',
+      });
     }
 
     const user = new req.models.User({

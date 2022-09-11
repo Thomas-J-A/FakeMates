@@ -1,5 +1,5 @@
 const JwtStrategy = require('passport-jwt').Strategy;
-const GoogleStrategy = require('passport-google-oauth20').Strategy;
+const GoogleTokenStrategy = require('passport-google-token').Strategy;
 
 const extractJwtFromCookie = (req) => {
   let token = null;
@@ -33,14 +33,11 @@ module.exports = (passport) => {
     }
   }));
 
-  // With { session: false } in auth call, calling done() will populate
-  // req.user and call next(), but it won't call serializeUser()
   // 'accessToken' and 'refreshToken' are used to further query Google's API
   // and not needed for authentication
-  passport.use(new GoogleStrategy({
+  passport.use(new GoogleTokenStrategy({
     clientID: process.env.GOOGLE_CLIENT_ID,
     clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-    callbackURL: process.env.GOOGLE_CALLBACK_URL,
     passReqToCallback: true,
   }, async (req, accessToken, refreshToken, profile, done) => {
     try {
@@ -49,7 +46,6 @@ module.exports = (passport) => {
         {
           firstName: profile.name.givenName,
           lastName: profile.name.familyName,
-          isOnline: true,
         }
       );
 
@@ -59,10 +55,10 @@ module.exports = (passport) => {
 
       done(null, result.doc);
     } catch (err) {
-      console.log(err)
+      console.log(err);
       done(err, false);
     }
-  }));  
+  }));
 
   // // Serialize user into session/persist user info in session
   // // Not required if using JWT-based auth, though some OAuth providers
@@ -93,50 +89,3 @@ module.exports = (passport) => {
 // OR
 // Passport OAuth strategy + JWT tokens
 // sign in with google => create and send JWT token => protect routes by verifying this token (disable sessions - don't serialize user to req.session)
-
-
-
-
-
-
-// Callback versions
-
-// passport.use(new JwtStrategy(jwtOpts, (jwt_payload, done) => {
-//   User.findById(jwt_payload.sub, (err, user) => {
-//     if (err) {
-//       return done(err, false);
-//     }
-
-//     if (user) {
-//       return done(null, user);
-//     } else {
-//       return done(null, false);
-//     }
-//   });
-// }));
-
-// passport.use(new GoogleStrategy({
-//   clientID: process.env.GOOGLE_CLIENT_ID,
-//   clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-//   callbackURL: process.env.GOOGLE_CALLBACK_URL,
-//   passReqToCallback: true,
-// }, (req, accessToken, refreshToken, profile, done) => {
-//   User.findOrCreate(
-//     { email: profile.emails[0].value },
-//     {
-//       firstName: profile.name.givenName,
-//       lastName: profile.name.familyName,
-//       isOnline: true,
-//     },
-//     (err, user, isCreated) => {
-//       if (err) {
-//         return done(err, false);
-//       }
-
-//       // Status code in res will change depending on whether
-//       // a user was found or created (signed in || signed up)
-//       req.isCreated = isCreated;
-
-//       done(null, user);
-//     })
-// }));

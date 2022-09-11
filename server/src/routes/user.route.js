@@ -1,3 +1,12 @@
+// TODO: refactor the single endpoint '/api/users/:id' where different
+// actions are sent as queries, into separate endpoints for each action
+// Would result in more explicit code, although with more boilerplate and breaking of REST principles
+
+// /api/users/:id?action=edit     => /api/users/:id/edit 
+// /api/users/:id?action=upload   => /api/users/:id/upload
+// /api/users/:id?action=unfriend => /api/users/:id/unfriend
+// /api/users/:id?action=logout   => /api/users/:id/logout
+
 const express = require('express');
 const passport = require('passport');
 
@@ -36,11 +45,3 @@ router.delete('/:id',
 
 module.exports = router;
 
-// TODO: possibly refactor the single endpoint '/api/users/:id' where different
-// actions are sent as queries into separate endpoints for each action
-// Would result in more explicit code, although with more boilerplate and breaking of REST principles
-
-// /api/users/:id?action=edit     => /api/users/:id/edit 
-// /api/users/:id?action=upload   => /api/users/:id/upload
-// /api/users/:id?action=unfriend => /api/users/:id/unfriend
-// /api/users/:id?action=logout   => /api/users/:id/logout
