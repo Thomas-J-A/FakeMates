@@ -1,6 +1,9 @@
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const path = require('path');
+const webpack = require('webpack');
+
+require('dotenv').config({ path: '../.env'});
 
 module.exports = {
   mode: 'development',
@@ -33,12 +36,15 @@ module.exports = {
     ],
   },
   devServer: {
+    // host: '192.168.8.146',
+    // host: 'local-ipv4',
     port: 8080,
     open: true,
     historyApiFallback: true,
     hot: true,
     proxy: {
       '/api': 'http://localhost:3000',
+      // '/api': 'http://192.168.8.146:3000',
     },
   },
   plugins: [
@@ -48,6 +54,9 @@ module.exports = {
     }),
     new MiniCssExtractPlugin({
       filename: 'style.css',
+    }),
+    new webpack.DefinePlugin({
+      'process.env.GOOGLE_CLIENT_ID': JSON.stringify(process.env.GOOGLE_CLIENT_ID),
     }),
   ],
   devtool: 'eval-cheap-source-map',

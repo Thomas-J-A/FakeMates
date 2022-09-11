@@ -16,6 +16,8 @@ import NotFound from './pages/NotFound/NotFound';
 import GlobalHeader from './components/GlobalHeader/GlobalHeader';
 import GlobalFooter from './components/GlobalFooter/GlobalFooter';
 
+import { AuthProvider } from './contexts/AuthContext';
+
 import './App.css';
 
 const App = () => {
@@ -31,17 +33,19 @@ const App = () => {
 
   return (
     <Router>
-      <GlobalHeader isOpen={isOpen} toggleDrawer={toggleDrawer} />
-      <Routes>
-        <Route path="/" element={<Landing isOpen={isOpen} closeDrawer={closeDrawer} />} />
-        <Route path="/search" element={<Search />} />
-        <Route path="/profile/:id" element={<Profile />} />
-        <Route path="/timeline" element={<Timeline />} />
-        <Route path="/post/:id" element={<PostDetail />} />
-        <Route path="/messenger" element={<Messenger />} />
-        <Route path="*" element={<NotFound />} />
-      </Routes>
-      <GlobalFooter />
+      <AuthProvider>
+        <GlobalHeader isOpen={isOpen} toggleDrawer={toggleDrawer} />
+        <Routes>
+          <Route path="/" element={<Landing isOpen={isOpen} closeDrawer={closeDrawer} />} />
+          <Route path="/search" element={<Search />} />
+          <Route path="/profile/:id" element={<Profile />} />
+          <Route path="/timeline" element={<Timeline />} />
+          <Route path="/post/:id" element={<PostDetail />} />
+          <Route path="/messenger" element={<Messenger />} />
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+        <GlobalFooter />
+      </AuthProvider>
     </Router>
   );
 };

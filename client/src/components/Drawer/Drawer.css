@@ -53,9 +53,10 @@
   color: var(--c-error);
 }
 
-.drawerForm__submit,
-.googleSignIn {
+.drawerForm__submit {
+  width: 100%;
   min-height: 40px;
+  margin-top: var(--s-300);
   padding: var(--s-400);
   border: var(--s-100) solid var(--c-primary-700);
   border-radius: var(--br-300);
@@ -65,30 +66,12 @@
   letter-spacing: var(--s-100);
   background: linear-gradient(var(--c-primary-300), var(--c-primary-700));
   color: var(--c-white);
-  cursor: pointer;
   outline: none;
+  cursor: pointer;
 }
 
-.drawerForm__submit:hover,
-.googleSignIn:hover {
+.drawerForm__submit:hover {
   background: var(--c-primary-700);
-}
-
-.drawerForm__submit {
-  width: 100%;
-  margin-top: var(--s-300);
-}
-
-.googleSignIn {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  column-gap: var(--s-500);
-  font-size: var(--fs-200);
-}
-
-.googleSignIn__icon {
-  font-size: var(--fs-500);
 }
 
 .orSeparator {
@@ -139,11 +122,5 @@
   .drawerForm__submit {
     min-height: 45px;
     font-size: var(--fs-400);
-  }
-
-  .googleSignIn {
-    column-gap: var(--s-400);
-    min-height: 45px;
-    font-size: var(--fs-300);
   }
 }

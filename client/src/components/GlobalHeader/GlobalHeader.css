@@ -38,7 +38,7 @@
   outline: none;
 }
 
-.globalHeader__sign-in:hover {
+.globalHeader__signIn:hover {
   background: var(--c-accent-700);
 }
 

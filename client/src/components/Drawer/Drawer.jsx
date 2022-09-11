@@ -2,13 +2,18 @@ import { useEffect, useRef } from 'react';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faGoogle } from '@fortawesome/free-brands-svg-icons';
 import { faChevronRight } from '@fortawesome/free-solid-svg-icons';
+import { GoogleOAuthProvider } from '@react-oauth/google';
+
+import GoogleSignIn from '../GoogleSignIn/GoogleSignIn';
+
+import { useAuth } from '../../contexts/AuthContext';
 
 import './Drawer.css';
 
 const Drawer = ({ isOpen, closeDrawer }) => {
   const formRef = useRef(null);
+  const { logIn } = useAuth();
 
   const initialValues = {
     email: '',
@@ -23,16 +28,39 @@ const Drawer = ({ isOpen, closeDrawer }) => {
       .required('*Required'),
   });
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (values, { setFieldError }) => {
     try {
-      console.log('submitted form');
+      const res = await fetch('http://localhost:3000/api/auth/email', { // http://192.168.8.146:3000/api/auth/email
+        method: 'POST',
+        mode: 'cors',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: values.email,
+          password: values.password,
+        }),
+      });
+
+      const body = await res.json();
+
+      if (res.status === 200) {
+        return logIn(body);
+      }
+
+      // Both types of responses share same object shape
+      if (res.status === 400 || res.status === 401) {
+        return setFieldError(body.key, body.message);
+      }
+
+      if (res.status === 500) {
+        throw new Error(body.message);
+      }
     } catch (err) {
+      // TODO: Remove in production env
       console.log(err);
     }
-  };
-
-  const signInWithGoogle = () => {
-    console.log('Signed in via Google');
   };
 
   // Clear input fields when drawer closes
@@ -83,7 +111,7 @@ const Drawer = ({ isOpen, closeDrawer }) => {
                 placeholder="Email"
                 aria-label="email"
               />
-              <ErrorMessage name="email" component="div" className="drawerForm__feedbackError" />
+              <ErrorMessage className="drawerForm__feedbackError" name="email" component="div" />
             </div>
             <div className="drawerForm__formGroup">
               <Field
@@ -93,7 +121,7 @@ const Drawer = ({ isOpen, closeDrawer }) => {
                 placeholder="Password"
                 aria-label="password"
               />
-              <ErrorMessage name="password" component="div" className="drawerForm__feedbackError" />
+              <ErrorMessage className="drawerForm__feedbackError" name="password" component="div" />
             </div>
             <button className="drawerForm__submit" type="submit" disabled={isSubmitting}>SIGN IN</button>
           </Form>
@@ -104,14 +132,9 @@ const Drawer = ({ isOpen, closeDrawer }) => {
         <p className="orSeparator__text">OR</p>
         <div className="orSeparator__line" />
       </div>
-      <button
-        className="googleSignIn"
-        type="button"
-        onClick={signInWithGoogle}
-      >
-        <FontAwesomeIcon className="googleSignIn__icon" icon={faGoogle} />
-        SIGN IN WITH GOOGLE
-      </button>
+      <GoogleOAuthProvider clientId={process.env.GOOGLE_CLIENT_ID}>
+        <GoogleSignIn />
+      </GoogleOAuthProvider>
       <button
         className="closeDrawer"
         type="button"
