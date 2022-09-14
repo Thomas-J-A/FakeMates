@@ -3,6 +3,7 @@
   justify-content: center;
   align-items: center;
   padding: var(--s-400);
+  border-top: var(--s-200) solid var(--c-black);
   font-size: var(--fs-300);
   background-color: var(--c-neutral-900);
   color: var(--c-white);

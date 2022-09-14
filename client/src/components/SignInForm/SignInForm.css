@@ -1,0 +1,111 @@
+.signInForm__formGroup {
+  margin-bottom: var(--s-400);
+}
+
+.signInForm__input {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  margin-bottom: var(--s-300);
+  padding: var(--s-400);
+  border: var(--s-100) solid var(--c-neutral-500);
+  border-radius: var(--br-200);
+  font-size: var(--fs-300);
+  color: var(--c-neutral-700);
+}
+
+.signInForm__input:focus {
+  box-shadow: 0 0 0 1px var(--c-primary-500);
+  outline: none;
+}
+
+.signInForm__fieldError {
+  border-color: var(--c-error);
+}
+
+.signInForm__fieldError:focus {
+  box-shadow: 0 0 0 1px var(--c-error);
+  outline: none;
+}
+
+.signInForm__feedbackError {
+  font-size: var(--fs-300);
+  color: var(--c-error);
+}
+
+.signInForm__submit {
+  width: 100%;
+  min-height: 40px;
+  margin-top: var(--s-300);
+  padding: var(--s-400);
+  border: var(--s-100) solid var(--c-primary-700);
+  border-radius: var(--br-300);
+  box-shadow: 2px 2px 4px rgba(0,0,0,.2);
+  text-shadow: 2px 2px 4px rgba(0,0,0,.2);
+  font-weight: var(--fw-bold);
+  letter-spacing: var(--s-100);
+  background: linear-gradient(var(--c-primary-300), var(--c-primary-700));
+  color: var(--c-white);
+  outline: none;
+  cursor: pointer;
+}
+
+.signInForm__submit:hover {
+  background: var(--c-primary-700);
+}
+
+@media screen and (min-width: 810px) {
+  .signInForm__formGroup {
+    margin-bottom: var(--s-500);
+  }
+
+  .signInForm__input {
+    font-size: var(--fs-400);
+  }
+
+  .signInForm__submit {
+    min-height: 45px;
+    font-size: var(--fs-400);
+  }
+}
+
+@media screen and (min-width: 1300px) {
+  .signInForm {
+    display: flex;
+    align-items: center;
+    column-gap: var(--s-500);
+  }
+
+  .signInForm__formGroup {
+    position: relative;
+    margin-bottom: 0;
+  }
+
+  .signInForm__input {
+    margin-bottom: 0;
+  }
+
+  .signInForm__feedbackError {
+    position: absolute;
+    transform: translateY(var(--s-500));
+    z-index: 1;
+    padding: var(--s-300) var(--s-400);
+    border-radius: var(--br-300);
+    font-weight: var(--fw-bold);
+    background-color: var(--c-error);
+    color: var(--c-white);
+  }
+
+  .signInForm__feedbackError::before {
+    content: '';
+    position: absolute;
+    bottom: 100%;
+    border: var(--s-400) solid transparent;
+    border-bottom-color: var(--c-error);
+  }
+
+  .signInForm__submit {
+    width: auto;
+    margin-top: 0;
+  }
+}

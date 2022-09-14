@@ -98,6 +98,8 @@ table {
   --fs-800: 33px;
   --fs-900: 40px;
 
+  --fs-huge: 52px;
+
   /***** Font Families *****/
 
   --ff-primary: 'Open Sans', sans-serif;

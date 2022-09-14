@@ -5,7 +5,7 @@
   column-gap: var(--s-500);
   min-height: 40px;
   padding: var(--s-400);
-  border: var(--s-100) solid var(--c-primary-700);
+  border: var(--s-100) solid var(--c-accent-700);
   border-radius: var(--br-300);
   box-shadow: 2px 2px 4px rgba(0,0,0,.2);
   text-shadow: 2px 2px 4px rgba(0,0,0,.2);
@@ -13,14 +13,14 @@
   font-size: var(--fs-200);
   font-weight: var(--fw-bold);
   letter-spacing: var(--s-100);
-  background: linear-gradient(var(--c-primary-300), var(--c-primary-700));
+  background: linear-gradient(var(--c-accent-300), var(--c-accent-700));
   color: var(--c-white);
   outline: none;
   cursor: pointer;
 }
 
 .googleSignIn:hover {
-  background: var(--c-primary-700);
+  background: var(--c-accent-700);
 }
 
 .googleSignIn__icon {

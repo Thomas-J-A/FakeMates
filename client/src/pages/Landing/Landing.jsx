@@ -6,10 +6,14 @@ import Drawer from '../../components/Drawer/Drawer';
 
 import { useAuth } from '../../contexts/AuthContext';
 
+import useMediaQuery from '../../hooks/useMediaQuery';
+
 import './Landing.css';
 import heroImage from '../../../public/images/landing-hero.png';
 
 const Landing = ({ isOpen, closeDrawer }) => {
+  const isNarrowEnough = useMediaQuery('(max-width: 1300px)');
+
   const { logIn } = useAuth();
 
   const initialValues = {
@@ -22,19 +26,19 @@ const Landing = ({ isOpen, closeDrawer }) => {
 
   const validationSchema = Yup.object({
     firstName: Yup.string()
-      .required('*Required'),
+      .required('Required'),
     lastName: Yup.string()
-      .required('*Required'),
+      .required('Required'),
     email: Yup.string()
       .email('Invalid email')
-      .required('*Required'),
+      .required('Required'),
     password: Yup.string()
       .min(8, 'Password must be at least 8 characters')
       .max(20, 'Password must be less than 20 characters')
-      .required('*Required'),
+      .required('Required'),
     confirmPassword: Yup.string()
       .oneOf([Yup.ref('password')], 'Passwords must match')
-      .required('*Required'),
+      .required('Required'),
   });
 
   const handleSubmit = async (values, { setFieldError }) => {
@@ -162,8 +166,12 @@ const Landing = ({ isOpen, closeDrawer }) => {
           )}
         </Formik>
       </main>
-      <Backdrop isVisible={isOpen} closeDrawer={closeDrawer} />
-      <Drawer isOpen={isOpen} closeDrawer={closeDrawer} />
+      { isNarrowEnough &&
+        <>
+          <Backdrop isVisible={isOpen} closeDrawer={closeDrawer} />
+          <Drawer isOpen={isOpen} closeDrawer={closeDrawer} />
+        </>
+      }
     </div>
   );
 };

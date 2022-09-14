@@ -4,6 +4,7 @@ import {
   Routes,
   Route,
 } from 'react-router-dom';
+import { GoogleOAuthProvider } from '@react-oauth/google';
 
 import Landing from './pages/Landing/Landing';
 import Search from './pages/Search/Search';
@@ -33,19 +34,21 @@ const App = () => {
 
   return (
     <Router>
-      <AuthProvider>
-        <GlobalHeader isOpen={isOpen} toggleDrawer={toggleDrawer} />
-        <Routes>
-          <Route path="/" element={<Landing isOpen={isOpen} closeDrawer={closeDrawer} />} />
-          <Route path="/search" element={<Search />} />
-          <Route path="/profile/:id" element={<Profile />} />
-          <Route path="/timeline" element={<Timeline />} />
-          <Route path="/post/:id" element={<PostDetail />} />
-          <Route path="/messenger" element={<Messenger />} />
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-        <GlobalFooter />
-      </AuthProvider>
+      <GoogleOAuthProvider clientId={process.env.GOOGLE_CLIENT_ID}>
+        <AuthProvider>
+          <GlobalHeader isOpen={isOpen} toggleDrawer={toggleDrawer} />
+          <Routes>
+            <Route path="/" element={<Landing isOpen={isOpen} closeDrawer={closeDrawer} />} />
+            <Route path="/search" element={<Search />} />
+            <Route path="/profile/:id" element={<Profile />} />
+            <Route path="/timeline" element={<Timeline />} />
+            <Route path="/post/:id" element={<PostDetail />} />
+            <Route path="/messenger" element={<Messenger />} />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+          <GlobalFooter />
+        </AuthProvider>
+      </GoogleOAuthProvider>
     </Router>
   );
 };
