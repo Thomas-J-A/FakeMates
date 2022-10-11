@@ -25,7 +25,7 @@ exports.fetchComments = async (req, res, next) => {
     const skip = (page - 1) * limit;
 
     const comments = await req.models.Comment.find({ postId: post._id })
-      .sort({ createdAt: -1 })
+      // .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit)
       .populate('postedBy', 'fullName avatarUrl isPrivate')
@@ -79,6 +79,12 @@ exports.createComment = async (req, res, next) => {
     post.commentsCount++;
     await post.save();
 
+    // Populate some fields in order to display more info in UI
+    await comment.populate({
+      path: 'postedBy',
+      select: 'fullName avatarUrl isPrivate',
+    });
+
     return res.status(201).json(comment);
   } catch (err) {
     next(err);
@@ -92,7 +98,9 @@ exports.likeComment = async (req, res, next) => {
   try {
     const { id } = req.params;
     
-    const comment = await req.models.Comment.findById(id).exec();
+    const comment = await req.models.Comment.findById(id)
+      .populate('postedBy', 'fullName avatarUrl isPrivate')
+      .exec();
 
     // Verify that comment exists
     if (!comment) {
@@ -100,7 +108,7 @@ exports.likeComment = async (req, res, next) => {
     }
 
     // Verify that current user isn't liking their own comment
-    if (comment.postedBy.equals(req.user._id)) {
+    if (comment.postedBy._id.equals(req.user._id)) {
       return res.status(403).json({ message: 'You can\'t like your own comment' });
     }
 

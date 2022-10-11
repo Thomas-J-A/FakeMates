@@ -31,12 +31,12 @@ require('./configs/passport.config')(passport);
 // Set up middlewares
 if (process.env.NODE_ENV !== 'test') app.use(logger('dev'));
 app.use(cors({
-  // origin: 'http://192.168.8.146:8080', // React client
-  origin: 'http://localhost:8080',  // React client
+  origin: 'http://192.168.8.146:8080', // React client
+  // origin: 'http://localhost:8080',  // React client
   credentials: true, // Allow cookies to be sent
 }));
 app.use(helmet());
-app.use('/public', express.static(path.join(__dirname, 'public'))); // Serve static files from ./public directory
+app.use('/public', express.static(path.join(__dirname, '../public'))); // Serve static files from ./public directory
 app.use(express.json());
 app.use(cookieParser()); // Parses Cookie header and populates req.cookies (req.cookies.<cookieName>)
 // app.use(session({

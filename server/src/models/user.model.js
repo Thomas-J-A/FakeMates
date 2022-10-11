@@ -17,11 +17,11 @@ const userSchema = new Schema({
   bio: String,
   avatarUrl: {
     type: String,
-    default: '../../../public/images/avatar.svg',
+    default: 'public/images/avatar.svg',
   },
   backgroundUrl: {
     type: String,
-    default: '../../../public/images/background.jpg',
+    default: 'public/images/background.jpg',
   },
   isPrivate: {
     type: Boolean,

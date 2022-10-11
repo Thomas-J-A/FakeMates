@@ -58,6 +58,12 @@ exports.createPost = async (req, res, next) => {
     }
     
     await post.save();
+
+    // Populate some fields in order to display more info in UI
+    await post.populate({
+      path: 'postedBy',
+      select: 'fullName avatarUrl',
+    });
     
     return res.status(201).json(post);
   } catch (err) {
@@ -98,7 +104,7 @@ exports.likePost = async (req, res, next) => {
     const { id } = req.params;
     
     const post = await req.models.Post.findById(id)
-      .populate('postedBy', 'isPrivate')
+      .populate('postedBy', 'fullName avatarUrl isPrivate')
       .exec();
 
     // Verify that post exists
