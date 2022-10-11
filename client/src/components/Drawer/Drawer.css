@@ -1,55 +1,148 @@
 .drawer {
-  position: absolute;
+  position: fixed;
   top: 0;
   right: 0;
   display: flex;
   flex-direction: column;
   height: 100%;
   width: var(--s-900);
-  padding: var(--s-500);
+  padding: calc(64px + var(--s-500)) var(--s-500) 0;
   z-index: 200;
   background-color: var(--c-neutral-300);
+  background-image: url('../../../public/images/otis-redding.png');
   transition: transform .3s ease-in-out;
   transform: translateX(100%);
 }
 
 .drawer--open {
   transform: translateX(0);
-  box-shadow: -8px 0 8px 1px rgba(0,0,0,0.5);
+  box-shadow: -6px 0 6px 1px rgba(0,0,0,0.4);
+}
+
+.drawer__innerWrapper {
+  display: flex;
+  flex-direction: column;
+  row-gap: var(--s-500);
+  height: 100%;
 }
 
 .orSeparator {
   display: flex;
   align-items: center;
-  margin: var(--s-400);
 }
 
 .orSeparator__text {
-  padding: var(--s-400);
+  padding: 0 var(--s-400);
   font-weight: var(--fw-semi-bold);
   font-style: italic;
+  color: var(--c-neutral-700);
 }
 
 .orSeparator__line {
   flex: 1;
   height: var(--s-200);
-  background-color: var(--c-black);
+  background-color: var(--c-neutral-500);
 }
 
-.closeDrawer {
-  align-self: flex-start;
+.drawerNav__list {
+  display: flex;
+  flex-direction: column;
+  row-gap: var(--s-400);
+}
+
+.drawerNav__link {
+  display: flex;
+  align-items: center;
+  column-gap: var(--s-400);
+  text-decoration: none;
+  color: var(--c-black);
+  outline: none;
+}
+
+.drawerNav__linkText {
+  letter-spacing: var(--s-100);
+  /* transition: color .175s ease-in-out; */
+}
+
+.drawerNav__link:hover .drawerNav__linkText {
+  color: var(--c-primary-700);
+}
+
+.drawer__buttons {
+  display: flex;
+  flex-direction: column;
+  row-gap: var(--s-400);
+}
+
+.drawer__signOut,
+.drawer__deleteAccount {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  column-gap: var(--s-400);
+  min-height: 40px;
+  padding: var(--s-400) var(--s-500);
+  border-radius: var(--br-300);
+  box-shadow: 2px 2px 4px rgba(0,0,0,.2);
+  text-shadow: 2px 2px 4px rgba(0,0,0,.2);
+  font-weight: var(--fw-bold);
+  letter-spacing: var(--s-100);
+  color: var(--c-white);
+  cursor: pointer;
+  outline: none;
+}
+
+.drawer__signOut {
+  border: var(--s-100) solid var(--c-primary-700);
+  background: linear-gradient(var(--c-primary-300), var(--c-primary-700));
+}
+
+.drawer__signOut:hover {
+  background: var(--c-primary-700);
+}
+
+.drawer__deleteAccount {
+  border: var(--s-100) solid var(--c-accent-700);
+  background: linear-gradient(var(--c-accent-300), var(--c-accent-700));
+}
+
+.drawer__deleteAccount:hover {
+  background: var(--c-accent-700);
+}
+
+/* .closeDrawer {
+  display: flex;
+  justify-content: flex-start;
   margin-top: auto;
-  padding: var(--s-500) var(--s-500) 0 0;
   border: none;
   font-size: var(--fs-500);
+  color: var(--c-neutral-500);
   cursor: pointer;
   outline: none;
 }
 
 .closeDrawer:hover {
   background: none;
+  color: var(--c-neutral-700);
 }
 
 .closeDrawer:active {
   background: none;
+} */
+
+@media screen and (min-width: 810px) {
+  .drawer {
+    padding-top: calc(72px + var(--s-500));
+  }
+
+  .drawer__signOut,
+  .drawer__deleteAccount {
+    column-gap: var(--s-500);
+    min-height: 45px;
+    font-size: var(--fs-400);
+  }
+
+  /* .closeDrawer {
+    font-size: var(--fs-700);
+  } */
 }

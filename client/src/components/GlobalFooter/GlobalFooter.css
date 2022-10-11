@@ -2,15 +2,17 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: var(--s-400);
-  border-top: var(--s-200) solid var(--c-black);
-  font-size: var(--fs-300);
-  background-color: var(--c-neutral-900);
+  height: 32px;
+  z-index: 300;
+  /* border-top: var(--s-100) solid var(--c-black); */
+  font-size: var(--fs-200);
+  background-image: url('../../../public/images/micro-carbon.png'), linear-gradient(to right, var(--c-neutral-700), var(--c-black));
   color: var(--c-white);
 }
 
 @media screen and (min-width: 810px) {
   .globalFooter {
-    font-size: var(--fs-400);
+    height: 40px;
+    font-size: var(--fs-300);
   }
 }

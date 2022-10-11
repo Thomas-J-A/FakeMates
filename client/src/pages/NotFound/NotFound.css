@@ -1,0 +1,51 @@
+.notFound {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  row-gap: var(--s-500);
+  height: 100%;
+  padding: var(--s-500);
+  background-image: url('../../../public/images/french-stucco.png'), linear-gradient(to bottom, var(--c-primary-900), var(--c-black));
+  color: var(--c-white);
+}
+
+.notFound__image {
+  height: var(--s-800);
+}
+
+.notFound__titleGroup {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  row-gap: var(--s-400);
+}
+
+.notFound__title {
+  font-size: var(--fs-800);
+  font-weight: var(--fw-bold);
+}
+
+.notFound__subtitle {
+  letter-spacing: var(--s-100);
+  font-weight: var(--fw-semi-bold);
+}
+
+.notFound__button {
+  min-height: 40px;
+  padding: var(--s-400) var(--s-500);
+  border: var(--s-100) solid var(--c-accent-700);
+  border-radius: var(--br-300);
+  box-shadow: 2px 2px 4px rgba(0,0,0,.2);
+  text-shadow: 2px 2px 4px rgba(0,0,0,.2);
+  font-weight: var(--fw-bold);
+  letter-spacing: var(--s-100);
+  background: linear-gradient(var(--c-accent-300), var(--c-accent-700));
+  color: var(--c-white);
+  cursor: pointer;
+  outline: none;
+}
+
+.notFound__button:hover {
+  background: var(--c-accent-700);
+}

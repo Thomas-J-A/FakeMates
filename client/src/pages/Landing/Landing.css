@@ -1,16 +1,11 @@
 .landing {
-  position: relative;
-  background-color: var(--c-neutral-100);
-  overflow: hidden;
-}
-
-.landing__content {
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
   height: 100%;
   padding: var(--s-600);
+  background-image: url('../../../public/images/french-stucco.png'), linear-gradient(to bottom, var(--c-neutral-100), var(--c-neutral-300));
 }
 
 .hero {
@@ -38,7 +33,7 @@
   max-width: 26rem;
   padding: var(--s-500);
   border: var(--s-100) solid var(--c-neutral-500);
-  border-radius: var(--br-200);
+  border-radius: var(--br-300);
 }
 
 .registerForm__header {
@@ -87,7 +82,7 @@
   margin-bottom: var(--s-300);
   padding: var(--s-400);
   border: var(--s-100) solid var(--c-neutral-500);
-  border-radius: var(--br-200);
+  border-radius: var(--br-300);
   color: var(--c-neutral-700);
 }
 
@@ -168,7 +163,7 @@
 }
 
 @media screen and (min-width: 1050px) {
-  .landing__content {
+  .landing {
     flex-direction: row;
     gap: var(--s-800);
   }

@@ -23,8 +23,10 @@ const SignInForm = forwardRef((props, ref) => {
   });
   
   const handleSubmit = async (values, { setFieldError }) => {
+    // 'http://localhost:3000/api/auth/email';
+
     try {
-      const res = await fetch('http://localhost:3000/api/auth/email', { // http://192.168.8.146:3000/api/auth/email
+      const res = await fetch('http://192.168.8.146:3000/api/auth/email', {
         method: 'POST',
         mode: 'cors',
         credentials: 'include',

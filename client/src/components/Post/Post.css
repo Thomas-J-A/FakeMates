@@ -1,0 +1,139 @@
+.post {
+  display: flex;
+  flex-direction: column;
+  row-gap: var(--s-400);
+  padding: var(--s-500);
+  border: var(--s-100) solid var(--c-black);
+  border-radius: var(--br-300);
+  box-shadow: 2px 2px 4px rgba(0,0,0,.2);
+  background-color: var(--c-white);
+  background-image: url('../../../public/images/otis-redding.png');
+}
+
+.postHeader {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.postHeader__postedBy {
+  font-size: var(--fs-400);
+  font-weight: var(--fw-bold);
+  line-height: 1.2rem;
+}
+
+.postHeader__createdAt {
+  font-size: var(--fs-200);
+  line-height: 1.2rem;
+  color: var(--c-neutral-500);
+}
+
+.postHeader__avatar {
+  height: var(--s-600);
+  width: var(--s-600);
+  margin-right: var(--s-400);
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.postHeader__options {
+  display: none;
+  margin-left: auto;
+  font-size: var(--fs-600);
+  color: var(--c-neutral-500);
+  cursor: pointer;
+}
+
+.postHeader:hover .postHeader__options {
+  display: block;
+}
+
+.postContent__text {
+  font-size: var(--fs-300);
+}
+
+.postContent__image {
+  height: var(--s-800);
+  max-width: var(--s-900);
+  margin-top: var(--s-300);
+  border-radius: var(--br-300);
+  object-fit: cover;
+}
+
+.postFooter {
+  display: flex;
+  column-gap: var(--s-500);
+}
+
+.postFooter__likesCount,
+.postFooter__commentsCount,
+.postFooter__expandComments {
+  display: flex;
+  align-items: center;
+  color: var(--c-neutral-500);
+}
+
+.postFooter__likesCount:hover:not(.postFooter--own__likesCount),
+.postFooter__expandComments:hover {
+  color: var(--c-black);
+  cursor: pointer;
+}
+
+.postFooter__likesIcon,
+.postFooter__commentsIcon {
+  margin-right: var(--s-300);
+}
+
+.postFooter__likesCount--liked {
+  color: var(--c-primary-700);
+}
+
+.postFooter__expandComments--expanded {
+  color: var(--c-black);
+}
+
+.postFooter__likesTotal,
+.postFooter__commentsTotal,
+.postFooter__viewComments {
+  font-size: var(--fs-300);
+  user-select: none;
+}
+
+.postComments {
+  display: flex;
+  flex-direction: column;
+}
+
+.postComments__error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: var(--s-400);
+}
+
+.postComments__errorIcon {
+  font-size: var(--fs-600);
+  color: var(--c-error);
+}
+
+.postComments__errorMessage {
+  font-size: var(--fs-300);
+  font-weight: var(--fw-semi-bold);
+}
+
+.postComments__comments {
+  padding-left: var(--s-600);
+}
+
+.postComments__loadMore {
+  margin-top: var(--s-400);
+  font-size: var(--fs-300);
+  color: var(--c-primary-700);
+  cursor: pointer;
+}
+
+.postComments__firstComment {
+  text-align: center;
+  font-size: var(--fs-300);
+  color: var(--c-accent-700);
+}

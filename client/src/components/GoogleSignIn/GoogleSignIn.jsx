@@ -51,7 +51,7 @@ const GoogleSignIn = () => {
       onClick={continueWithGoogle}
     >
       <FontAwesomeIcon className="googleSignIn__icon" icon={faGoogle} />
-      SIGN IN WITH GOOGLE
+      GOOGLE SIGN IN
     </button>
   );
 };

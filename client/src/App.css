@@ -98,8 +98,6 @@ table {
   --fs-800: 33px;
   --fs-900: 40px;
 
-  --fs-huge: 52px;
-
   /***** Font Families *****/
 
   --ff-primary: 'Open Sans', sans-serif;
@@ -146,11 +144,23 @@ body {
   even when there isn't much content
 */
 #root {
-  min-height: 100vh;
+  position: relative;
   display: grid;
   grid-template-rows: auto 1fr auto;
+  min-height: 100vh;
 }
+
+/* .body {
+  position: relative;
+  background-color: var(--c-neutral-100);
+  overflow: hidden;
+} */
 
 button {
   -webkit-tap-highlight-color: rgba(0,0,0,0); /* :active pseudo-class doesn't work on ios devices */
+}
+
+a {
+  text-decoration: none;
+  color: var(--c-black);
 }

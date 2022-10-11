@@ -1,0 +1,6 @@
+.profile {
+  height: 100%;
+  padding: var(--s-500);
+  background-image: url('../../../public/images/french-stucco.png'), linear-gradient(to bottom, var(--c-primary-900), var(--c-black));
+  color: var(--c-white);
+}

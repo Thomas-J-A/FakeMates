@@ -37,14 +37,14 @@ module.exports = {
   },
   devServer: {
     // host: '192.168.8.146',
-    // host: 'local-ipv4',
+    host: 'local-ipv4',
     port: 8080,
     open: true,
     historyApiFallback: true,
     hot: true,
     proxy: {
-      '/api': 'http://localhost:3000',
-      // '/api': 'http://192.168.8.146:3000',
+      // '/api': 'http://localhost:3000',
+      '/api': 'http://192.168.8.146:3000',
     },
   },
   plugins: [

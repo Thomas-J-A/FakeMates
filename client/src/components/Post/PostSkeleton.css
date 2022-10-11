@@ -1,0 +1,29 @@
+.postSkeleton {
+  display: flex;
+  flex-direction: column;
+  row-gap: var(--s-400);
+  padding: var(--s-500);
+  border: var(--s-100) solid var(--c-black);
+  border-radius: var(--br-300);
+  box-shadow: 2px 2px 4px rgba(0,0,0,.2);
+  background-color: var(--c-white);
+}
+
+.postSkeletonHeader {
+  display: flex;
+  align-items: center;
+  column-gap: var(--s-400);
+}
+
+.postSkeletonMeta {
+  flex: 1;
+}
+
+.postSkeletonFooter {
+  display: flex;
+}
+
+.postSkeleton__expandComments {
+  flex: .5;
+  margin-left: auto;
+}

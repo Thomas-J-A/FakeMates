@@ -1,0 +1,35 @@
+.postOptions {
+  position: absolute;
+  top: 0;
+  right: var(--s-500);
+  padding: var(--s-400) var(--s-500);
+  border: var(--s-100) solid var(--c-neutral-500);
+  border-radius: var(--br-300);
+  box-shadow: 2px 2px 4px rgba(0,0,0,.2);
+  background-color: var(--c-white);
+  font-size: var(--fs-300);
+  transform: scale(0);
+  opacity: 0;
+  visibility: hidden;
+  transition: all .3s ease-in-out;
+}
+
+.postOptions--visible {
+  transform: scale(1);
+  opacity: 1;
+  visibility: visible;
+}
+
+.postOptionsList__item {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+.postOptionsList__item:hover .postOptionsList__text {
+  color: var(--c-primary-700);
+}
+
+.postOptionsList__icon {
+  margin-right: var(--s-300);
+}

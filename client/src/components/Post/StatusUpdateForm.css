@@ -1,0 +1,148 @@
+.statusUpdateForm {
+  display: flex;
+  flex-direction: column;
+  row-gap: var(--s-400);
+  padding: var(--s-500);
+  border: var(--s-100) solid var(--c-black);
+  border-radius: var(--br-300);
+  box-shadow: 2px 2px 4px rgba(0,0,0,.2);
+  background-color: var(--c-white);
+  background-image: url('../../../public/images/otis-redding.png');
+}
+
+.statusUpdateForm__content {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  padding: var(--s-400);
+  border: var(--s-100) solid var(--c-neutral-500);
+  border-radius: var(--br-300);
+  font-size: var(--fs-300);
+  color: var(--c-neutral-700);
+}
+
+.statusUpdateForm__content:focus {
+  box-shadow: 0 0 0 1px var(--c-primary-500);
+  outline: none;
+}
+
+.statusUpdateForm__fieldError {
+  border-color: var(--c-error);
+}
+
+.statusUpdateForm__fieldError:focus {
+  box-shadow: 0 0 0 1px var(--c-error);
+  outline: none;
+}
+
+.statusUpdateForm__feedbackError {
+  font-size: var(--fs-300);
+  color: var(--c-error);
+}
+
+.statusUpdateForm__options {
+  display: flex;
+  align-items: flex-start;
+}
+
+.statusUpdateForm__input--file {
+  display: none;
+}
+
+.statusUpdateForm__addImage {
+  margin-right: var(--s-300)
+}
+
+.statusUpdateForm__addImage,
+.statusUpdateForm__showEmojiPicker {
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--c-neutral-500);
+  cursor: pointer;
+  outline: none;
+}
+
+.statusUpdateForm__addImage:hover,
+.statusUpdateForm__showEmojiPicker:hover {
+  color: var(--c-primary-700);
+}
+
+.statusUpdateForm__icon {
+  font-size: var(--fs-600);
+}
+
+.statusThumbnail {
+  display: flex;
+  align-items: center;
+  padding: var(--s-400);
+  border-radius: var(--br-300);
+  background-color: var(--c-neutral-300);
+}
+
+.statusThumbnail--error {
+  background-color: var(--c-error);
+}
+
+.statusThumbnail__image {
+  height: var(--s-600);
+  max-width: var(--s-600);
+  object-fit: cover;
+  vertical-align: bottom;
+  border-radius: var(--br-300);
+}
+
+.statusThumbnail__fileInfo {
+  display: flex;
+  flex-direction: column;
+  margin-left: var(--s-400);
+  font-size: var(--fs-200);
+  line-height: 1rem;
+}
+
+.statusThumbnail__remove {
+  margin-left: auto;
+  color: var(--c-neutral-500);
+  cursor: pointer;
+}
+
+.statusThumbnail__remove:hover {
+  color: var(--c-black);
+}
+
+.statusThumbnail--error .statusThumbnail__remove {
+  color: var(--c-black);
+}
+
+.statusUpdateForm__button {
+  min-height: 40px;
+  padding: var(--s-400) var(--s-500);
+  border: var(--s-100) solid var(--c-primary-700);
+  border-radius: var(--br-300);
+  font-weight: var(--fw-bold);
+  letter-spacing: var(--s-100);
+  outline: none;
+  cursor: pointer;
+}
+
+.statusUpdateForm__button--submit {
+  margin-left: var(--s-300);
+  box-shadow: 2px 2px 4px rgba(0,0,0,.2);
+  text-shadow: 2px 2px 4px rgba(0,0,0,.2);
+  background: linear-gradient(var(--c-primary-300), var(--c-primary-700));
+  color: var(--c-white);
+}
+
+.statusUpdateForm__button--submit:hover {
+  background: var(--c-primary-700);
+}
+
+.statusUpdateForm__button--reset {
+  margin-left: auto;
+  background-color: var(--c-white);
+  color: var(--c-primary-700);
+}
+
+.statusUpdateForm__button--reset:hover {
+  background-color: var(--c-neutral-100);
+}

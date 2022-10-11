@@ -1,0 +1,29 @@
+.scrollToTop {
+  position: fixed;
+  bottom: 40px;
+  right: var(--s-600);
+  z-index: 100;
+  visibility: hidden;
+  border: var(--s-100) solid var(--c-accent-700);
+  border-radius: var(--br-300);
+  box-shadow: 2px 2px 4px rgba(0,0,0,.2);
+  opacity: 0;
+  background: linear-gradient(var(--c-accent-300), var(--c-accent-700));
+  cursor: pointer;
+  transition: opacity .5s ease-in-out, visibility .5s ease-in-out;
+}
+
+.scrollToTop:hover {
+  background: var(--c-accent-700);
+}
+
+.scrollToTop--visible {
+  visibility: visible;
+  opacity: 1;
+}
+
+.scrollToTop__icon {
+  padding: var(--s-400);
+  font-size: var(--fs-600);
+  color: var(--c-white);
+}

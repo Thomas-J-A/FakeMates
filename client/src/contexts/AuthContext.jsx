@@ -55,7 +55,7 @@ const AuthProvider = ({ children }) => {
 
     setAuthState({}); // runs before navigate() despite being async
 
-    navigate('/login');
+    navigate('/');
 
     setIsLoggingOut(false);
   };
