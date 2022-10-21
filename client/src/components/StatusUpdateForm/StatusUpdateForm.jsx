@@ -1,10 +1,11 @@
 import { useState, useEffect, useRef } from 'react';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
-import EmojiPicker from './EmojiPicker';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faImage, faFaceSmile } from '@fortawesome/free-regular-svg-icons';
 import { faXmark } from '@fortawesome/free-solid-svg-icons';
+
+import EmojiPicker from '../EmojiPicker/EmojiPicker';
 
 import { useAuth } from '../../contexts/AuthContext';
 

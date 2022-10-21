@@ -1,0 +1,8 @@
+.onlineFriendsList {
+  padding: var(--s-500);
+  border: var(--s-100) solid var(--c-black);
+  border-radius: var(--br-300);
+  box-shadow: 2px 2px 4px rgba(0,0,0,.2);
+  background-color: var(--c-white);
+  background-image: url('../../../public/images/otis-redding.png');
+}

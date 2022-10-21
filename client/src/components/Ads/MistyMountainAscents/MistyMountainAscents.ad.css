@@ -1,0 +1,41 @@
+.ads--misty {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--s-400);
+  border: var(--s-100) solid var(--c-black);
+  border-radius: var(--br-300);
+  box-shadow: 2px 2px 4px rgba(0,0,0,.2);
+  background-image: url('../../../../public/images/ads/misty-mountain-ascents.jpg');
+  background-color: rgba(0,0,0,.5);
+  background-size: cover;
+  background-position: center;
+  background-blend-mode: darken;
+  color: var(--c-white);
+}
+
+.ads--misty__brandName {
+  text-align: center;
+  font-family: 'Playfair Display SC', serif;
+  font-size: var(--fs-600);
+  font-weight: var(--fw-bold);
+  letter-spacing: var(--s-100);
+}
+
+.ads--misty__tagline {
+  font-size: var(--fs-300);
+  font-weight: var(--fw-bold);
+  letter-spacing: var(--s-100);
+}
+
+/* Mobiles in landscape have a shorter viewport so make element smaller to prevent overflow */
+@media screen and (max-height: 600px) {
+  .ads--misty__brandName {
+    font-size: var(--fs-400);
+  }
+
+  .ads--misty__tagline {
+    display: none;
+  }
+}

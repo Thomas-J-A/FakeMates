@@ -4,10 +4,20 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTriangleExclamation } from '@fortawesome/free-solid-svg-icons';
 import { faFaceSadTear } from '@fortawesome/free-regular-svg-icons';
 
-import StatusUpdateForm from '../../components/Post/StatusUpdateForm';
+import StatusUpdateForm from '../../components/StatusUpdateForm/StatusUpdateForm';
+import OnlineFriendsList from '../../components/OnlineFriendsList/OnlineFriendsList';
 import Post from '../../components/Post/Post';
 import PostSkeleton from '../../components/Post/PostSkeleton';
 import ScrollToTop from '../../components/ScrollToTop/ScrollToTop';
+import AdsCarousel from '../../components/AdsCarousel/AdsCarousel';
+import {
+  WendellsIceCream,
+  McDougallsMatchmaking,
+  PedrosHerbs,
+  MistyMountainAscents,
+} from '../../components/Ads/';
+
+import useMediaQuery from '../../hooks/useMediaQuery';
 
 import './Timeline.css';
 
@@ -16,6 +26,12 @@ const cssOverride = {
   margin: "var(--s-400) auto 0",
 };
 
+const ads = [
+  <WendellsIceCream />,
+  <McDougallsMatchmaking />,
+  <PedrosHerbs />
+];
+
 const Timeline = () => {
   const [posts, setPosts] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
@@ -23,7 +39,10 @@ const Timeline = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const observer = useRef(null);
+  const isSmallViewport = useMediaQuery('(max-width: 809px)');
 
+  // Setup intersection observer which lets react know that
+  // last post is nearly visible so fetch more posts
   const lastPostRef = useCallback((node) => {
     const observerOptions = {
       root: null,
@@ -80,6 +99,12 @@ const Timeline = () => {
     <div className="timeline">
       <section className="posts">
         <StatusUpdateForm setPosts={setPosts} />
+        {isSmallViewport && (
+          <>
+            <OnlineFriendsList />
+            <AdsCarousel ads={ads} />
+          </>
+        )}
         {posts.map((post, index) => {
           return posts.length === index + 1
             ? <Post key={post._id} ref={lastPostRef} post={post} setPosts={setPosts} />
@@ -102,7 +127,7 @@ const Timeline = () => {
         {!initialPage && !hasMore && (
           <p className="posts__noMoreMessage">No more posts to display.</p>
         )}
-        {!isLoading && !posts.length && !error && (          // TODO: check conditional is correct
+        {!isLoading && !posts.length && !error && (
           <div className="posts__noPosts">
             <FontAwesomeIcon className="posts__noPostsIcon" icon={faFaceSadTear} />
             <p className="posts__noPostsMessage">There are no posts to display.</p>
@@ -118,17 +143,17 @@ const Timeline = () => {
           </div>
         )}
       </section>
-      <aside className="">
-        <div className="">
-          AD GOES HERE
-        </div>
-        <div className="">
-          ONLINE FRIENDS
-        </div>
-        <div className="">
-          ANOTHER AD
-        </div>
-      </aside>
+      {!isSmallViewport && (
+        <aside className="timeline__sidebar">
+          <div className="timeline__sidebarWrapper">
+            <AdsCarousel ads={ads} />
+            <div className="timeline__onlineFriends">
+              ONLINE FRIENDS
+            </div>
+            <MistyMountainAscents />
+          </div>
+        </aside>
+      )}
       <ScrollToTop />
     </div>
   );

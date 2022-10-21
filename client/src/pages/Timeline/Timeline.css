@@ -1,5 +1,7 @@
 .timeline {
-  display:flex;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  column-gap: var(--s-500);;
   height: 100%;
   padding: var(--s-500) var(--s-600);
   background-color: var(--c-primary-900);
@@ -7,10 +9,11 @@
 }
 
 .posts {
+  grid-column: 1 / 5;
   display: flex;
   flex-direction: column;
   row-gap: var(--s-400);
-  max-width: 26rem;
+  /* max-width: 26rem; */
 }
 
 .posts__noMoreMessage {
@@ -39,6 +42,35 @@
 .posts__noPostsMessage {
   font-weight: var(--fw-semi-bold);
   color: var(--c-white);
+}
+
+.timeline__sidebar {
+  grid-column: 6 / span 3;
+  width: 100%;
+}
+
+.timeline__sidebarWrapper {
+  position: sticky;
+  top: calc(72px + var(--s-600));
+  display: flex;
+  flex-direction: column;
+  row-gap: var(--s-400);
+}
+
+.timeline__onlineFriends {
+  height: var(--s-800);
+  background-color: var(--c-neutral-300);
+}
+
+@media screen and (min-width: 810px) {
+  .timeline {
+    grid-template-columns: repeat(8, 1fr);
+    padding: var(--s-600) var(--s-700);
+  }
+
+  .posts {
+    grid-column: 1 / 6;
+  }
 }
 
 /* .timelineError {

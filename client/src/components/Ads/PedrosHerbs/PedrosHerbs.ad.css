@@ -1,0 +1,71 @@
+.ad--pedros {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  background-image: url('../../../../public/images/ads/pedros-herbs.jpg');
+  background-color: rgba(0,0,0,.4);
+  background-size: cover;
+  background-position: center 70%;
+  background-blend-mode: darken;
+  font-family: 'Work Sans', sans-serif;
+  color: var(--c-white);
+}
+
+.ad--pedros__brandName {
+  font-family: inherit;
+  font-size: var(--fs-700);
+  font-weight: var(--fw-semi-bold);
+}
+
+.ad--pedros__tagline {
+  display: none;
+  font-family: inherit;
+  font-size: var(--fs-400);
+  font-weight: var(--fw-semi-bold);
+  letter-spacing: var(--s-100);
+}
+
+.ad--pedros__taglineEmphasis {
+  font-weight: var(--fw-bold);
+  font-style: italic;
+}
+
+.ad--pedros__button {
+  display: none;
+  padding: var(--s-400) var(--s-500);
+  border: var(--s-100) solid var(--c-white);
+  border-radius: var(--br-100);
+  background-color: transparent;
+  font-family: inherit;
+  font-size: var(--fs-400);
+  font-weight: var(--fw-bold);
+  letter-spacing: var(--s-100);
+  color: var(--c-white);
+  cursor: pointer;
+  outline: none;
+}
+
+@media screen and (min-width: 810px) and (min-height: 600px) {
+  .ad--pedros {
+    flex-direction: column;
+    row-gap: var(--s-500);
+  }
+
+  .ad--pedros__logo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    row-gap: var(--s-300);
+  }
+
+  .ad--pedros__brandName {
+    font-size: var(--fs-800);
+  }
+
+  .ad--pedros__tagline,
+  .ad--pedros__button {
+    display: block;
+  }
+}
