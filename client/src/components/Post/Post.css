@@ -63,6 +63,8 @@
 .postFooter {
   display: flex;
   column-gap: var(--s-500);
+  padding-top: var(--s-400);
+  border-top: var(--s-100) solid var(--c-neutral-500);
 }
 
 .postFooter__likesCount,
@@ -79,17 +81,26 @@
   cursor: pointer;
 }
 
+.postFooter__expandComments {
+  margin-left: auto;
+}
+
+.postFooter__expandIcon {
+  font-size: var(--fs-600);
+}
+
 .postFooter__likesIcon,
-.postFooter__commentsIcon {
+.postFooter__commentsIcon,
+.postFooter__viewComments {
   margin-right: var(--s-300);
 }
 
 .postFooter__likesCount--liked {
-  color: var(--c-primary-700);
+  color: var(--c-primary-900);
 }
 
-.postFooter__expandComments--expanded {
-  color: var(--c-black);
+.postFooter__expandComments--expanded .postFooter__expandIcon {
+  transform: rotate(180deg);
 }
 
 .postFooter__likesTotal,
@@ -102,6 +113,7 @@
 .postComments {
   display: flex;
   flex-direction: column;
+  margin-top: var(--s-400);
 }
 
 .postComments__error {
@@ -119,10 +131,14 @@
 .postComments__errorMessage {
   font-size: var(--fs-300);
   font-weight: var(--fw-semi-bold);
+  color: var(--c-error);
 }
 
 .postComments__comments {
-  padding-left: var(--s-600);
+  display: flex;
+  flex-direction: column;
+  row-gap: var(--s-300);
+  padding-left: var(--s-500);
 }
 
 .postComments__loadMore {
@@ -135,5 +151,55 @@
 .postComments__firstComment {
   text-align: center;
   font-size: var(--fs-300);
-  color: var(--c-accent-700);
+  color: var(--c-primary-900);
+}
+
+@media screen and (min-width: 810px) {
+  .post {
+    row-gap: var(--s-500);
+  }
+  
+  /* .postHeader__avatar {
+    height: var(--s-700);
+    width: var(--s-700);
+  } */
+
+  .postHeader__postedBy {
+    font-size: var(--fs-500);
+  }
+
+  .postHeader__createdAt {
+    font-size: var(--fs-300);
+    line-height: 1.5rem;
+  }
+
+  .postHeader__options {
+    font-size: var(--fs-700);
+  }
+
+  .postContent__image {
+    margin-top: var(--s-400);
+  }
+
+  .postContent__text,
+  .postFooter__likesTotal,
+  .postFooter__commentsTotal,
+  .postFooter__viewComments,
+  .postComments__firstComment,
+  .postComments__errorMessage,
+  .postComments__loadMore {
+    font-size: var(--fs-400);
+  }
+
+  .postFooter {
+    padding-top: var(--s-500);
+  }
+
+  .postComments__comments {
+    row-gap: var(--s-400);
+  }
+
+  .postComments__errorIcon {
+    font-size: var(--fs-700);
+  }
 }

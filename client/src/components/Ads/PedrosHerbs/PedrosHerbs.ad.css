@@ -46,7 +46,8 @@
   outline: none;
 }
 
-@media screen and (min-width: 810px) and (min-height: 600px) {
+/* min-height check ensures a thin carousel style with mobiles in landscape */
+@media screen and (min-width: 810px) and (min-height: 640px) {
   .ad--pedros {
     flex-direction: column;
     row-gap: var(--s-500);

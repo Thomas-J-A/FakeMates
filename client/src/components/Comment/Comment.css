@@ -21,6 +21,8 @@
 
 .commentHeader__postedBy {
   font-size: var(--fs-300);
+  font-weight: var(--fw-semi-bold);
+  color: var(--c-primary-700);
 }
 
 .commentHeader__createdAt {
@@ -46,7 +48,7 @@
 }
 
 .comment__likes--liked {
-  color: var(--c-primary-700);
+  color: var(--c-primary-900);
 }
 
 .comment__likesTotal {
@@ -57,4 +59,22 @@
 .comment__likesIcon {
   margin-right: var(--s-300);
   font-size: var(--fs-300);
+}
+
+@media screen and (min-width: 810px) {
+  .comment__right {
+    row-gap: var(--s-400);
+  }
+
+  .commentHeader__postedBy {
+    font-size: var(--fs-400);
+  }
+
+  .commentHeader__createdAt {
+    font-size: var(--fs-300);
+  }
+
+  .comment__text {
+    font-size: var(--fs-400);
+  }
 }

@@ -1,19 +1,17 @@
 .timeline {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  column-gap: var(--s-500);;
-  height: 100%;
+  grid-template-columns: repeat(4, minmax(60px, 100px));
+  justify-content: center;
   padding: var(--s-500) var(--s-600);
   background-color: var(--c-primary-900);
   background-image: url('../../../public/images/french-stucco.png');
 }
 
 .posts {
-  grid-column: 1 / 5;
+  grid-column: 1 / -1;
   display: flex;
   flex-direction: column;
   row-gap: var(--s-400);
-  /* max-width: 26rem; */
 }
 
 .posts__noMoreMessage {
@@ -45,32 +43,16 @@
 }
 
 .timeline__sidebar {
-  grid-column: 6 / span 3;
+  grid-column: 6 / -1;
   width: 100%;
 }
 
 .timeline__sidebarWrapper {
   position: sticky;
-  top: calc(72px + var(--s-600));
+  top: calc(72px + var(--s-500));
   display: flex;
   flex-direction: column;
   row-gap: var(--s-400);
-}
-
-.timeline__onlineFriends {
-  height: var(--s-800);
-  background-color: var(--c-neutral-300);
-}
-
-@media screen and (min-width: 810px) {
-  .timeline {
-    grid-template-columns: repeat(8, 1fr);
-    padding: var(--s-600) var(--s-700);
-  }
-
-  .posts {
-    grid-column: 1 / 6;
-  }
 }
 
 /* .timelineError {
@@ -83,3 +65,55 @@
 .timelineError__image {
   height: var(--s-800);
 } */
+
+
+@media screen and (min-width: 810px) {
+  .timeline {
+    grid-template-columns: repeat(8, minmax(70px, 90px));
+    column-gap: var(--s-500);
+    padding-left: var(--s-700);
+    padding-right: var(--s-700);
+  }
+
+  .posts {
+    grid-column: 1 / 6;
+    row-gap: var(--s-500);
+  }
+
+  .posts__noMoreMessage {
+    font-size: var(--fs-500);
+  }
+
+  .posts__error,
+  .posts__noPosts {
+    row-gap: var(--s-400);
+  }
+
+  .posts__errorIcon,
+  .posts__noPostsIcon {
+    font-size: var(--fs-700);
+  }
+
+  .posts__errorMessage,
+  .posts__noPostsMessage {
+    font-size: var(--fs-500);
+  }
+
+  .timeline__sidebarWrapper {
+    row-gap: var(--s-500);
+  }
+}
+
+@media screen and (min-width: 1300px) {
+  .timeline {
+    grid-template-columns: repeat(12, minmax(90px, 120px));
+  }
+
+  .posts {
+    grid-column: 3 / span 5;
+  }
+
+  .timeline__sidebar {
+    grid-column: 8 / span 3;
+  }
+}

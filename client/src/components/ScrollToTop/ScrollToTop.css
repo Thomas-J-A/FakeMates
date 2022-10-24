@@ -1,7 +1,7 @@
 .scrollToTop {
   position: fixed;
-  bottom: 40px;
-  right: var(--s-600);
+  right: 4px;
+  bottom: 36px;
   z-index: 100;
   visibility: hidden;
   border: var(--s-100) solid var(--c-accent-700);
@@ -26,4 +26,14 @@
   padding: var(--s-400);
   font-size: var(--fs-600);
   color: var(--c-white);
+}
+
+@media screen and (min-width: 810px) {
+  .scrollToTop {
+    bottom: 44px;
+  }
+
+  .scrollToTop__icon {
+    font-size: var(--fs-700);
+  }
 }

@@ -1,5 +1,5 @@
 .ads--misty {
-  display: flex;
+  display: none;
   flex-direction: column;
   justify-content: space-between;
   align-items: center;
@@ -21,6 +21,7 @@
   font-size: var(--fs-600);
   font-weight: var(--fw-bold);
   letter-spacing: var(--s-100);
+  animation: 3s linear infinite alternate fade-in;
 }
 
 .ads--misty__tagline {
@@ -29,13 +30,19 @@
   letter-spacing: var(--s-100);
 }
 
-/* Mobiles in landscape have a shorter viewport so make element smaller to prevent overflow */
-@media screen and (max-height: 600px) {
-  .ads--misty__brandName {
-    font-size: var(--fs-400);
+/* Don't show ad on mobiles in landscape */
+@media screen and (min-height: 640px) {
+  .ads--misty {
+    display: flex;
+  }
+}
+
+@keyframes fade-in {
+  0% {
+    opacity: 0;
   }
 
-  .ads--misty__tagline {
-    display: none;
+  75% {
+    opacity: 1;
   }
 }

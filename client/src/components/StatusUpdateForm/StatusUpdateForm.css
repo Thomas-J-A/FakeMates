@@ -74,7 +74,7 @@
 
 .statusThumbnail {
   display: flex;
-  align-items: center;
+  align-items: flex-end;
   padding: var(--s-400);
   border-radius: var(--br-300);
   background-color: var(--c-neutral-300);
@@ -98,6 +98,7 @@
   margin-left: var(--s-400);
   font-size: var(--fs-200);
   line-height: 1rem;
+  color: var(--c-neutral-700);
 }
 
 .statusThumbnail__remove {
@@ -117,20 +118,18 @@
 .statusUpdateForm__button {
   min-height: 40px;
   padding: var(--s-400) var(--s-500);
-  border: var(--s-100) solid var(--c-primary-700);
   border-radius: var(--br-300);
   font-weight: var(--fw-bold);
   letter-spacing: var(--s-100);
+  color: var(--c-white);
   outline: none;
   cursor: pointer;
 }
 
 .statusUpdateForm__button--submit {
   margin-left: var(--s-300);
-  box-shadow: 2px 2px 4px rgba(0,0,0,.2);
-  text-shadow: 2px 2px 4px rgba(0,0,0,.2);
+  border: var(--s-100) solid var(--c-primary-700);
   background: linear-gradient(var(--c-primary-300), var(--c-primary-700));
-  color: var(--c-white);
 }
 
 .statusUpdateForm__button--submit:hover {
@@ -139,10 +138,43 @@
 
 .statusUpdateForm__button--reset {
   margin-left: auto;
-  background-color: var(--c-white);
-  color: var(--c-primary-700);
+  border: var(--s-100) solid var(--c-accent-700);
+  background: linear-gradient(var(--c-accent-300), var(--c-accent-700));
 }
 
 .statusUpdateForm__button--reset:hover {
-  background-color: var(--c-neutral-100);
+  background: var(--c-accent-700);
+}
+
+@media screen and (min-width: 810px) {
+  .statusUpdateForm__content {
+    font-size: var(--fs-400);
+  }
+
+  .statusUpdateForm__addImage {
+    margin-right: var(--s-400);
+  }
+
+  .statusUpdateForm__icon {
+    font-size: var(--fs-700);
+  }
+
+  .statusUpdateForm__button {
+    min-height: 45px;
+    font-size: var(--fs-400);
+  }
+
+  .statusUpdateForm__button--submit {
+    margin-left: var(--s-400);
+  }
+
+  .statusThumbnail__image {
+    height: var(--s-700);
+    max-width: var(--s-700);
+  }
+
+  .statusThumbnail__fileInfo {
+    row-gap: var(--s-300);
+    font-size: var(--fs-400);
+  }
 }

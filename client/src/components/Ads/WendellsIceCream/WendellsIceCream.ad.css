@@ -42,11 +42,8 @@
   letter-spacing: var(--s-100);
 }
 
-/*
-  Some longer mobiles in landscape mode have a width greater than 810px but they aren't
-  tall enough to show entire ad unlike a tablet, so keep thin mobile styles with min-height check
-*/
-@media screen and (min-width: 810px) and (min-height: 600px) {
+/* min-height check ensures a thin carousel style with mobiles in landscape */
+@media screen and (min-width: 810px) and (min-height: 640px) {
   .ad--wendells {
     flex-direction: column;
     justify-content: space-between;

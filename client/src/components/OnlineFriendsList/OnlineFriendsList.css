@@ -6,3 +6,9 @@
   background-color: var(--c-white);
   background-image: url('../../../public/images/otis-redding.png');
 }
+
+@media screen and (min-width: 810px) {
+  .onlineFriendsList {
+    height: var(--s-800);
+  }
+}

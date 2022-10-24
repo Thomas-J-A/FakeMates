@@ -147,9 +147,7 @@ const Timeline = () => {
         <aside className="timeline__sidebar">
           <div className="timeline__sidebarWrapper">
             <AdsCarousel ads={ads} />
-            <div className="timeline__onlineFriends">
-              ONLINE FRIENDS
-            </div>
+            <OnlineFriendsList />
             <MistyMountainAscents />
           </div>
         </aside>

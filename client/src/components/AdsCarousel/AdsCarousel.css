@@ -12,18 +12,9 @@
   transition: transform 500ms ease-in-out;
 }
 
-@media screen and (min-width: 810px) {
+/* min-height check ensures a thin carousel style with mobiles in landscape */
+@media screen and (min-width: 810px) and (min-height: 640px) {
   .adsCarousel {
     height: var(--s-900);
-  }
-}
-
-/*
-  Some longer mobiles in landscape mode have a width greater than 810px but they aren't
-  tall enough to show all of fixed sidebar unlike a tablet, so keep thin ad carousel
-*/
-@media screen and (orientation: landscape) and (min-width: 810px) and (max-height: 600px) {
-  .adsCarousel {
-    height: var(--s-700);
   }
 }

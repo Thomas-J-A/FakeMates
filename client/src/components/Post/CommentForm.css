@@ -64,8 +64,6 @@
   padding: var(--s-400) var(--s-500);
   border: var(--s-100) solid var(--c-primary-700);
   border-radius: var(--br-300);
-  box-shadow: 2px 2px 4px rgba(0,0,0,.2);
-  text-shadow: 2px 2px 4px rgba(0,0,0,.2);
   font-weight: var(--fw-bold);
   letter-spacing: var(--s-100);
   background: linear-gradient(var(--c-primary-300), var(--c-primary-700));
@@ -76,4 +74,18 @@
 
 .commentForm__submit:hover {
   background: var(--c-primary-700);
+}
+
+@media screen and (min-width: 810px) {
+  .commentForm {
+    margin-top: var(--s-500);
+  }
+  
+  .commentFormNetworkError__icon {
+    font-size: var(--fs-700);
+  }
+  
+  .commentFormNetworkError__text {
+    font-size: var(--fs-400);
+  }
 }

@@ -13,6 +13,7 @@ import PostOptions from './PostOptions';
 import { useAuth } from '../../contexts/AuthContext';
 
 import usePrevious from '../../hooks/usePrevious';
+import useMediaQuery from '../../hooks/useMediaQuery';
 
 import './Post.css';
 
@@ -30,6 +31,7 @@ const Post = forwardRef(({ post, setPosts }, ref) => {
   const [error, setError] = useState(null);
   const [areExpandedComments, setAreExpandedComments] = useState(false);
   const [isVisiblePostOptions, setIsVisiblePostOptions] = useState(false);
+  const isWideViewport = useMediaQuery('(min-width: 810px)');
 
   const { authState: { currentUser } } = useAuth();
 
@@ -165,7 +167,7 @@ const Post = forwardRef(({ post, setPosts }, ref) => {
     } catch (err) {
       // Clear textarea and let client know about server error
       resetForm();
-      setStatus('Oops, something went wrong with the internets');
+      setStatus('Oops, something went wrong with the internets.');
     }
   };
 
@@ -228,8 +230,8 @@ const Post = forwardRef(({ post, setPosts }, ref) => {
           className={`postFooter__expandComments  ${ areExpandedComments ? 'postFooter__expandComments--expanded' : '' }`}
           onClick={toggleComments}
         >
-          {/* <FontAwesomeIcon className="postFooter__expandIcon" icon={faAngleDown} /> */}
           <span className="postFooter__viewComments">View comments</span>
+          <FontAwesomeIcon className="postFooter__expandIcon" icon={faAngleDown} />
         </div>
       </footer>
       {areExpandedComments && (
@@ -244,7 +246,7 @@ const Post = forwardRef(({ post, setPosts }, ref) => {
           </div>
           <PulseLoader
             loading={isLoading}
-            size={8}
+            size={isWideViewport ? 12 : 8}
             speedMultiplier={.8}
             color="#000"
             cssOverride={cssOverride}

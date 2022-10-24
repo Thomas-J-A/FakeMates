@@ -52,11 +52,8 @@
   line-height: 1rem;
 }
 
-/*
-  Some longer mobiles in landscape mode have a width greater than 810px but they aren't
-  tall enough to show entire ad unlike a tablet, so keep thin mobile styles with min-height check
-*/
-@media screen and (min-width: 810px) and (min-height: 600px) {
+/* min-height check ensures a thin carousel style with mobiles in landscape */
+@media screen and (min-width: 810px) and (min-height: 640px) {
   .ad--mcdougalls {
     flex-direction: column;
     row-gap: var(--s-500);
@@ -82,7 +79,11 @@
   }
 }
 
-@media screen and (min-width: 810px) and (max-height: 600px) {
+/* 
+  When mobile layout becomes a 2 column layout on
+  tablet there is less width available for text
+*/
+@media screen and (min-width: 810px) and (max-height: 639px) {
   .ad--mcdougalls__brandName {
     font-size: var(--fs-600);
   }
