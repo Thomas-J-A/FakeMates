@@ -104,7 +104,7 @@
   }
 }
 
-@media screen and (min-width: 1300px) {
+@media screen and (min-width: 1400px) {
   .timeline {
     grid-template-columns: repeat(12, minmax(90px, 120px));
   }
