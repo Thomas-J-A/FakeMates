@@ -1,27 +1,26 @@
 .landing {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(60px, 80px));
+  grid-template-rows: auto;
   justify-content: center;
-  align-items: center;
-  height: 100%;
+  align-content: center;
+  row-gap: var(--s-600);
+  column-gap: var(--s-500);
   padding: var(--s-600);
   background-image: url('../../../public/images/french-stucco.png'), linear-gradient(to bottom, var(--c-neutral-100), var(--c-neutral-300));
 }
 
 .hero {
-  max-width: 26rem;
+  grid-column: 1 / -1;
+  grid-row: 1;
 }
 
-.hero__mainText {
-  margin-bottom: var(--s-600);
+.hero__text {
   text-align: center;
   font-size: var(--fs-600);
+  font-weight: var(--fw-semi-bold);
   line-height: 2.2rem;
   letter-spacing: var(--s-100);
-}
-
-.hero__spanText {
-  display: none;
 }
 
 .hero__image {
@@ -30,7 +29,8 @@
 }
 
 .registerForm {
-  max-width: 26rem;
+  grid-column: 1 / -1;
+  grid-row: 2;
   padding: var(--s-500);
   border: var(--s-100) solid var(--c-neutral-500);
   border-radius: var(--br-300);
@@ -126,11 +126,18 @@
 }
 
 @media screen and (min-width: 810px) {
-  .hero__spanText {
-    display: inline;
+  .landing {
+    grid-template-columns: repeat(8, 60px);
+    padding-right: var(--s-700);
+    padding-left: var(--s-700);
+  }
+
+  .hero {
+    grid-column: 2 / span 6;
   }
 
   .registerForm {
+    grid-column: 2 / span 6;
     padding: var(--s-600);
   }
 
@@ -162,13 +169,27 @@
   }
 }
 
-@media screen and (min-width: 1050px) {
+@media screen and (min-width: 1080px) {
   .landing {
-    flex-direction: row;
-    gap: var(--s-800);
+    grid-template-rows: auto;
+    grid-template-columns: repeat(12, minmax(60px, 80px));
+  }
+
+  .hero {
+    align-self: center;
+    grid-column: 1 / span 6;
+  }
+
+  .hero__text {
+    margin-bottom: var(--s-600);
   }
 
   .hero__image {
     display: block;
+  }
+
+  .registerForm {
+    grid-row: 1;
+    grid-column: 8 / span 5;
   }
 }

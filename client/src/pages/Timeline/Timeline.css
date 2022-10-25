@@ -71,8 +71,8 @@
   .timeline {
     grid-template-columns: repeat(8, minmax(70px, 90px));
     column-gap: var(--s-500);
-    padding-left: var(--s-700);
     padding-right: var(--s-700);
+    padding-left: var(--s-700);
   }
 
   .posts {

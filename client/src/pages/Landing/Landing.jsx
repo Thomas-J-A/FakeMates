@@ -81,9 +81,8 @@ const Landing = () => {
   return (
     <div className="landing">
       <div className="hero">
-        <p className="hero__mainText">
-          Join FakeMates and connect with around 30 people across the globe
-          <span className="hero__spanText"> - one is in Peru!</span>
+        <p className="hero__text">
+          Join FakeMates and connect with around 30 people across the globe - one is in Peru!
         </p>
         <img className="hero__image" src={heroImage} alt="Globe with interconnected lines" />
       </div>
