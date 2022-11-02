@@ -64,8 +64,14 @@
   /* transition: color .175s ease-in-out; */
 }
 
-.drawerNav__link:hover .drawerNav__linkText {
+.drawerNav__link:active .drawerNav__linkText {
   color: var(--c-primary-700);
+}
+
+@media (hover: hover) {
+  .drawerNav__link:hover .drawerNav__linkText {
+    color: var(--c-primary-700);
+  }
 }
 
 .drawer__buttons {
@@ -97,8 +103,14 @@
   background: linear-gradient(var(--c-primary-300), var(--c-primary-700));
 }
 
-.drawer__signOut:hover {
+.drawer__signOut:active {
   background: var(--c-primary-700);
+}
+
+@media (hover: hover) {
+  .drawer__signOut:hover {
+    background: var(--c-primary-700);
+  }
 }
 
 .drawer__deleteAccount {
@@ -106,8 +118,14 @@
   background: linear-gradient(var(--c-accent-300), var(--c-accent-700));
 }
 
-.drawer__deleteAccount:hover {
+.drawer__deleteAccount:active {
   background: var(--c-accent-700);
+}
+
+@media (hover: hover) {
+  .drawer__deleteAccount:hover {
+    background: var(--c-accent-700);
+  }
 }
 
 /* .closeDrawer {

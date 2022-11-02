@@ -63,9 +63,16 @@
   outline: none;
 }
 
-.statusUpdateForm__addImage:hover,
-.statusUpdateForm__showEmojiPicker:hover {
+.statusUpdateForm__addImage:active,
+.statusUpdateForm__showEmojiPicker:active {
   color: var(--c-primary-700);
+}
+
+@media (hover: hover) {
+  .statusUpdateForm__addImage:hover,
+  .statusUpdateForm__showEmojiPicker:hover {
+    color: var(--c-primary-700);
+  }
 }
 
 .statusUpdateForm__icon {
@@ -107,12 +114,19 @@
   cursor: pointer;
 }
 
-.statusThumbnail__remove:hover {
+.statusThumbnail__remove:active {
   color: var(--c-black);
 }
 
-.statusThumbnail--error .statusThumbnail__remove {
-  color: var(--c-black);
+@media (hover: hover) {
+  .statusThumbnail__remove:hover {
+    color: var(--c-black);
+  }
+}
+
+.statusThumbnail--error .statusThumbnail__remove,
+.statusThumbnail--error .statusThumbnail__fileInfo {
+  color: var(--c-white);
 }
 
 .statusUpdateForm__button {
@@ -132,8 +146,14 @@
   background: linear-gradient(var(--c-primary-300), var(--c-primary-700));
 }
 
-.statusUpdateForm__button--submit:hover {
+.statusUpdateForm__button--submit:active {
   background: var(--c-primary-700);
+}
+
+@media (hover: hover) {
+  .statusUpdateForm__button--submit:hover {
+    background: var(--c-primary-700);
+  }
 }
 
 .statusUpdateForm__button--reset {
@@ -142,8 +162,14 @@
   background: linear-gradient(var(--c-accent-300), var(--c-accent-700));
 }
 
-.statusUpdateForm__button--reset:hover {
+.statusUpdateForm__button--reset:active {
   background: var(--c-accent-700);
+}
+
+@media (hover: hover) {
+  .statusUpdateForm__button--reset:hover {
+    background: var(--c-accent-700);
+  }
 }
 
 @media screen and (min-width: 810px) {

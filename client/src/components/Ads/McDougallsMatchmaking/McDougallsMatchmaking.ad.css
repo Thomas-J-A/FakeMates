@@ -40,8 +40,14 @@
   outline: none;
 }
 
-.ad--mcdougalls__button:hover {
+.ad--mcdougalls__button:active {
   background: var(--c-accent-900);
+}
+
+@media (hover: hover) {
+  .ad--mcdougalls__button:hover {
+    background: var(--c-accent-900);
+  }
 }
 
 .ad--mcdougalls__smallprint {

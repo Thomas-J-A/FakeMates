@@ -13,8 +13,14 @@
   transition: opacity .5s ease-in-out, visibility .5s ease-in-out;
 }
 
-.scrollToTop:hover {
+.scrollToTop:active {
   background: var(--c-accent-700);
+}
+
+@media (hover: hover) {
+  .scrollToTop:hover {
+    background: var(--c-accent-700);
+  }
 }
 
 .scrollToTop--visible {

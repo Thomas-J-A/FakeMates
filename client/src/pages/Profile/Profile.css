@@ -1,6 +1,180 @@
 .profile {
-  height: 100%;
-  padding: var(--s-500);
-  background-image: url('../../../public/images/french-stucco.png'), linear-gradient(to bottom, var(--c-primary-900), var(--c-black));
+  display: grid;
+  grid-template-columns: repeat(4, minmax(60px, 100px));
+  align-content: start;
+  padding: 0 var(--s-600) var(--s-500);
+  background-color: var(--c-primary-900);
+  background-image: url('../../../public/images/french-stucco.png');
+}
+
+.profile__header {
+  position: relative;
+  grid-column: 1 / -1;
+  margin-left: calc(-1 * var(--s-600)); /* Calculate negative version of variable */
+  margin-right: calc(-1 * var(--s-600));
+  margin-bottom: 90px;
+  /* box-shadow: 2px 2px 4px rgba(0,0,0,.2); */
+  border-bottom: var(--s-200) solid var(--c-white);
+}
+
+.profile__name {
+  position: absolute;
+  top: var(--s-500);
+  padding: var(--s-400);
+  border-top-right-radius: var(--br-300);
+  border-bottom-right-radius: var(--br-300);
+  background-color: rgba(0,0,0,.7);
+  font-size: var(--fs-500);
+  font-weight: var(--fw-semi-bold);
+  letter-spacing: var(--s-100);
   color: var(--c-white);
+}
+
+.profileAvatar {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  height: var(--s-800);
+  width: var(--s-800);
+  border: var(--s-200) solid var(--c-white);
+  border-radius: 50%;
+  transform: translate(-50%, 50%);
+  background-color: var(--c-accent-500);
+  overflow: hidden;
+}
+
+.profileAvatar__image {
+  height: 100%;
+  width: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.profileAvatar__iconWrapper {
+  position: absolute;
+  /* right: 0; */
+  bottom: 0;
+  /* left: 0; */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  padding: var(--s-300) 0;
+  border-radius: 50%;
+  background-color: var(--c-white);
+  color: var(--c-neutral-500);
+  cursor: pointer;
+}
+
+.profileAvatar__icon {
+  font-size: var(--fs-500);
+}
+
+.profileAvatar__iconWrapper:active .profileAvatar__icon {
+  color: var(--c-primary-700);
+}
+
+@media (hover: hover) {
+  .profileAvatar__iconWrapper:hover .profileAvatar__icon {
+    color: var(--c-primary-700);
+  }
+}
+
+.profile__backgroundImage {
+  display: block;
+  height: var(--s-800);
+  width: 100%;
+  object-fit: cover;
+  background-color: var(--c-white);
+}
+
+.profile__backgroundUploadButton {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  margin: 0;
+  padding: var(--s-300);
+  border: none;
+  border-top-left-radius: var(--br-300);
+  background-color: var(--c-white);
+  font-size: var(--fs-500);
+  line-height: 1rem;
+  color: var(--c-neutral-500);
+  cursor: pointer;
+  outline: none;
+}
+
+.profile__backgroundUploadButton:active .profile__backgroundUploadIcon {
+  color: var(--c-primary-700);
+}
+
+@media (hover: hover) {
+  .profile__backgroundUploadButton:hover .profile__backgroundUploadIcon {
+    color: var(--c-primary-700);
+  }
+}
+
+.profile__description {
+  position: relative;
+  grid-column: 1 / -1;
+  margin-bottom: var(--s-600);
+  padding: var(--s-500);
+  border: var(--s-100) solid var(--c-black);
+  box-shadow: 2px 2px 4px rgba(0,0,0,.2);
+  background-color: var(--c-white);
+  background-image: url('../../../public/images/otis-redding.png');
+  border-radius: var(--br-300);
+  text-align: center;
+  letter-spacing: var(--s-100);
+}
+
+.profile__editDetails {
+  position: absolute;
+  top: var(--s-400);
+  right: var(--s-400);
+  z-index: 100;
+  font-size: var(--fs-600);
+  color: var(--c-neutral-500);
+  cursor: pointer;
+}
+
+.profile__editDetails:active {
+  color: var(--c-primary-700);
+}
+
+@media (hover: hover) {
+  .profile__editDetails:hover {
+    color: var(--c-primary-700);
+  }
+}
+
+.profile__bio {
+  padding: var(--s-500) 0;
+  font-size: var(--fs-500);
+  font-weight: var(--fw-semi-bold);
+  font-style: italic;
+  background-image: url('../../../public/images/open-quote.png');
+  background-size: 70px;
+  background-position: top left;
+  background-repeat: no-repeat;
+  filter: brightness(95%);
+}
+
+.profile__bio::first-letter {
+  font-size: var(--fs-700);
+}
+
+.profile__location,
+.profile__hometown {
+  margin-bottom: var(--s-300);
+}
+
+.profile__locationEmphasis,
+.profile__hometownEmphasis,
+.profile__occupationEmphasis {
+  color: var(--c-primary-900);
+}
+
+.profile_friends {
+  grid-column: 1 / -1;
 }

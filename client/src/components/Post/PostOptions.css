@@ -26,8 +26,14 @@
   cursor: pointer;
 }
 
-.postOptionsList__item:hover .postOptionsList__text {
+.postOptionsList__item:active .postOptionsList__text {
   color: var(--c-primary-700);
+}
+
+@media (hover: hover) {
+  .postOptionsList__item:hover .postOptionsList__text {
+    color: var(--c-primary-700);
+  }
 }
 
 .postOptionsList__icon {

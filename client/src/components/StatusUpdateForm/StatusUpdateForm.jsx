@@ -7,13 +7,13 @@ import { faXmark } from '@fortawesome/free-solid-svg-icons';
 
 import EmojiPicker from '../EmojiPicker/EmojiPicker';
 
+import { VALID_MIME_TYPES } from '../../constants';
+
 import { useAuth } from '../../contexts/AuthContext';
 
 import formatFileSize from '../../utils/formatFileSize.util';
 
 import './StatusUpdateForm.css';
-
-const VALID_MIME_TYPES = ['image/png', 'image/jpg', 'image/jpeg'];
 
 const StatusUpdateForm = ({ setPosts }) => {
   const [isVisiblePicker, setIsVisiblePicker] = useState(false);
@@ -155,7 +155,7 @@ const StatusUpdateForm = ({ setPosts }) => {
               accept="image/*"
               onChange={(e) => handleFileChange(e, setFieldValue)}
               ref={fileInputRef}
-              />
+            />
             <button
               className="statusUpdateForm__addImage"
               type="button"

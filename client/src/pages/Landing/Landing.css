@@ -121,8 +121,14 @@
   outline: none;
 }
 
-.registerForm__submit:hover {
+.registerForm__submit:active {
   background: var(--c-primary-700);
+}
+
+@media (hover: hover) {
+  .registerForm__submit:hover {
+    background: var(--c-primary-700);
+  }
 }
 
 @media screen and (min-width: 810px) {
@@ -172,7 +178,7 @@
 @media screen and (min-width: 1080px) {
   .landing {
     grid-template-rows: auto;
-    grid-template-columns: repeat(12, minmax(60px, 80px));
+    grid-template-columns: repeat(12, minmax(60px, 70px));
   }
 
   .hero {

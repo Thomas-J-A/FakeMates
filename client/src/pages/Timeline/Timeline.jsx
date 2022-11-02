@@ -3,6 +3,7 @@ import PulseLoader from 'react-spinners/PulseLoader';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTriangleExclamation } from '@fortawesome/free-solid-svg-icons';
 import { faFaceSadTear } from '@fortawesome/free-regular-svg-icons';
+import Skeleton from 'react-loading-skeleton';
 
 import StatusUpdateForm from '../../components/StatusUpdateForm/StatusUpdateForm';
 import OnlineFriendsList from '../../components/OnlineFriendsList/OnlineFriendsList';
@@ -19,6 +20,7 @@ import {
 
 import useMediaQuery from '../../hooks/useMediaQuery';
 
+import 'react-loading-skeleton/dist/skeleton.css';
 import './Timeline.css';
 
 const cssOverride = {

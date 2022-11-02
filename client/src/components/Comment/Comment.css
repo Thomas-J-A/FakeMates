@@ -42,9 +42,16 @@
   color: var(--c-neutral-500);
 }
 
-.comment__likes:hover:not(.comment--own__likes) {
+.comment__likes:active:not(.comment--own__likes) {
   color: var(--c-black);
   cursor: pointer;
+}
+
+@media (hover: hover) {
+  .comment__likes:hover:not(.comment--own__likes) {
+    color: var(--c-black);
+    cursor: pointer;
+  }
 }
 
 .comment__likes--liked {

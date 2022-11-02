@@ -60,8 +60,14 @@
   outline: none;
 }
 
-.globalHeader__drawerToggle:hover {
+.globalHeader__drawerToggle:active {
   background: var(--c-primary-700);
+}
+
+@media (hover: hover) {
+  .globalHeader__drawerToggle:hover {
+    background: var(--c-primary-700);
+  }
 }
 
 .globalNav__list {
@@ -73,8 +79,14 @@
   cursor: pointer;
 }
 
-.globalNav__item:hover .globalNav__icon {
+.globalNav__item:active .globalNav__icon {
   color: var(--c-primary-700);
+}
+
+@media (hover: hover) {
+  .globalNav__item:hover .globalNav__icon {
+    color: var(--c-primary-700);
+  }
 }
 
 .globalNav__icon {

@@ -28,6 +28,7 @@ exports.fetchPosts = async (req, res, next) => {
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit)
+      .populate('postedBy', 'fullName avatarUrl')
       .exec();
 
     // Check if there are more results

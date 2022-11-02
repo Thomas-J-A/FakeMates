@@ -72,8 +72,14 @@
   cursor: pointer;
 }
 
-.commentForm__submit:hover {
+.commentForm__submit:active {
   background: var(--c-primary-700);
+}
+
+@media (hover: hover) {
+  .commentForm__submit:hover {
+    background: var(--c-primary-700);
+  }
 }
 
 @media screen and (min-width: 810px) {

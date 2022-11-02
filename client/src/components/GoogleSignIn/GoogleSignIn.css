@@ -19,8 +19,14 @@
   outline: none;
 }
 
-.googleSignIn:hover {
+.googleSignIn:active {
   background: var(--c-accent-700);
+}
+
+@media (hover: hover) {
+  .googleSignIn:hover {
+    background: var(--c-accent-700);
+  }
 }
 
 .googleSignIn__icon {
