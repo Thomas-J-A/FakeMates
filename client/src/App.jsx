@@ -51,7 +51,7 @@ const App = () => {
         <Route path="/messenger" element={<Messenger />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
-      <Backdrop isVisible={isOpen} closeDrawer={closeDrawer} />
+      <Backdrop type="drawer" isVisible={isOpen} close={closeDrawer} />
       <Drawer isOpen={isOpen} closeDrawer={closeDrawer} />
       <GlobalFooter />
     </>
@@ -59,24 +59,3 @@ const App = () => {
 };
 
 export default App;
-
-
-// return (
-//   <>
-//     <GlobalHeader isOpen={isOpen} toggleDrawer={toggleDrawer} closeDrawer={closeDrawer} />
-//     <div className="body">
-//       <Routes>
-//         <Route path="/" element={<Landing />} />
-//         <Route path="/search" element={<Search />} />
-//         <Route path="/profile/:id" element={<Profile />} />
-//         <Route path="/timeline" element={<Timeline />} />
-//         <Route path="/post/:id" element={<PostDetail />} />
-//         <Route path="/messenger" element={<Messenger />} />
-//         <Route path="*" element={<NotFound />} />
-//       </Routes>
-//       <Backdrop isVisible={isOpen} closeDrawer={closeDrawer} />
-//       <Drawer isOpen={isOpen} closeDrawer={closeDrawer} />
-//     </div>
-//     <GlobalFooter />
-//   </>
-// );

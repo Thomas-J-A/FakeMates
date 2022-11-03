@@ -14,7 +14,7 @@
   margin-right: calc(-1 * var(--s-600));
   margin-bottom: 90px;
   /* box-shadow: 2px 2px 4px rgba(0,0,0,.2); */
-  border-bottom: var(--s-200) solid var(--c-white);
+  border-bottom: var(--s-300) solid var(--c-white);
 }
 
 .profile__name {
@@ -36,7 +36,7 @@
   left: 50%;
   height: var(--s-800);
   width: var(--s-800);
-  border: var(--s-200) solid var(--c-white);
+  border: var(--s-300) solid var(--c-white);
   border-radius: 50%;
   transform: translate(-50%, 50%);
   background-color: var(--c-accent-500);

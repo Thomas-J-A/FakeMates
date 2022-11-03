@@ -11,9 +11,10 @@ import { VALID_MIME_TYPES } from '../../constants';
 import { useAuth } from '../../contexts/AuthContext';
 
 import 'react-loading-skeleton/dist/skeleton.css';
-import './BackgroundUploadModal.css';
+import './ImageUploadModal.css';
 
-const BackgroundUploadModal = ({ isOpen, closeModal, backgroundUrl, setUserData }) => {
+// type prop is either 'background' or 'avatar'
+const ImageUploadModal = ({ type, isOpen, closeModal, imageUrl, setUserData }) => {
   const [initialThumbnailUrl, setInitialThumbnailUrl] = useState('');
   const [newThumbnailUrl, setNewThumbnailUrl] = useState('');
   const formRef = useRef(null);
@@ -21,11 +22,11 @@ const BackgroundUploadModal = ({ isOpen, closeModal, backgroundUrl, setUserData 
   const { authState: { currentUser } } = useAuth();
 
   const initialValues = {
-    background: null,
+    [type]: null,
   };
 
   const validationSchema = Yup.object({
-    background: Yup.mixed()
+    [type]: Yup.mixed()
       .test('fileSize', 'File must be less than 2MB', (value) => value ? value.size < (1024 * 1024 * 2) : true)
       .test('fileType', 'File must be a JPG, JPEG, or PNG', (value) => value ? VALID_MIME_TYPES.includes(value.type) : true)
   });
@@ -34,7 +35,7 @@ const BackgroundUploadModal = ({ isOpen, closeModal, backgroundUrl, setUserData 
     try {
       let formData = new FormData();
 
-      formData.append('background', values.background);
+      formData.append(type, values[type]);
 
       const res = await fetch(`http://192.168.8.146:3000/api/users/${  currentUser._id }?action=upload`, {
         method: 'PUT',
@@ -54,24 +55,24 @@ const BackgroundUploadModal = ({ isOpen, closeModal, backgroundUrl, setUserData 
     }
   };
 
-  const handleFileChange = (e, setFieldValue, setFieldTouched) => {
+  const handleFileChange = (e, type, setFieldValue, setFieldTouched) => {
     const file = e.currentTarget.files[0];
 
-    setFieldValue('background', file);
+    setFieldValue(type, file);
 
     // Calling setFieldTouched immediately after setFieldValue seems to validate with previous state
-    // (due to react batch state updates?); adding third param 'false' updates touched.background and
+    // (due to react batch state updates?); adding third param 'false' updates touched state and
     // triggers a re-render **without** running a faulty validation
-    setFieldTouched('background', true, false);
+    setFieldTouched(type, true, false);
 
     setNewThumbnailUrl(URL.createObjectURL(file));
   };
 
-  // Fetch background image to use as initial thumbnail
+  // Fetch background/avatar image to use as initial thumbnail
   useEffect(() => {
-    const fetchBackground = async () => {
+    const fetchImage = async () => {
       try {
-        const res = await fetch(`http://192.168.8.146:3000/${ backgroundUrl }`, {
+        const res = await fetch(`http://192.168.8.146:3000/${ imageUrl }`, {
           method: 'GET',
           mode: 'cors',
           credentials: 'include',
@@ -86,13 +87,13 @@ const BackgroundUploadModal = ({ isOpen, closeModal, backgroundUrl, setUserData 
       }
     };
     
-    fetchBackground();
-  }, [backgroundUrl]);
+    fetchImage();
+  }, [imageUrl]);
 
   // Reset thumbnail when closing modal
   useEffect(() => {
     const clearForm = () => {
-      formRef.current?.setFieldValue('background', null);
+      formRef.current?.setFieldValue(type, null);
       setNewThumbnailUrl('');
     };
 
@@ -101,11 +102,11 @@ const BackgroundUploadModal = ({ isOpen, closeModal, backgroundUrl, setUserData 
       // completely disappeared from the screen
       setTimeout(clearForm, 300);
     }
-  }, [isOpen]);
+  }, [type, isOpen]);
 
   return (
-    <div className={`backgroundUploadModal ${ isOpen ? "backgroundUploadModal--open" : "" }`}>
-      <Formik 
+    <div className={`${ type }UploadModal ${ isOpen ? `${ type }UploadModal--open` : "" }`}>
+      <Formik
         initialValues={initialValues}
         validationSchema={validationSchema}
         onSubmit={handleSubmit}
@@ -119,51 +120,51 @@ const BackgroundUploadModal = ({ isOpen, closeModal, backgroundUrl, setUserData 
           setFieldValue,
           setFieldTouched,
         }) => (
-          <Form className="backgroundUploadModal__form" autoComplete="off" noValidate>
-            <header className="backgroundUploadModal__header">
-              <h1 className="backgroundUploadModal__title">Upload Background</h1>
+          <Form className={`${ type }UploadModal__form`} autoComplete="off" noValidate>
+            <header className={`${ type }UploadModal__header`}>
+              <h1 className={`${ type }UploadModal__title`}>Upload {type}</h1>
               <FontAwesomeIcon
-                className="backgroundUploadModal__exit"
+                className={`${ type }UploadModal__exit`}
                 icon={faXmark}
                 onClick={closeModal}
               />
             </header>
-            <div className="backgroundUploadModal__thumbnailWrapper">
+            <div className={`${ type }UploadModal__thumbnailWrapper`}>
               {initialThumbnailUrl
                 ? (
                   <img
-                  className={`backgroundUploadModal__thumbnail ${ touched.background && errors.background ? "backgroundUploadModal__thumbnail--error" : "" }`}
+                  className={`${ type }UploadModal__thumbnail ${ touched[type] && errors[type] ? `${ type }UploadModal__thumbnail--error` : "" }`}
                   src={newThumbnailUrl ? newThumbnailUrl : initialThumbnailUrl}
                   crossOrigin="anonymous"
                   alt=""
                   />
-                  ) : (
-                    <Skeleton height={128} containerClassName="backgroundUploadModal__skeleton" />
+                ) : (
+                  <Skeleton height={128} containerClassName={`${ type }UploadModal__skeleton`} />
                 )
               }
-              <ErrorMessage className="backgroundUploadModal__feedbackError" name="background" component="div" />
+              <ErrorMessage className={`${ type }UploadModal__feedbackError`} name={type} component="div" />
             </div>
-            <div className="backgroundUploadModal__buttons">
+            <div className={`${ type }UploadModal__buttons`}>
               <input
-                className="backgroundUploadModal__input"
+                className={`${ type }UploadModal__input`}
                 type="file"
-                name="background"
-                aria-label="Background image upload"
+                name={type}
+                aria-label={`${ type } image upload`}
                 accept="image/*"
-                onChange={(e) => handleFileChange(e, setFieldValue, setFieldTouched)}
+                onChange={(e) => handleFileChange(e, type, setFieldValue, setFieldTouched)}
                 ref={fileInputRef}
                 />
               <button
-                className="backgroundUploadModal__button backgroundUploadModal__upload"
+                className={`${ type }UploadModal__button ${ type }UploadModal__upload`}
                 type="button"
                 onClick={() => fileInputRef.current.click()}
                 // onBlur={() => setFieldTouched('background', true)}
               >
-                <FontAwesomeIcon className="backgroundUploadModal__uploadIcon" icon={faImage} />
+                <FontAwesomeIcon className={`${ type }UploadModal__uploadIcon`} icon={faImage} />
                 UPLOAD
               </button>
-              <button className="backgroundUploadModal__button backgroundUploadModal__confirm" type="submit" disabled={isSubmitting || !dirty}>
-                <FontAwesomeIcon className="backgroundUploadModal__confirmIcon" icon={faCircleCheck}/>
+              <button className={`${ type }UploadModal__button ${ type }UploadModal__confirm`} type="submit" disabled={isSubmitting || !dirty}>
+                <FontAwesomeIcon className={`${ type }UploadModal__confirmIcon`} icon={faCircleCheck}/>
                 CONFIRM
               </button>
             </div>
@@ -174,4 +175,4 @@ const BackgroundUploadModal = ({ isOpen, closeModal, backgroundUrl, setUserData 
   );
 };
 
-export default BackgroundUploadModal;
+export default ImageUploadModal;

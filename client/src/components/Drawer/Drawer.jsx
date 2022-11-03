@@ -18,7 +18,6 @@ import './Drawer.css';
 const Drawer = ({ isOpen, closeDrawer }) => {
   const { authState: { currentUser }, logOut, isAuthenticated } = useAuth();
   const formRef = useRef(null);
-  const bodyRef = useRef(document.querySelector('body'));
   const isNarrowEnoughForLinks = useMediaQuery('(max-width: 809px)');
   const isNarrowEnoughForSearchBar = useMediaQuery('(max-width: 1000px)');
 
@@ -51,19 +50,6 @@ const Drawer = ({ isOpen, closeDrawer }) => {
       window.removeEventListener('keyup', handleKeyPress);
     }
   }, [isOpen, closeDrawer]);
-
-  // Prevent scrolling while drawer is open
-  useEffect(() => {
-    const updatePageScroll = () => {
-      if (isOpen) {
-        bodyRef.current.style.overflow = 'hidden';
-      } else {
-        bodyRef.current.style.overflow = '';
-      }
-    };
-
-    updatePageScroll();
-  }, [isOpen]);
 
   const handleSignOut = async () => {
     try {

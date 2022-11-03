@@ -1,83 +1,110 @@
-.backgroundUploadModal {
+.backgroundUploadModal,
+.avatarUploadModal {
   position: fixed;
   top: 50%;
   left: 50%;
   width: 80%;
   padding: var(--s-500);
-  z-index: 200;
+  z-index: 500;
   transform: translate(-50%, -50%) scale(0);
   border-radius: var(--br-300);
   transition: transform .3s ease-in-out;
   background-color: var(--c-primary-900);
+  background-image: url('../../../public/images/french-stucco.png');
   color: var(--c-white);
 }
 
-.backgroundUploadModal--open {
+.backgroundUploadModal--open,
+.avatarUploadModal--open {
   transform: translate(-50%, -50%) scale(1);
 }
 
-.backgroundUploadModal__form {
+.backgroundUploadModal__form,
+.avatarUploadModal__form {
   display: flex;
   flex-direction: column;
   row-gap: var(--s-600);
 }
 
-.backgroundUploadModal__header {
+.backgroundUploadModal__header,
+.avatarUploadModal__header {
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
 
-.backgroundUploadModal__title {
+.backgroundUploadModal__title,
+.avatarUploadModal__title {
   font-size: var(--fs-600);
   font-weight: var(--fw-semi-bold);
 }
 
-.backgroundUploadModal__exit {
+.backgroundUploadModal__exit,
+.avatarUploadModal__exit {
   font-size: var(--fs-700);
   color: var(--c-white);
   cursor: pointer;
 }
 
-.backgroundUploadModal__exit:active {
+.backgroundUploadModal__exit:active,
+.avatarUploadModal__exit:active {
   color: var(--c-primary-700);
 }
 
 @media (hover: hover) {
-  .backgroundUploadModal__exit:hover {
+  .backgroundUploadModal__exit:hover,
+  .avatarUploadModal__exit:hover {
     color: var(--c-primary-700);
   }
 }
 
-.backgroundUploadModal__thumbnail {
+.backgroundUploadModal__thumbnailWrapper,
+.avatarUploadModal__thumbnailWrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  row-gap: var(--s-300);
+}
+
+.backgroundUploadModal__thumbnail,
+.avatarUploadModal__thumbnail {
   display: block;
   height: var(--s-800);
   width: 100%;
-  margin-bottom: var(--s-200);
   border: var(--s-300) solid var(--c-white);
   border-radius: var(--br-300);
   object-fit: cover;
   background-color: var(--c-white);
 }
 
-.backgroundUploadModal__thumbnail--error {
+.avatarUploadModal__thumbnail {
+  width: var(--s-800);
+  border-radius: 50%;
+}
+
+.backgroundUploadModal__thumbnail--error,
+.avatarUploadModal__thumbnail--error {
   border-color: var(--c-error);
 }
 
-.backgroundUploadModal__feedbackError {
+.backgroundUploadModal__feedbackError,
+.avatarUploadModal__feedbackError {
   font-size: var(--fs-300);
 }
 
-.backgroundUploadModal__skeleton {
+.backgroundUploadModal__skeleton,
+.avatarUploadModal__skeleton {
   display: block;
   line-height: 1;
 }
 
-.backgroundUploadModal__input {
+.backgroundUploadModal__input,
+.avatarUploadModal__input {
   display: none;
 }
 
-.backgroundUploadModal__button {
+.backgroundUploadModal__button,
+.avatarUploadModal__button {
   display: flex;
   justify-content: center;
   align-items: center;
@@ -95,38 +122,46 @@
   outline: none;
 }
 
-.backgroundUploadModal__upload {
+.backgroundUploadModal__upload,
+.avatarUploadModal__upload {
   margin-bottom: var(--s-400);
   border: var(--s-100) solid var(--c-accent-700);
   background: linear-gradient(var(--c-accent-300), var(--c-accent-700));
 }
 
-.backgroundUploadModal__upload:active {
+.backgroundUploadModal__upload:active,
+.avatarUploadModal__upload:active {
   background: var(--c-accent-700);
 }
 
 @media (hover: hover) {
-  .backgroundUploadModal__upload:hover {
+  .backgroundUploadModal__upload:hover,
+  .avatarUploadModal__upload:hover {
     background: var(--c-accent-700);
   }
 }
 
-.backgroundUploadModal__confirm {
+.backgroundUploadModal__confirm,
+.avatarUploadModal__confirm {
   border: var(--s-100) solid var(--c-primary-700); 
   background: linear-gradient(var(--c-primary-300), var(--c-primary-700));
 }
 
-.backgroundUploadModal__confirm:active {
+.backgroundUploadModal__confirm:active,
+.avatarUploadModal__confirm:active {
   background: var(--c-primary-700);
 }
 
 @media (hover: hover) {
-  .backgroundUploadModal__confirm:hover {
+  .backgroundUploadModal__confirm:hover,
+  .avatarUploadModal__confirm:hover {
     background: var(--c-primary-700);
   }
 }
 
 .backgroundUploadModal__uploadIcon,
-.backgroundUploadModal__confirmIcon {
+.avatarUploadModal__uploadIcon
+.backgroundUploadModal__confirmIcon,
+.avatarUploadModal__cofirmIcon {
   font-size: var(--fs-400);
 }

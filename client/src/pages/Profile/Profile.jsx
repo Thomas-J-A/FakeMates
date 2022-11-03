@@ -4,8 +4,8 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCamera } from '@fortawesome/free-solid-svg-icons';
 import { faImage, faPenToSquare } from '@fortawesome/free-regular-svg-icons';
 
-import BackgroundUploadModal from './BackgroundUploadModal';
 import Backdrop from '../../components/Backdrop/Backdrop';
+import ImageUploadModal from './ImageUploadModal';
 import Post from '../../components/Post/Post';
 import StatusUpdateForm from '../../components/StatusUpdateForm/StatusUpdateForm';
 import AdsCarousel from '../../components/AdsCarousel/AdsCarousel';
@@ -30,7 +30,11 @@ const Profile = () => {
   const [hasMore, setHasMore] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [isOpenBackgroundModal, setIsOpenBackgroundModal] = useState(false);
+  const [isOpenModal, setIsOpenModal] = useState({
+    background: false,
+    avatar: false,
+  });
+
   const observer = useRef(null);
   const location = useLocation();
 
@@ -95,17 +99,21 @@ const Profile = () => {
     fetchPosts();
   }, [currentPage]);
 
-  const uploadAvatar = () => {
-    console.log('Uploading avatar...');
-  };
-
   const toggleEditProfile = () => {
     console.log('Toggling edit modal...');
   };
 
-  const closeModal = () => {
-    setIsOpenBackgroundModal(false);
-  };
+  // const closeModal = (type) => {
+  //   setIsOpenModal((prev) => ({
+  //     ...prev,
+  //     [type]: false,
+  //   }));
+  // };
+
+  const closeModal = () => setIsOpenModal({
+    background: false,
+    avatar: false,
+  });
 
   if (isLoading) return <p>Loading...</p>;
 
@@ -120,7 +128,7 @@ const Profile = () => {
             crossOrigin="anonymous"
             alt=""
           />
-          <div className="profileAvatar__iconWrapper" onClick={uploadAvatar}>
+          <div className="profileAvatar__iconWrapper" onClick={() => setIsOpenModal((prev) => ({ ...prev, avatar: true }))}>
             <FontAwesomeIcon className="profileAvatar__icon" icon={faCamera} />
           </div>
         </div>
@@ -133,7 +141,7 @@ const Profile = () => {
         <button
           className="profile__backgroundUploadButton"
           type="button"
-          onClick={() => setIsOpenBackgroundModal(true)}
+          onClick={() => setIsOpenModal((prev) => ({ ...prev, background: true }))}
         >
           <FontAwesomeIcon className="profile__backgroundUploadIcon" icon={faImage} />
         </button>
@@ -167,15 +175,23 @@ const Profile = () => {
             : <Post key={post._id} post={post} setPosts={setPosts} />
         })} */}
       </section>
-      <Backdrop isVisible={isOpenBackgroundModal} closeDrawer={closeModal} />
-      <BackgroundUploadModal
-        isOpen={isOpenBackgroundModal}
+      <Backdrop type="modal" isVisible={isOpenModal.background || isOpenModal.avatar} close={closeModal} />
+      <ImageUploadModal
+        type="avatar"
+        isOpen={isOpenModal.avatar}
         closeModal={closeModal}
-        backgroundUrl={userData.backgroundUrl}
+        imageUrl={userData.avatarUrl}
+        setUserData={setUserData}
+      />
+      <ImageUploadModal
+        type="background"
+        isOpen={isOpenModal.background}
+        closeModal={closeModal}
+        imageUrl={userData.backgroundUrl}
         setUserData={setUserData}
       />
     </div>
-  )
+  );
 };
 
 export default Profile;
