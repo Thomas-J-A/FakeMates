@@ -54,16 +54,20 @@ const updateUserInfoBody = Joi.object({
     .optional(),
   bio: Joi.string()
     .trim()
-    .optional(),
+    .optional()
+    .allow(''),
   location: Joi.string()
     .trim()
-    .optional(),
+    .optional()
+    .allow(''),
   hometown: Joi.string()
     .trim()
-    .optional(),
+    .optional()
+    .allow(''),
   occupation: Joi.string()
     .trim()
-    .optional(),
+    .optional()
+    .allow(''),
 });
 
 const deleteAccountParams = Joi.object({

@@ -6,6 +6,7 @@ import { faImage, faPenToSquare } from '@fortawesome/free-regular-svg-icons';
 
 import Backdrop from '../../components/Backdrop/Backdrop';
 import ImageUploadModal from './ImageUploadModal';
+import EditInfoModal from './EditInfoModal';
 import Post from '../../components/Post/Post';
 import StatusUpdateForm from '../../components/StatusUpdateForm/StatusUpdateForm';
 import AdsCarousel from '../../components/AdsCarousel/AdsCarousel';
@@ -33,6 +34,7 @@ const Profile = () => {
   const [isOpenModal, setIsOpenModal] = useState({
     background: false,
     avatar: false,
+    profileInfo: false,
   });
 
   const observer = useRef(null);
@@ -113,6 +115,7 @@ const Profile = () => {
   const closeModal = () => setIsOpenModal({
     background: false,
     avatar: false,
+    profileInfo: false,
   });
 
   if (isLoading) return <p>Loading...</p>;
@@ -150,7 +153,7 @@ const Profile = () => {
         <FontAwesomeIcon
           className="profile__editDetails"
           icon={faPenToSquare}
-          onClick={toggleEditProfile}
+          onClick={() => setIsOpenModal((prev) => ({  ...prev, profileInfo: true }))}
         />
         <p className="profile__bio">{userData.bio ? userData.bio : 'I\'m far too lazy to bother writing anything about myself.'}</p>
         <p className="profile__location">
@@ -175,7 +178,7 @@ const Profile = () => {
             : <Post key={post._id} post={post} setPosts={setPosts} />
         })} */}
       </section>
-      <Backdrop type="modal" isVisible={isOpenModal.background || isOpenModal.avatar} close={closeModal} />
+      <Backdrop type="modal" isVisible={Object.values(isOpenModal).some((v) => v)} close={closeModal} />
       <ImageUploadModal
         type="avatar"
         isOpen={isOpenModal.avatar}
@@ -190,8 +193,16 @@ const Profile = () => {
         imageUrl={userData.backgroundUrl}
         setUserData={setUserData}
       />
+      <EditInfoModal
+        isOpen={isOpenModal.profileInfo}
+        closeModal={closeModal}
+        userData={userData}
+        setUserData={setUserData}
+      />
     </div>
   );
 };
 
 export default Profile;
+
+// isOpenModal.background || isOpenModal.avatar || isOpenModal.info

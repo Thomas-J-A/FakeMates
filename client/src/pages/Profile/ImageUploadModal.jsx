@@ -10,6 +10,8 @@ import { VALID_MIME_TYPES } from '../../constants';
 
 import { useAuth } from '../../contexts/AuthContext';
 
+import capitalizeFirstLetter from '../../utils/capitalizeFirstLetter.util';
+
 import 'react-loading-skeleton/dist/skeleton.css';
 import './ImageUploadModal.css';
 
@@ -122,7 +124,7 @@ const ImageUploadModal = ({ type, isOpen, closeModal, imageUrl, setUserData }) =
         }) => (
           <Form className={`${ type }UploadModal__form`} autoComplete="off" noValidate>
             <header className={`${ type }UploadModal__header`}>
-              <h1 className={`${ type }UploadModal__title`}>Upload {type}</h1>
+              <h1 className={`${ type }UploadModal__title`}>Upload {capitalizeFirstLetter(type)}</h1>
               <FontAwesomeIcon
                 className={`${ type }UploadModal__exit`}
                 icon={faXmark}
