@@ -1,9 +1,9 @@
 import { useState, useEffect, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCamera } from '@fortawesome/free-solid-svg-icons';
-import { faImage, faPenToSquare } from '@fortawesome/free-regular-svg-icons';
+import { faEllipsisVertical } from '@fortawesome/free-solid-svg-icons';
 
+import ProfileOptions from './ProfileOptions';
 import Backdrop from '../../components/Backdrop/Backdrop';
 import ImageUploadModal from './ImageUploadModal';
 import EditInfoModal from './EditInfoModal';
@@ -31,6 +31,7 @@ const Profile = () => {
   const [hasMore, setHasMore] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [isVisibleProfileOptions, setIsVisibleProfileOptions] = useState(false);
   const [isOpenModal, setIsOpenModal] = useState({
     background: false,
     avatar: false,
@@ -101,17 +102,6 @@ const Profile = () => {
     fetchPosts();
   }, [currentPage]);
 
-  const toggleEditProfile = () => {
-    console.log('Toggling edit modal...');
-  };
-
-  // const closeModal = (type) => {
-  //   setIsOpenModal((prev) => ({
-  //     ...prev,
-  //     [type]: false,
-  //   }));
-  // };
-
   const closeModal = () => setIsOpenModal({
     background: false,
     avatar: false,
@@ -124,37 +114,20 @@ const Profile = () => {
     <div className="profile">
       <div className="profile__header">
         <p className="profile__name">{userData.fullName}</p>
-        <div className="profileAvatar">
-          <img
-            className="profileAvatar__image"
-            src={`http://192.168.8.146:3000/${ userData.avatarUrl }`}
-            crossOrigin="anonymous"
-            alt=""
-          />
-          <div className="profileAvatar__iconWrapper" onClick={() => setIsOpenModal((prev) => ({ ...prev, avatar: true }))}>
-            <FontAwesomeIcon className="profileAvatar__icon" icon={faCamera} />
-          </div>
-        </div>
+        <img
+          className="profile__avatar"
+          src={`http://192.168.8.146:3000/${ userData.avatarUrl }`}
+          crossOrigin="anonymous"
+          alt=""
+        />
         <img
           className="profile__backgroundImage"
           src={`http://192.168.8.146:3000/${ userData.backgroundUrl }`}
           alt=""
           crossOrigin="anonymous"
         />
-        <button
-          className="profile__backgroundUploadButton"
-          type="button"
-          onClick={() => setIsOpenModal((prev) => ({ ...prev, background: true }))}
-        >
-          <FontAwesomeIcon className="profile__backgroundUploadIcon" icon={faImage} />
-        </button>
       </div>
       <div className="profile__description">
-        <FontAwesomeIcon
-          className="profile__editDetails"
-          icon={faPenToSquare}
-          onClick={() => setIsOpenModal((prev) => ({  ...prev, profileInfo: true }))}
-        />
         <p className="profile__bio">{userData.bio ? userData.bio : 'I\'m far too lazy to bother writing anything about myself.'}</p>
         <p className="profile__location">
           Lives in <span className="profile__locationEmphasis">{userData.location ? userData.location : 'an undisclosed location'}</span>
@@ -165,6 +138,16 @@ const Profile = () => {
         <p className="profile__occupation">
           Works as a <span className="profile__occupationEmphasis">{userData.occupation ? userData.occupation : 'fireman, perhaps?'}</span>
         </p>
+        <FontAwesomeIcon
+          className="profile__options"
+          icon={faEllipsisVertical}
+          onClick={() => setIsVisibleProfileOptions((prev) => !prev)}
+        />
+        <ProfileOptions
+          isVisible={isVisibleProfileOptions}
+          setIsVisible={setIsVisibleProfileOptions}
+          setIsOpenModal={setIsOpenModal}
+        />
       </div>
       <div className="profile__friends">
         Friends go here
@@ -204,5 +187,3 @@ const Profile = () => {
 };
 
 export default Profile;
-
-// isOpenModal.background || isOpenModal.avatar || isOpenModal.info
