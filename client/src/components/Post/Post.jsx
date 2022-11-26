@@ -2,13 +2,13 @@ import { useState, useEffect, useCallback, forwardRef } from 'react';
 import { Link } from 'react-router-dom';
 import PulseLoader from 'react-spinners/PulseLoader';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faThumbsUp, faComment } from '@fortawesome/free-regular-svg-icons';
-import { faEllipsisVertical, faTriangleExclamation, faAngleDown } from '@fortawesome/free-solid-svg-icons';
+import { faCircleQuestion, faThumbsUp, faComment } from '@fortawesome/free-regular-svg-icons';
+import { faEllipsisVertical, faTrashCan, faTriangleExclamation, faAngleDown } from '@fortawesome/free-solid-svg-icons';
 import { formatDistance } from 'date-fns';
 
 import Comment from '../Comment/Comment';
 import CommentForm from './CommentForm';
-import PostOptions from './PostOptions';
+import Options from '../Options/Options';
 
 import { useAuth } from '../../contexts/AuthContext';
 
@@ -171,6 +171,40 @@ const Post = forwardRef(({ post, setPosts }, ref) => {
     }
   };
 
+  const removePost = async () => {
+    try {
+      const res = await fetch(`http://192.168.8.146:3000/api/posts/${ post._id }`, {
+        method: 'DELETE',
+        mode: 'cors',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!res.ok) throw new Error(res);
+
+      // Remove post from array of posts currently being shown in timeline
+      setPosts((prevPosts) => prevPosts.filter((p) => p._id !== post._id));
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  // Passed as argument to reusable Options component
+  const linksData = [
+    {
+      onClick: removePost,
+      icon: faTrashCan,
+      text: 'Remove Post',
+    },
+    {
+      onClick: () => alert('This is the mystery. Are you disappointed?'),
+      icon: faCircleQuestion,
+      text: 'Mystery Click',
+    },
+  ];
+
   const isOwn = post.postedBy._id === currentUser._id;
 
   return (
@@ -197,13 +231,14 @@ const Post = forwardRef(({ post, setPosts }, ref) => {
             onClick={() => setIsVisiblePostOptions((prev) => !prev)}
           />
         )}
-        <PostOptions
-          isOwn={isOwn}
-          isVisible={isVisiblePostOptions}
-          setIsVisible={setIsVisiblePostOptions}
-          postId={post._id}
-          setPosts={setPosts}
-        />
+        {isOwn && (
+          <Options
+            isVisible={isVisiblePostOptions}
+            setIsVisible={setIsVisiblePostOptions}
+            linksData={linksData}
+            type="post"
+          />
+        )}
       </header>
       <main className="postContent">
         <p className="postContent__text">{post.content}</p>

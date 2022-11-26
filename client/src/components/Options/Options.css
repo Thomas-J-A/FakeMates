@@ -1,4 +1,4 @@
-.postOptions {
+.options {
   position: absolute;
   top: 0;
   right: var(--s-500);
@@ -14,28 +14,33 @@
   transition: all .3s ease-in-out;
 }
 
-.postOptions--visible {
+.options--visible {
   transform: scale(1);
   opacity: 1;
   visibility: visible;
 }
 
-.postOptionsList__item {
+.options--profile {
+  top: var(--s-500);
+  right: var(--s-600);
+}
+
+.optionsList__item {
   display: flex;
   align-items: center;
   cursor: pointer;
 }
 
-.postOptionsList__item:active .postOptionsList__text {
+.optionsList__item:active .optionsList__text {
   color: var(--c-primary-700);
 }
 
 @media (hover: hover) {
-  .postOptionsList__item:hover .postOptionsList__text {
+  .optionsList__item:hover .optionsList__text {
     color: var(--c-primary-700);
   }
 }
 
-.postOptionsList__icon {
+.optionsList__icon {
   margin-right: var(--s-300);
 }

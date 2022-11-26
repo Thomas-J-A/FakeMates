@@ -1,9 +1,10 @@
 import { useState, useEffect, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faEllipsisVertical } from '@fortawesome/free-solid-svg-icons';
+import { faEllipsisVertical, faUser } from '@fortawesome/free-solid-svg-icons';
+import { faImage, faPenToSquare } from '@fortawesome/free-regular-svg-icons';
 
-import ProfileOptions from './ProfileOptions';
+import Options from '../../components/Options/Options';
 import Backdrop from '../../components/Backdrop/Backdrop';
 import ImageUploadModal from './ImageUploadModal';
 import EditInfoModal from './EditInfoModal';
@@ -108,6 +109,25 @@ const Profile = () => {
     profileInfo: false,
   });
 
+  // Passed as argument to reusable Options component
+  const linksData = [
+    {
+      onClick: () => setIsOpenModal((prev) => ({ ...prev, avatar: true })),
+      icon: faUser,
+      text: 'Edit Avatar',
+    },
+    {
+      onClick: () => setIsOpenModal((prev) => ({ ...prev, background: true })),
+      icon: faImage,
+      text: 'Edit Background',
+    },
+    {
+      onClick: () => setIsOpenModal((prev) => ({  ...prev, profileInfo: true })),
+      icon: faPenToSquare,
+      text: 'Edit Details',
+    },
+  ];
+
   if (isLoading) return <p>Loading...</p>;
 
   return (
@@ -143,10 +163,11 @@ const Profile = () => {
           icon={faEllipsisVertical}
           onClick={() => setIsVisibleProfileOptions((prev) => !prev)}
         />
-        <ProfileOptions
+        <Options
           isVisible={isVisibleProfileOptions}
           setIsVisible={setIsVisibleProfileOptions}
-          setIsOpenModal={setIsOpenModal}
+          linksData={linksData}
+          type="profile"
         />
       </div>
       <div className="profile__friends">
