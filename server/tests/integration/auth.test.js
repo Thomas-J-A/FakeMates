@@ -97,7 +97,7 @@ describe('POST /api/auth/email', () => {
       });
 
     expect(res.statusCode).toBe(401);
-    expect(res.body.message).toBe('Email doesn\'t exist');
+    expect(res.body.message).toBe('Email not found');
   });
 
 
@@ -148,7 +148,7 @@ describe('POST /api/auth/email', () => {
       });
 
     expect(res.statusCode).toBe(401);
-    expect(res.body.message).toBe('Incorrect password');
+    expect(res.body.message).toBe('Password incorrect');
   });
 
   

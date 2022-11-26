@@ -140,7 +140,7 @@ describe('GET /api/comments', () => {
   });
 
 
-  it('should return latest comments first', async () => {
+  it('should return oldest comments first', async () => {
     // Seed a post
     const post = await seedPost({ postedBy: currentUser.data._id });
 
@@ -165,7 +165,7 @@ describe('GET /api/comments', () => {
     const timestamp1 = Date.parse(res.body.comments[0].createdAt);
     const timestamp2 = Date.parse(res.body.comments[1].createdAt);
 
-    expect(timestamp1).toBeGreaterThan(timestamp2);
+    expect(timestamp1).toBeLessThan(timestamp2);
   });
 
 
@@ -344,7 +344,7 @@ describe('POST /api/comments', () => {
       .send({ content });
 
     expect(res.statusCode).toBe(201);
-    expect(res.body.postedBy).toBe(currentUser.data._id.toString());
+    expect(res.body.postedBy._id).toBe(currentUser.data._id.toString());
     expect(res.body.postId).toBe(post._id.toString());
     expect(res.body.content).toBe(content);
     expect(res.body.likedBy).toEqual([]);

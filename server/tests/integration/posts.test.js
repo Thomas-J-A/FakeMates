@@ -219,7 +219,7 @@ describe('POST /api/posts', () => {
       .set('Cookie', currentUser.cookie);
       
     expect(res.statusCode).toBe(201);
-    expect(res.body.postedBy).toBe(currentUser.data._id.toString());
+    expect(res.body.postedBy._id).toBe(currentUser.data._id.toString());
     expect(res.body.content).toBe(content);
     expect(res.body.imageUrl).toBeDefined();
     expect(res.body.likedBy).toEqual([]);
@@ -240,7 +240,7 @@ describe('POST /api/posts', () => {
       .set('Cookie', currentUser.cookie);
 
     expect(res.statusCode).toBe(201);
-    expect(res.body.postedBy).toBe(currentUser.data._id.toString());
+    expect(res.body.postedBy._id).toBe(currentUser.data._id.toString());
     expect(res.body.content).toBe(content);;
     expect(res.body.imageUrl).not.toBeDefined();
     expect(res.body.likedBy).toEqual([]);
