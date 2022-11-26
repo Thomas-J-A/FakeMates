@@ -24,7 +24,7 @@ const multerInstance = multer({
   storage,
   limits: {
     files: 1,
-    fileSize: 1024 * 1024 * 2, // 2MB
+    fileSize: 1024 * 1024 * 4, // 4MB
   },
   fileFilter,
 });
