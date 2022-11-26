@@ -29,7 +29,7 @@ const ImageUploadModal = ({ type, isOpen, closeModal, imageUrl, setUserData }) =
 
   const validationSchema = Yup.object({
     [type]: Yup.mixed()
-      .test('fileSize', 'File must be less than 2MB', (value) => value ? value.size < (1024 * 1024 * 2) : true)
+      .test('fileSize', 'File must be less than 4MB', (value) => value ? value.size < (1024 * 1024 * 4) : true)
       .test('fileType', 'File must be a JPG, JPEG, or PNG', (value) => value ? VALID_MIME_TYPES.includes(value.type) : true)
   });
 

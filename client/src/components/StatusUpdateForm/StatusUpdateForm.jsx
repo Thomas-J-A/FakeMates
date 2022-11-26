@@ -33,7 +33,7 @@ const StatusUpdateForm = ({ setPosts }) => {
       .required('Please write something...'),
     image: Yup.mixed()
       // If value is null, validation also passes since user hasn't selected an image
-      .test('fileSize', 'File must be less than 2MB', (value) => value ? value.size < (1024 * 1024 * 2) : true)
+      .test('fileSize', 'File must be less than 4MB', (value) => value ? value.size < (1024 * 1024 * 4) : true)
       .test('fileType', 'File must be a JPG, JPEG, or PNG', (value) => value ? VALID_MIME_TYPES.includes(value.type) : true)
   });
 
