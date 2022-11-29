@@ -22,7 +22,7 @@
 
 .options--profile {
   top: var(--s-500);
-  right: var(--s-600);
+  right: 48px;
 }
 
 .optionsList__item {

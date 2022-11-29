@@ -12,7 +12,7 @@
   grid-column: 1 / -1;
   margin-left: calc(-1 * var(--s-600)); /* Calculate negative version of variable */
   margin-right: calc(-1 * var(--s-600));
-  margin-bottom: 90px;
+  margin-bottom: 80px;
   /* box-shadow: 2px 2px 4px rgba(0,0,0,.2); */
   border-bottom: var(--s-300) solid var(--c-white);
 }
@@ -73,7 +73,7 @@
 .profile__description {
   position: relative;
   grid-column: 1 / -1;
-  margin-bottom: var(--s-600);
+  margin-bottom: var(--s-400);
   padding: var(--s-500);
   border: var(--s-100) solid var(--c-black);
   box-shadow: 2px 2px 4px rgba(0,0,0,.2);
@@ -111,8 +111,4 @@
 .profile__hometownEmphasis,
 .profile__occupationEmphasis {
   color: var(--c-primary-900);
-}
-
-.profile_friends {
-  grid-column: 1 / -1;
 }

@@ -7,6 +7,11 @@
   overflow: hidden;
 }
 
+.adsCarousel--profile {
+  grid-column: 1/-1;
+  margin-bottom: var(--s-400);
+}
+
 .adsCarousel__slide {
   min-width: 100%;
   transition: transform 500ms ease-in-out;

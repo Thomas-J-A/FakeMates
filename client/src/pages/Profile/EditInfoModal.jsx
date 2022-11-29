@@ -167,7 +167,7 @@ const EditInfoModal = ({ isOpen, closeModal, userData, setUserData }) => {
                   id="editInfoModal__occupation"
                   type="text"
                   name="occupation"
-                  placeholder="I work as a..."
+                  placeholder="I work as a/an..."
                 />
                 <ErrorMessage className="editInfoModal__feedbackError" name="occupation" component="div" />
               </div>

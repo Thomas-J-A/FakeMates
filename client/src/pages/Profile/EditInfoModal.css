@@ -3,7 +3,6 @@
   top: 50%;
   left: 50%;
   width: 80%;
-  padding: var(--s-500);
   z-index: 500;
   transform: translate(-50%, -50%) scale(0);
   border-radius: var(--br-300);
@@ -20,13 +19,18 @@
 .editInfoModal__form {
   display: flex;
   flex-direction: column;
-  row-gap: var(--s-600);
+  row-gap: var(--s-500);
 }
 
 .editInfoModal__header {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  padding: var(--s-500);
+  border-bottom: var(--s-100) solid var(--c-white);
+  border-top-left-radius: var(--br-300);
+  border-top-right-radius: var(--br-300);
+  background-color: var(--c-accent-700);
 }
 
 .editInfoModal__title {
@@ -41,13 +45,18 @@
 }
 
 .editInfoModal__exit:active {
-  color: var(--c-primary-700);
+  color: var(--c-primary-900);
 }
 
 @media (hover: hover) {
   .editInfoModal__exit:hover {
-    color: var(--c-primary-700);
+    color: var(--c-primary-900);
   }
+}
+
+.editInfoModal__formBody {
+  padding: var(--s-500);
+  padding-top: 0;
 }
 
 .editInfoModal__namesWrapper,

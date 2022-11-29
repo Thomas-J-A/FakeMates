@@ -104,7 +104,7 @@ const Timeline = () => {
         {isSmallViewport && (
           <>
             <OnlineFriendsList />
-            <AdsCarousel ads={ads} />
+            <AdsCarousel ads={ads} type="timeline" />
           </>
         )}
         {posts.map((post, index) => {

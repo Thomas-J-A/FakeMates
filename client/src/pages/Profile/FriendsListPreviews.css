@@ -1,0 +1,63 @@
+.friendsListPreviews {
+  grid-column: 1 / -1;
+  margin-bottom: var(--s-400);
+  padding: var(--s-500);
+  border: var(--s-100) solid var(--c-black);
+  border-radius: var(--br-300);
+  box-shadow: 2px 2px 4px rgba(0,0,0,.2);
+  background-color: var(--c-white);
+  background-image: url('../../../public/images/otis-redding.png');
+}
+
+.friendsListPreviews__header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: var(--s-400);
+}
+
+.friendsListPreviews__title {
+  font-size: var(--fs-500);
+  font-weight: var(--fw-semi-bold);
+}
+
+.friendsListPreviews__friendsCount {
+  color: var(--c-primary-700);
+}
+
+.friendsListPreviews__viewAll {
+  color: var(--c-neutral-500);
+  user-select: none;
+}
+
+.friendsListPreviews__viewAll:active:not(.friendsListPreviews--noFriends__viewAll) {
+  color: var(--c-primary-700);
+  cursor: pointer
+}
+
+@media (hover: hover) {
+  .friendsListPreviews__viewAll:hover:not(.friendsListPreviews--noFriends__viewAll) {
+    color: var(--c-primary-700);
+    cursor: pointer;
+  }
+}
+
+.friendsListPreviews__preview {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(var(--s-700), 1fr));
+  gap: var(--s-400);
+}
+
+.friendsListPreview {
+  height: var(--s-700);
+  width: 100%;
+  border: var(--s-100) solid var(--c-black);
+  border-radius: var(--br-300);
+  object-fit: cover;
+  background-color: var(--c-primary-300);
+  box-shadow: 2px 2px 4px rgba(0,0,0,.2);
+  cursor: pointer;
+}
+
+.friendsList__noFriendsMsg {
+  font-weight: var(--fw-semi-bold);
+}

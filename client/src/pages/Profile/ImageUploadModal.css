@@ -4,7 +4,6 @@
   top: 50%;
   left: 50%;
   width: 80%;
-  padding: var(--s-500);
   z-index: 500;
   transform: translate(-50%, -50%) scale(0);
   border-radius: var(--br-300);
@@ -31,6 +30,11 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  padding: var(--s-500);
+  border-bottom: var(--s-100) solid var(--c-white);
+  border-top-left-radius: var(--br-300);
+  border-top-right-radius: var(--br-300);
+  background-color: var(--c-accent-700);
 }
 
 .backgroundUploadModal__title,
@@ -48,13 +52,13 @@
 
 .backgroundUploadModal__exit:active,
 .avatarUploadModal__exit:active {
-  color: var(--c-primary-700);
+  color: var(--c-primary-900);
 }
 
 @media (hover: hover) {
   .backgroundUploadModal__exit:hover,
   .avatarUploadModal__exit:hover {
-    color: var(--c-primary-700);
+    color: var(--c-primary-900);
   }
 }
 
@@ -64,6 +68,7 @@
   flex-direction: column;
   align-items: center;
   row-gap: var(--s-300);
+  padding: 0 var(--s-500);
 }
 
 .backgroundUploadModal__thumbnail,
@@ -101,6 +106,12 @@
 .backgroundUploadModal__input,
 .avatarUploadModal__input {
   display: none;
+}
+
+.backgroundUploadModal__buttons,
+.avatarUploadModal__buttons {
+  padding: var(--s-500);
+  padding-top: 0;
 }
 
 .backgroundUploadModal__button,

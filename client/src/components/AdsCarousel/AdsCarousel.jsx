@@ -4,7 +4,7 @@ import './AdsCarousel.css';
 
 const DELAY = 5000;
 
-const AdsCarousel = ({ ads }) => {
+const AdsCarousel = ({ ads, type }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isAutoplay, setIsAutoplay] = useState(true);
   const timerRef = useRef(null);
@@ -21,7 +21,8 @@ const AdsCarousel = ({ ads }) => {
 
   return (
     <div
-      className="adsCarousel"
+      // className="adsCarousel"
+      className={`adsCarousel adsCarousel--${ type }`}
       onMouseEnter={() => setIsAutoplay(false)}
       onMouseLeave={() => setIsAutoplay(true)}
     >

@@ -8,6 +8,8 @@ import Options from '../../components/Options/Options';
 import Backdrop from '../../components/Backdrop/Backdrop';
 import ImageUploadModal from './ImageUploadModal';
 import EditInfoModal from './EditInfoModal';
+import FriendsListModal from './FriendsListModal';
+import FriendsListPreviews from './FriendsListPreviews';
 import Post from '../../components/Post/Post';
 import StatusUpdateForm from '../../components/StatusUpdateForm/StatusUpdateForm';
 import AdsCarousel from '../../components/AdsCarousel/AdsCarousel';
@@ -37,6 +39,7 @@ const Profile = () => {
     background: false,
     avatar: false,
     profileInfo: false,
+    friendsList: false,
   });
 
   const observer = useRef(null);
@@ -107,6 +110,7 @@ const Profile = () => {
     background: false,
     avatar: false,
     profileInfo: false,
+    friendsList: false,
   });
 
   // Passed as argument to reusable Options component
@@ -156,11 +160,11 @@ const Profile = () => {
           From <span className="profile__hometownEmphasis">{userData.hometown ? userData.hometown : 'God only knows'}</span>
         </p>
         <p className="profile__occupation">
-          Works as a <span className="profile__occupationEmphasis">{userData.occupation ? userData.occupation : 'fireman, perhaps?'}</span>
+          Works as a/an <span className="profile__occupationEmphasis">{userData.occupation ? userData.occupation : 'fireman, perhaps?'}</span>
         </p>
         <FontAwesomeIcon
           className="profile__options"
-          icon={faEllipsisVertical}
+          icon={faPenToSquare}
           onClick={() => setIsVisibleProfileOptions((prev) => !prev)}
         />
         <Options
@@ -170,12 +174,10 @@ const Profile = () => {
           type="profile"
         />
       </div>
-      <div className="profile__friends">
-        Friends go here
-      </div>
+      <AdsCarousel ads={ads} type="profile" />
+      <FriendsListPreviews userData={userData} setIsOpenModal={setIsOpenModal} />
       <section className="posts">
         <StatusUpdateForm setPosts={setPosts} />
-        <AdsCarousel ads={ads} />
         {/* {posts.map((post, index) => {
           return post.length === index + 1
             ? <Post key={post._id} ref={lastPostRef} post={post} setPosts={setPosts} />
@@ -202,6 +204,11 @@ const Profile = () => {
         closeModal={closeModal}
         userData={userData}
         setUserData={setUserData}
+      />
+      <FriendsListModal
+        isOpen={isOpenModal.friendsList}
+        closeModal={closeModal}
+        userData={userData}
       />
     </div>
   );
