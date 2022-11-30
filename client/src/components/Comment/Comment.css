@@ -1,16 +1,24 @@
 .comment {
   display: flex;
+  column-gap: var(--s-400);
+}
+
+.comment:not(:last-child) {
+  padding-bottom: var(--s-400);
+  border-bottom: var(--s-100) solid var(--c-neutral-300);
 }
 
 .comment__avatar {
   height: var(--s-600);
   width: var(--s-600);
+  border-radius: 50%;
 }
 
 .comment__right {
   display: flex;
   flex-direction: column;
-  row-gap: var(--s-200);
+  row-gap: var(--s-300);
+  line-height: 1rem;
 }
 
 .commentHeader {

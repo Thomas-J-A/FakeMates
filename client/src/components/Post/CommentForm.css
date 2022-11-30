@@ -1,7 +1,7 @@
 .commentForm {
   display: flex;
   flex-direction: column;
-  margin-top: var(--s-400);
+  margin-top: var(--s-500);
 }
 
 .commentFormNetworkError {

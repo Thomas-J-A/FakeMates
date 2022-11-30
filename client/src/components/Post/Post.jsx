@@ -17,6 +17,7 @@ import useMediaQuery from '../../hooks/useMediaQuery';
 
 import './Post.css';
 
+// Custom styles for PulseLoader component
 const cssOverride = {
   display: "block",
   margin: "0 auto",

@@ -152,7 +152,7 @@
 .postComments__comments {
   display: flex;
   flex-direction: column;
-  row-gap: var(--s-300);
+  row-gap: var(--s-400);
   padding-left: var(--s-500);
 }
 
