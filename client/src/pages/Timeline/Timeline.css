@@ -32,7 +32,7 @@
 
 .posts__errorIcon,
 .posts__noPostsIcon {
-  font-size: var(--fs-500);
+  font-size: var(--fs-600);
   color: var(--c-white);
 }
 

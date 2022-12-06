@@ -1,7 +1,7 @@
 import Skeleton from 'react-loading-skeleton';
 
 import 'react-loading-skeleton/dist/skeleton.css';
-import './PostSkeleton.css';
+import './Post.skeleton.css';
 
 const PostSkeleton = () => {
   return (

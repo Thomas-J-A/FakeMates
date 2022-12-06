@@ -6,7 +6,7 @@
   border-radius: var(--br-300);
   box-shadow: 2px 2px 4px rgba(0,0,0,.2);
   background-color: var(--c-white);
-  background-image: url('../../../public/images/otis-redding.png');
+  background-image: url('../../../../public/images/otis-redding.png');
 }
 
 .friendsListPreviews__header {

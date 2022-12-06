@@ -1,0 +1,14 @@
+.profileHeaderSkeleton {
+  position: relative;
+  grid-column: 1 / -1;
+  margin-left: calc(-1 * var(--s-600)); /* Calculate negative version of variable */
+  margin-right: calc(-1 * var(--s-600));
+  margin-bottom: 80px;
+}
+
+.profileHeaderSkeleton__avatar {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translate(-50%, 50%);
+}

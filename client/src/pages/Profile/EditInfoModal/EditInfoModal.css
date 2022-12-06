@@ -8,7 +8,7 @@
   border-radius: var(--br-300);
   transition: transform .3s ease-in-out;
   background-color: var(--c-primary-900);
-  background-image: url('../../../public/images/french-stucco.png');
+  background-image: url('../../../../public/images/french-stucco.png');
   color: var(--c-white);
 }
 

@@ -16,8 +16,8 @@ const Options = ({ isVisible, setIsVisible, linksData, type }) => {
   return (
     <div className={`options ${ isVisible ? "options--visible" : "" } options--${ type }`}>
       <ul className="optionsList">
-        {linksData.map((linkData) => (
-          <li className="optionsList__item" onClick={linkData.onClick}>
+        {linksData.map((linkData, i) => (
+          <li className="optionsList__item" onClick={linkData.onClick} key={i}>
             <FontAwesomeIcon className="optionsList__icon" icon={linkData.icon} fixedWidth />
             <p className="optionsList__text">{linkData.text}</p>
           </li>

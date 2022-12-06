@@ -71,7 +71,7 @@ const FriendsListModal = ({ isOpen, closeModal, userData }) => {
         />
       </header>
       <div className="friendsListModal__friends">
-        {userData.friends.map((friend) => <Friend friend={friend} />)}
+        {userData.friends.map((friend) => <Friend friend={friend} key={friend._id} />)}
       </div>
     </div>
   );

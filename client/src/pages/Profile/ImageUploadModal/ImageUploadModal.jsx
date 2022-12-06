@@ -6,11 +6,11 @@ import { faXmark } from '@fortawesome/free-solid-svg-icons';
 import { faImage, faCircleCheck } from '@fortawesome/free-regular-svg-icons';
 import Skeleton from 'react-loading-skeleton';
 
-import { VALID_MIME_TYPES } from '../../constants';
+import { VALID_MIME_TYPES } from '../../../constants';
 
-import { useAuth } from '../../contexts/AuthContext';
+import { useAuth } from '../../../contexts/AuthContext';
 
-import capitalizeFirstLetter from '../../utils/capitalizeFirstLetter.util';
+import capitalizeFirstLetter from '../../../utils/capitalizeFirstLetter.util';
 
 import 'react-loading-skeleton/dist/skeleton.css';
 import './ImageUploadModal.css';

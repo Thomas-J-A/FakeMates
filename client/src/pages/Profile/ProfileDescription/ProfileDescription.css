@@ -1,0 +1,61 @@
+.profileDescription {
+  position: relative;
+  grid-column: 1 / -1;
+  margin-bottom: var(--s-400);
+  padding: var(--s-500);
+  border: var(--s-100) solid var(--c-black);
+  box-shadow: 2px 2px 4px rgba(0,0,0,.2);
+  background-color: var(--c-white);
+  background-image: url('../../../../public/images/otis-redding.png');
+  border-radius: var(--br-300);
+  text-align: center;
+  letter-spacing: var(--s-100);
+}
+
+.profileDescription__bio {
+  max-width: 90%;
+  padding: var(--s-500) 0;
+  margin: 0 auto;
+  font-size: var(--fs-500);
+  font-weight: var(--fw-semi-bold);
+  font-style: italic;
+  background-image: url('../../../../public/images/open-quote.png');
+  background-size: 70px;
+  background-position: top left;
+  background-repeat: no-repeat;
+  filter: brightness(95%);
+}
+
+.profileDescription__bio::first-letter {
+  font-size: var(--fs-700);
+}
+
+.profileDescription__location,
+.profileDescription__hometown {
+  margin-bottom: var(--s-300);
+}
+
+.profileDescription__locationEmphasis,
+.profileDescription__hometownEmphasis,
+.profileDescription__occupationEmphasis {
+  color: var(--c-primary-900);
+}
+
+.profileDescription__options {
+  position: absolute;
+  top: var(--s-500);
+  right: var(--s-500);
+  font-size: var(--fs-600);
+  color: var(--c-neutral-500);
+  cursor: pointer;
+}
+
+.profileDescription__options:active {
+  color: var(--c-primary-700);
+}
+
+@media (hover: hover) {
+  .profileDescription__options:hover {
+    color: var(--c-primary-700);
+  }
+}

@@ -3,12 +3,11 @@ import PulseLoader from 'react-spinners/PulseLoader';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTriangleExclamation } from '@fortawesome/free-solid-svg-icons';
 import { faFaceSadTear } from '@fortawesome/free-regular-svg-icons';
-// import Skeleton from 'react-loading-skeleton';
 
 import StatusUpdateForm from '../../components/StatusUpdateForm/StatusUpdateForm';
 import OnlineFriendsList from '../../components/OnlineFriendsList/OnlineFriendsList';
 import Post from '../../components/Post/Post';
-import PostSkeleton from '../../components/Post/PostSkeleton';
+import PostSkeleton from '../../components/Post/Post.skeleton';
 import ScrollToTop from '../../components/ScrollToTop/ScrollToTop';
 import AdsCarousel from '../../components/AdsCarousel/AdsCarousel';
 import {
@@ -20,7 +19,6 @@ import {
 
 import useMediaQuery from '../../hooks/useMediaQuery';
 
-import 'react-loading-skeleton/dist/skeleton.css';
 import './Timeline.css';
 
 // Custom styles for PulseLoader component
@@ -114,20 +112,20 @@ const Timeline = () => {
             : <Post key={post._id} post={post} setPosts={setPosts} />
         })}
         {initialPage && isLoading && (
-          Array(10).fill().map((_, i) => {
+          Array(5).fill().map((_, i) => {
             return <PostSkeleton key={i} />
           })
         )}
         {!initialPage && (
           <PulseLoader
-          loading={isLoading}
-          size={16}
-          speedMultiplier={.8}
-          color="#fff"
-          cssOverride={cssOverride}
+            loading={isLoading}
+            size={16}
+            speedMultiplier={.8}
+            color="#fff"
+            cssOverride={cssOverride}
           />
         )}
-        {!initialPage && !hasMore && (
+        {posts.length > 0 && !hasMore && (
           <p className="posts__noMoreMessage">No more posts to display.</p>
         )}
         {!isLoading && !posts.length && !error && (
@@ -149,7 +147,7 @@ const Timeline = () => {
       {!isSmallViewport && (
         <aside className="timeline__sidebar">
           <div className="timeline__sidebarWrapper">
-            <AdsCarousel ads={ads} />
+            <AdsCarousel ads={ads} type="timeline" />
             <OnlineFriendsList />
             <MistyMountainAscents />
           </div>

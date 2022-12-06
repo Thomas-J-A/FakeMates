@@ -1,17 +1,24 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useLocation } from 'react-router-dom';
+import PulseLoader from 'react-spinners/PulseLoader';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faEllipsisVertical, faUser } from '@fortawesome/free-solid-svg-icons';
-import { faImage, faPenToSquare } from '@fortawesome/free-regular-svg-icons';
+import { faFaceSadTear } from '@fortawesome/free-regular-svg-icons';
+import { faTriangleExclamation } from '@fortawesome/free-solid-svg-icons';
 
-import Options from '../../components/Options/Options';
-import Backdrop from '../../components/Backdrop/Backdrop';
-import ImageUploadModal from './ImageUploadModal';
-import EditInfoModal from './EditInfoModal';
-import FriendsListModal from './FriendsListModal';
-import FriendsListPreviews from './FriendsListPreviews';
+import ProfileHeader from './ProfileHeader/ProfileHeader';
+import ProfileHeaderSkeleton from './ProfileHeader/ProfileHeader.skeleton';
+import ProfileDescription from './ProfileDescription/ProfileDescription';
+import ProfileDescriptionSkeleton from './ProfileDescription/ProfileDescription.skeleton';
+import FriendsListPreviews from './FriendsListPreviews/FriendsListPreviews';
+import FriendsListPreviewsSkeleton from './FriendsListPreviews/FriendsListPreviews.skeleton';
 import Post from '../../components/Post/Post';
+import PostSkeleton from '../../components/Post/Post.skeleton';
 import StatusUpdateForm from '../../components/StatusUpdateForm/StatusUpdateForm';
+import Backdrop from '../../components/Backdrop/Backdrop';
+import ImageUploadModal from './ImageUploadModal/ImageUploadModal';
+import EditInfoModal from './EditInfoModal/EditInfoModal';
+import FriendsListModal from './FriendsListModal/FriendsListModal';
+import ScrollToTop from '../../components/ScrollToTop/ScrollToTop';
 import AdsCarousel from '../../components/AdsCarousel/AdsCarousel';
 import {
   WendellsIceCream,
@@ -20,6 +27,12 @@ import {
 } from '../../components/Ads/';
 
 import './Profile.css';
+
+// Custom styles for PulseLoader component
+const cssOverride = {
+  display: "block",
+  margin: "var(--s-400) auto 0",
+};
 
 const ads = [
   <WendellsIceCream />,
@@ -33,8 +46,7 @@ const Profile = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [hasMore, setHasMore] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [isVisibleProfileOptions, setIsVisibleProfileOptions] = useState(false);
+  const [error, setError] = useState('');
   const [isOpenModal, setIsOpenModal] = useState({
     background: false,
     avatar: false,
@@ -47,14 +59,37 @@ const Profile = () => {
 
   const { userId } = location.state;
 
-  // Fetch profile data
+  // Setup intersection observer which lets react know that
+  // last post is nearly visible so fetch more posts
+  const lastPostRef = useCallback((node) => {
+    const observerOptions = {
+      root: null,
+      rootMargin: '0px 0px 40% 0px',
+      threshold: 0.5,
+    };
+  
+    const observerCallback = (entries) => {
+      if (entries[0].isIntersecting && hasMore) {
+        setCurrentPage((prevPage) => prevPage + 1);
+      }
+    };
+    
+    if (isLoading || error) return;
+
+    if (observer.current) observer.current.disconnect();
+    observer.current = new IntersectionObserver(observerCallback, observerOptions);
+
+    if (node) observer.current.observe(node);
+  }, [isLoading, hasMore]);
+
   useEffect(() => {
-    const fetchUserData = async () => {
+    const fetchInitialData = async () => {
       setIsLoading(true);
-      setError(null);
+      setError('');
 
       try {
-        const res = await fetch(`http://192.168.8.146:3000/api/users/${ userId }`, {
+        // Fetch user data
+        const resUserData = await fetch(`http://192.168.8.146:3000/api/users/${ userId }`, {
           method: 'GET',
           mode: 'cors',
           credentials: 'include',
@@ -62,25 +97,48 @@ const Profile = () => {
             'Content-Type': 'application/json',
           },
         });
-        
-        const body = await res.json();
-        
-        setUserData(body);
-      } catch (err) {
-        console.log(err);
+
+        if (!resUserData.ok) {
+          return setError('userData');
+        }
+
+        const bodyUserData = await resUserData.json();
+
+        setUserData(bodyUserData);
+
+        // Fetch first page of posts
+        const resPosts = await fetch(`http://192.168.8.146:3000/api/posts?userid=${ userId }&page=1`, {
+          method: 'GET',
+          mode: 'cors',
+          credentials: 'include',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+
+        if (!resPosts.ok) {
+          return setError('posts');
+        }
+
+        const bodyPosts = await resPosts.json();
+
+        setPosts(bodyPosts.posts);
+        setHasMore(bodyPosts.hasMore);
+      } catch(err) {
+        setError('other');
       } finally {
         setIsLoading(false);
       }
     };
     
-    fetchUserData();
+    fetchInitialData();
   }, [userId]);
 
-  // Fetch posts on initial render and whenever user scrolls
+  // Fetch posts whenever user scrolls
   useEffect(() => {
     const fetchPosts = async () => {
       setIsLoading(true);
-      setError(null);
+      setError('');
 
       try {
         const res = await fetch(`http://192.168.8.146:3000/api/posts?userid=${ userId }&page=${ currentPage }`, {
@@ -92,18 +150,25 @@ const Profile = () => {
           },
         });
 
+        if (!res.ok) {
+          return setError('posts');
+        }
+
         const body = await res.json();
 
-        setPosts((prevPosts) => [...prevPosts, body.posts]);
+        setPosts((prevPosts) => [...prevPosts, ...body.posts]);
         setHasMore(body.hasMore);
       } catch (err) {
-        setError(err);
+        setError('other');
       } finally {
         setIsLoading(false);
       }
     };
 
-    fetchPosts();
+    // First page is fetched in earlier useEffect hook
+    if (currentPage > 1) {
+      fetchPosts();
+    }
   }, [currentPage]);
 
   const closeModal = () => setIsOpenModal({
@@ -113,103 +178,105 @@ const Profile = () => {
     friendsList: false,
   });
 
-  // Passed as argument to reusable Options component
-  const linksData = [
-    {
-      onClick: () => setIsOpenModal((prev) => ({ ...prev, avatar: true })),
-      icon: faUser,
-      text: 'Edit Avatar',
-    },
-    {
-      onClick: () => setIsOpenModal((prev) => ({ ...prev, background: true })),
-      icon: faImage,
-      text: 'Edit Background',
-    },
-    {
-      onClick: () => setIsOpenModal((prev) => ({  ...prev, profileInfo: true })),
-      icon: faPenToSquare,
-      text: 'Edit Details',
-    },
-  ];
-
-  if (isLoading) return <p>Loading...</p>;
+  const initialPage = currentPage === 1;
 
   return (
     <div className="profile">
-      <div className="profile__header">
-        <p className="profile__name">{userData.fullName}</p>
-        <img
-          className="profile__avatar"
-          src={`http://192.168.8.146:3000/${ userData.avatarUrl }`}
-          crossOrigin="anonymous"
-          alt=""
-        />
-        <img
-          className="profile__backgroundImage"
-          src={`http://192.168.8.146:3000/${ userData.backgroundUrl }`}
-          alt=""
-          crossOrigin="anonymous"
-        />
-      </div>
-      <div className="profile__description">
-        <p className="profile__bio">{userData.bio ? userData.bio : 'I\'m far too lazy to bother writing anything about myself.'}</p>
-        <p className="profile__location">
-          Lives in <span className="profile__locationEmphasis">{userData.location ? userData.location : 'an undisclosed location'}</span>
-        </p>
-        <p className="profile__hometown">
-          From <span className="profile__hometownEmphasis">{userData.hometown ? userData.hometown : 'God only knows'}</span>
-        </p>
-        <p className="profile__occupation">
-          Works as a/an <span className="profile__occupationEmphasis">{userData.occupation ? userData.occupation : 'fireman, perhaps?'}</span>
-        </p>
-        <FontAwesomeIcon
-          className="profile__options"
-          icon={faPenToSquare}
-          onClick={() => setIsVisibleProfileOptions((prev) => !prev)}
-        />
-        <Options
-          isVisible={isVisibleProfileOptions}
-          setIsVisible={setIsVisibleProfileOptions}
-          linksData={linksData}
-          type="profile"
-        />
-      </div>
-      <AdsCarousel ads={ads} type="profile" />
-      <FriendsListPreviews userData={userData} setIsOpenModal={setIsOpenModal} />
-      <section className="posts">
-        <StatusUpdateForm setPosts={setPosts} />
-        {/* {posts.map((post, index) => {
-          return post.length === index + 1
-            ? <Post key={post._id} ref={lastPostRef} post={post} setPosts={setPosts} />
-            : <Post key={post._id} post={post} setPosts={setPosts} />
-        })} */}
-      </section>
-      <Backdrop type="modal" isVisible={Object.values(isOpenModal).some((v) => v)} close={closeModal} />
-      <ImageUploadModal
-        type="avatar"
-        isOpen={isOpenModal.avatar}
-        closeModal={closeModal}
-        imageUrl={userData.avatarUrl}
-        setUserData={setUserData}
-      />
-      <ImageUploadModal
-        type="background"
-        isOpen={isOpenModal.background}
-        closeModal={closeModal}
-        imageUrl={userData.backgroundUrl}
-        setUserData={setUserData}
-      />
-      <EditInfoModal
-        isOpen={isOpenModal.profileInfo}
-        closeModal={closeModal}
-        userData={userData}
-        setUserData={setUserData}
-      />
-      <FriendsListModal
-        isOpen={isOpenModal.friendsList}
-        closeModal={closeModal}
-        userData={userData}
-      />
+      {error !== 'userData'
+        ? (
+          <>
+            {initialPage && isLoading
+              ? <ProfileHeaderSkeleton />
+              : <ProfileHeader userData={userData} />
+            }
+            {initialPage && isLoading
+              ? <ProfileDescriptionSkeleton />
+              : <ProfileDescription userData={userData} setIsOpenModal={setIsOpenModal} />
+            }
+            <AdsCarousel ads={ads} type="profile" />
+            {initialPage && isLoading
+              ? <FriendsListPreviewsSkeleton />
+              : <FriendsListPreviews userData={userData} setIsOpenModal={setIsOpenModal} />
+            }
+            <section className="posts">
+              <StatusUpdateForm setPosts={setPosts} />
+              {posts.map((post, index) => {
+                return posts.length === index + 1
+                  ? <Post key={post._id} ref={lastPostRef} post={post} setPosts={setPosts} />
+                  : <Post key={post._id} post={post} setPosts={setPosts} />
+              })}
+              {initialPage && isLoading && (
+                Array(5).fill().map((_, i) => {
+                  return <PostSkeleton key={i} />
+                })
+              )}
+              {!initialPage && (
+                <PulseLoader
+                  loading={isLoading}
+                  size={16}
+                  speedMultiplier={.8}
+                  color="#fff"
+                  cssOverride={cssOverride}
+                />
+              )}
+              {posts.length > 0 && !hasMore && (
+                <p className="posts__noMoreMessage">No more posts to display.</p>
+              )}
+              {!isLoading && !posts.length && (error !== 'posts') && (
+                <div className="posts__noPosts">
+                  <FontAwesomeIcon className="posts__noPostsIcon" icon={faFaceSadTear} />
+                  <p className="posts__noPostsMessage">There are no posts to display.</p>
+                </div>
+              )}
+              {error === 'posts' && (
+                <div className="posts__error">
+                  <FontAwesomeIcon className="posts__errorIcon" icon={faTriangleExclamation} />
+                  <p
+                    className="posts__errorMessage">
+                    {initialPage ? "Failed to load posts." : "Failed to load more posts."}
+                  </p>
+                </div>
+              )}
+            </section>
+            <ScrollToTop />
+            {userData && (
+              <>
+                <Backdrop type="modal" isVisible={Object.values(isOpenModal).some((v) => v)} close={closeModal} />
+                <ImageUploadModal
+                  type="avatar"
+                  isOpen={isOpenModal.avatar}
+                  closeModal={closeModal}
+                  imageUrl={userData.avatarUrl}
+                  setUserData={setUserData}
+                />
+                <ImageUploadModal
+                  type="background"
+                  isOpen={isOpenModal.background}
+                  closeModal={closeModal}
+                  imageUrl={userData.backgroundUrl}
+                  setUserData={setUserData}
+                />
+                <EditInfoModal
+                  isOpen={isOpenModal.profileInfo}
+                  closeModal={closeModal}
+                  userData={userData}
+                  setUserData={setUserData}
+                />
+                <FriendsListModal
+                  isOpen={isOpenModal.friendsList}
+                  closeModal={closeModal}
+                  userData={userData}
+                />
+              </>
+            )}  
+          </>
+        ) : (
+          <div className="profile__error">
+            <FontAwesomeIcon className="profile__errorIcon" icon={faTriangleExclamation} />
+            <p className="profile__errorMessage">A little spot of bother fetching this info...</p>
+          </div>
+        )
+      }
     </div>
   );
 };
