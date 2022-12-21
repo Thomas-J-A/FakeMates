@@ -32,7 +32,7 @@
   padding: var(--s-400);
   border: var(--s-100) solid var(--c-neutral-500);
   border-radius: var(--br-300);
-  font-size: var(--fs-300);
+  font-size: var(--fs-200);
   color: var(--c-neutral-700);
 }
 
@@ -85,6 +85,10 @@
 @media screen and (min-width: 810px) {
   .commentForm {
     margin-top: var(--s-500);
+  }
+
+  .commentForm__input {
+    font-size: var(--fs-400);
   }
   
   .commentFormNetworkError__icon {

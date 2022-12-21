@@ -32,8 +32,10 @@
   height: var(--s-600);
   width: var(--s-600);
   margin-right: var(--s-400);
+  border: var(--s-100) solid var(--c-black);
   border-radius: 50%;
   object-fit: cover;
+  background-color: var(--c-primary-100);
 }
 
 .postHeader__options {

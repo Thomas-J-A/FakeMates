@@ -35,7 +35,7 @@ const CommentForm = ({ handleSubmit }) => {
               className={`commentForm__input ${ (touched.content && errors.content) ? "commentForm__fieldError" : "" }`}
               as="textarea"
               name="content"
-              placeholder="Say something insightful..."
+              placeholder="Say something insightful, not spiteful."
               aria-label="Add a comment"
             />
             <ErrorMessage className="commentForm__feedbackError" name="content" component="div" />

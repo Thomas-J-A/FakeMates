@@ -11,7 +11,9 @@
 .comment__avatar {
   height: var(--s-600);
   width: var(--s-600);
+  border: var(--s-100) solid var(--c-black);
   border-radius: 50%;
+  background-color: var(--c-primary-100);
 }
 
 .comment__right {

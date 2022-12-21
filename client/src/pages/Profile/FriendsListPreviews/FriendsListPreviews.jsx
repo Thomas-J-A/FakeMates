@@ -38,7 +38,7 @@ const FriendsListPreviews = ({ userData, setIsOpenModal }) => {
               .map((friend) => <FriendsListPreview key={friend._id} friend={friend} />)
             }
           </div>
-        ) : <p className="friendsListPreviews__noFriendsMsg">You have no friends, lol.</p>
+        ) : <p className="friendsListPreviews__noFriendsMsg">No friends, lol.</p>
       }
     </div>
   );

@@ -1,6 +1,9 @@
 .profileDescription {
   position: relative;
   grid-column: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   margin-bottom: var(--s-400);
   padding: var(--s-500);
   border: var(--s-100) solid var(--c-black);
@@ -30,15 +33,23 @@
   font-size: var(--fs-700);
 }
 
-.profileDescription__location,
-.profileDescription__hometown {
-  margin-bottom: var(--s-300);
+.profileDescription__info {
+  display: flex;
+  flex-direction: column;
+  row-gap: var(--s-300);
 }
 
 .profileDescription__locationEmphasis,
 .profileDescription__hometownEmphasis,
 .profileDescription__occupationEmphasis {
   color: var(--c-primary-900);
+}
+
+.profileDescription__relationshipMsg {
+  margin-top: var(--s-500);
+  font-size: var(--fs-300);
+  font-weight: var(--fw-bold);
+  letter-spacing: 0;
 }
 
 .profileDescription__options {

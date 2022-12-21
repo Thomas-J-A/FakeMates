@@ -9,17 +9,8 @@ exports.fetchUserInfo = async (req, res, next) => {
       .populate('friends', 'fullName avatarUrl isPrivate friends')
       .exec();
 
-    if(!user) {
+    if (!user) {
       return res.status(400).json({ message: 'User doesn\'t exist' });
-    }
-
-    // Verify that user isn't a stranger with a private account
-    if (!(req.user.friends.includes(user._id)) && user.isPrivate) {
-      // If current user requests own info and they have a private
-      // account this condition will also pass, so check for that too
-      if (!user._id.equals(req.user._id)) {  
-        return res.status(403).json({ message: 'This account is private' });
-      }
     }
     
     // Find relationship status between current user and 'id';
@@ -57,7 +48,24 @@ exports.fetchUserInfo = async (req, res, next) => {
     }
 
     // Remove unnecessary/vulnerable fields from user data
-    const { email, password, ...rest } = user._doc;
+    let { email, password, ...rest } = user._doc;
+
+    // Further restrict fields if profile belongs to a stranger's private account
+    // In this case, only enough info to display a private profile page is necessary
+    if (!(req.user.friends.includes(user._id)) && user.isPrivate) {
+      // If current user requests own info and they have a private
+      // account this condition will also pass, so check for that too
+      if (!user._id.equals(req.user._id)) {  
+        rest = {
+          _id: rest._id,
+          firstName: rest.firstName,
+          fullName: rest.fullName,
+          avatarUrl: rest.avatarUrl,
+          backgroundUrl: rest.backgroundUrl,
+          isPrivate: rest.isPrivate,
+        };
+      }
+    }
 
     return res.status(200).json({
       ...rest,

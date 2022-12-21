@@ -98,7 +98,7 @@ const Drawer = ({ isOpen, closeDrawer }) => {
                   <nav className="drawerNav">
                     <ul className="drawerNav__list">
                       <li className="drawerNav__item">
-                        <Link className="drawerNav__link" to={`/profile/${ currentUser._id }`} onClick={handleClick} state={{ userId: currentUser._id }}>
+                        <Link className="drawerNav__link" to={`/profile/${ currentUser._id }`} onClick={handleClick}>
                           <FontAwesomeIcon className="drawerNav__linkIcon" icon={faCircleUser} />
                           <span className="drawerNav__linkText">Profile</span>
                         </Link>

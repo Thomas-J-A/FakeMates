@@ -76,13 +76,18 @@
   border: var(--s-100) solid var(--c-white);
   border-radius: var(--br-300);
   box-shadow: 2px 2px 4px rgba(0,0,0,.2);
-  background-color: var(--c-primary-300);
+  background-color: var(--c-primary-100);
   object-fit: cover;
 }
 
 .friend__info {
   display: flex;
   flex-direction: column;
+  justify-content: center;
+  row-gap: var(--s-300);
+}
+
+.friendsListModal--own .friend__info {
   justify-content: flex-end;
   row-gap: var(--s-400);
 }
@@ -102,7 +107,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  column-gap: var(--s-400);
+  column-gap: var(--s-300);
   min-height: 32px;
   padding: var(--s-300) var(--s-400);
   border-radius: var(--br-300);
@@ -144,4 +149,9 @@
   .friend__unfriend:hover {
     background: var(--c-accent-700);
   }
+}
+
+.friend__mutualFriendsCount {
+  font-size: var(--fs-300);
+  line-height: 1rem;
 }

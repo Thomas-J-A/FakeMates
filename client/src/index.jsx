@@ -4,6 +4,7 @@ import { GoogleOAuthProvider } from '@react-oauth/google';
 import { SkeletonTheme } from 'react-loading-skeleton';
 
 import App from './App';
+import ScrollToTopOnTransition from './components/ScrollToTopOnTransition/ScrollToTopOnTransition';
 
 import { AuthProvider } from './contexts/AuthContext';
 
@@ -15,7 +16,9 @@ root.render(
       <GoogleOAuthProvider clientId={process.env.GOOGLE_CLIENT_ID}>
         <AuthProvider>
           <SkeletonTheme baseColor="#e9e9e9" highlightColor="#f7f7f7">
-            <App />
+            <ScrollToTopOnTransition>
+              <App />
+            </ScrollToTopOnTransition>
           </SkeletonTheme>
         </AuthProvider>
     </GoogleOAuthProvider>

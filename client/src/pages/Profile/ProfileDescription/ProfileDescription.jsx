@@ -3,14 +3,36 @@ import { useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUser } from '@fortawesome/free-solid-svg-icons';
 import { faImage, faPenToSquare } from '@fortawesome/free-regular-svg-icons';
+
+import AddFriendButton from '../AddFriendButton/AddFriendButton';
 import Options from '../../../components/Options/Options';
 
 import './ProfileDescription.css';
 
-const ProfileDescription = ({ userData, setIsOpenModal }) => {
+const ProfileDescription = ({ userData, setIsOpenModal, isOwn }) => {
   const [isVisibleProfileOptions, setIsVisibleProfileOptions] = useState(false);
 
-  // Passed as argument to reusable Options component
+  // Render appropriate message/button regarding the relationship status between two users
+  let messageOrButton;
+
+  switch (userData.relationshipStatus) {
+    case 'none':
+      messageOrButton = <AddFriendButton context='publicProfile' name={userData.firstName} />;
+      break;
+    case 'pending':
+      messageOrButton = <p className="profileDescription__relationshipMsg">You have a FakeMate request pending.</p>;
+      break;
+    case 'accepted':
+      messageOrButton = <p className="profileDescription__relationshipMsg">{`You and ${ userData.firstName } are FakeMates.`}</p>;
+      break;
+    case 'rejected':
+      messageOrButton = <p className="profileDescription__relationshipMsg">{`${ userData.firstName } doesn't want to be your FakeMate.`}</p>;
+      break;
+    default:
+      messageOrButton = null;
+  }
+
+  // Pass as argument to reusable Options component
   const linksData = [
     {
       onClick: () => setIsOpenModal((prev) => ({ ...prev, avatar: true })),
@@ -32,26 +54,33 @@ const ProfileDescription = ({ userData, setIsOpenModal }) => {
   return (
     <div className="profileDescription">
       <p className="profileDescription__bio">{userData.bio ? userData.bio : 'I\'m far too lazy to bother writing anything about myself.'}</p>
-      <p className="profileDescription__location">
-        Lives in <span className="profileDescription__locationEmphasis">{userData.location ? userData.location : 'an undisclosed location'}</span>
-      </p>
-      <p className="profileDescription__hometown">
-        From <span className="profileDescription__hometownEmphasis">{userData.hometown ? userData.hometown : 'God only knows'}</span>
-      </p>
-      <p className="profileDescription__occupation">
-        Works as a/an <span className="profileDescription__occupationEmphasis">{userData.occupation ? userData.occupation : 'fireman, perhaps?'}</span>
-      </p>
-      <FontAwesomeIcon
-        className="profileDescription__options"
-        icon={faPenToSquare}
-        onClick={() => setIsVisibleProfileOptions((prev) => !prev)}
-      />
-      <Options
-        isVisible={isVisibleProfileOptions}
-        setIsVisible={setIsVisibleProfileOptions}
-        linksData={linksData}
-        type="profile"
-      />
+      <div className="profileDescription__info">
+        <p className="profileDescription__location">
+          Lives in <span className="profileDescription__locationEmphasis">{userData.location ? userData.location : 'an undisclosed location'}</span>
+        </p>
+        <p className="profileDescription__hometown">
+          From <span className="profileDescription__hometownEmphasis">{userData.hometown ? userData.hometown : 'God only knows'}</span>
+        </p>
+        <p className="profileDescription__occupation">
+          Works as a/an <span className="profileDescription__occupationEmphasis">{userData.occupation ? userData.occupation : 'fireman, perhaps?'}</span>
+        </p>
+      </div>
+      {messageOrButton}
+      {isOwn && (
+        <>
+          <FontAwesomeIcon
+            className="profileDescription__options"
+            icon={faPenToSquare}
+            onClick={() => setIsVisibleProfileOptions((prev) => !prev)}
+          />
+          <Options
+            isVisible={isVisibleProfileOptions}
+            setIsVisible={setIsVisibleProfileOptions}
+            linksData={linksData}
+            type="profile"
+          />
+        </>
+      )}
     </div>
   );
 };

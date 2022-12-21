@@ -45,7 +45,7 @@ const App = () => {
       <Routes>
         <Route path="/" element={<Landing />} />
         <Route path="/search" element={<Search />} />
-        <Route path="/profile/:id" element={<Profile />} />
+        <Route path="/profile/:id" element={<Profile key={pathname} />} /> {/* NOTE 1 */}
         <Route path="/timeline" element={<Timeline />} />
         <Route path="/post/:id" element={<PostDetail />} />
         <Route path="/messenger" element={<Messenger />} />
@@ -59,3 +59,9 @@ const App = () => {
 };
 
 export default App;
+
+// NOTE 1
+// Using a key ensures that whenever the :id path param changes, the whole component is simply remounted rather than
+// updated; by default, the component is just updated because technically the route remains the same. This means
+// that when a user navigates to a profile page from another profile page, less code is needed to try and reinitialize
+// loading state, posts already stored in state belonging to the previous profile, etc.

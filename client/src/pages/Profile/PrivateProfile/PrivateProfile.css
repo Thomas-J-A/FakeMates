@@ -1,0 +1,100 @@
+.privateProfile {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(60px, 100px));
+  grid-template-rows: auto 1fr;
+  padding: 0 var(--s-600) var(--s-500);
+  background-color: var(--c-primary-900);
+  background-image: url('../../../../public/images/french-stucco.png');
+}
+
+.privateProfile__header {
+  position: relative;
+  grid-column: 1 / -1;
+  align-self: start;
+  margin-left: calc(-1 * var(--s-600)); /* Calculate negative version of variable */
+  margin-right: calc(-1 * var(--s-600));
+  border-bottom: var(--s-300) solid var(--c-white);
+}
+
+.privateProfile__name {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  column-gap: var(--s-300);
+  padding: var(--s-400);
+  border-top-left-radius: var(--br-300);
+  background-color: rgba(0,0,0,.7);
+  font-size: var(--fs-500);
+  font-weight: var(--fw-semi-bold);
+  letter-spacing: var(--s-100);
+  color: var(--c-white);
+}
+
+.privateProfile__relationshipStatusIcon {
+  font-size: var(--fs-300);
+  color: var(--c-accent-500);
+}
+
+.privateProfile__avatar {
+  position: absolute;
+  bottom: 0;
+  left: var(--s-500);
+  height: var(--s-800);
+  width: var(--s-800);
+  border: var(--s-300) solid var(--c-white);
+  border-radius: 50%;
+  transform: translateY(50%);
+  background-color: var(--c-primary-100);
+  object-fit: cover;
+}
+
+.privateProfile__backgroundImage {
+  display: block;
+  height: var(--s-800);
+  width: 100%;
+  object-fit: cover;
+  background-color: var(--c-primary-100);
+}
+
+.privateProfile__main {
+  position: relative;
+  align-self: center;
+  grid-column: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: var(--s-500);
+  border: var(--s-100) solid var(--c-black);
+  border-radius: var(--br-300);
+  box-shadow: 2px 2px 4px rgba(0,0,0,.2);
+  overflow: hidden;
+  background-color: var(--c-white);
+  background-image: url('../../../../public/images/otis-redding.png');
+}
+
+.privateProfile__lockIcon {
+  margin-bottom: var(--s-400);
+  font-size: var(--fs-900);
+  color: var(--c-neutral-500);
+}
+
+.privateProfile__message {
+  margin-bottom: var(--s-500);
+  font-size: var(--fs-500);
+}
+
+.privateProfile__banner {
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform: translateX(-30%) rotate(-45deg);
+  transform-origin: top right;
+  padding: var(--s-300) 0;
+  background: var(--c-accent-700);
+  font-weight: var(--fw-bold);
+  color: var(--c-white);
+  outline: var(--c-accent-700) solid var(--s-700);
+  clip-path: inset(0 -200px);
+}

@@ -226,19 +226,19 @@ const Post = forwardRef(({ post, setPosts }, ref) => {
           <p className="postHeader__createdAt">{formatDistance(new Date(post.createdAt), new Date(), { addSuffix: true })}</p>
         </div>
         {isOwn && (
-          <FontAwesomeIcon
-            className="postHeader__options"
-            icon={faEllipsisVertical}
-            onClick={() => setIsVisiblePostOptions((prev) => !prev)}
-          />
-        )}
-        {isOwn && (
-          <Options
-            isVisible={isVisiblePostOptions}
-            setIsVisible={setIsVisiblePostOptions}
-            linksData={linksData}
-            type="post"
-          />
+          <>
+            <FontAwesomeIcon
+              className="postHeader__options"
+              icon={faEllipsisVertical}
+              onClick={() => setIsVisiblePostOptions((prev) => !prev)}
+            />
+            <Options
+              isVisible={isVisiblePostOptions}
+              setIsVisible={setIsVisiblePostOptions}
+              linksData={linksData}
+              type="post"
+            />
+          </>
         )}
       </header>
       <main className="postContent">
