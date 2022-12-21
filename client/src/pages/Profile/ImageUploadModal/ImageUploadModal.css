@@ -79,7 +79,7 @@
   border: var(--s-300) solid var(--c-white);
   border-radius: var(--br-300);
   object-fit: cover;
-  background-color: var(--c-white);
+  background-color: var(--c-primary-100);
 }
 
 .avatarUploadModal__thumbnail {
