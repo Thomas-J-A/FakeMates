@@ -10,7 +10,7 @@ import AddFriendButton from '../AddFriendButton/AddFriendButton';
 
 import './PrivateProfile.css';
 
-const PrivateProfile = ({ userData }) => {
+const PrivateProfile = ({ userData, setUserData }) => {
   // Render appropriate icon and message/button which represents relationship between the two users
   let icon;
   let messageOrButton;
@@ -20,7 +20,7 @@ const PrivateProfile = ({ userData }) => {
   switch (userData.relationshipStatus) {
     case 'none':
       icon = faUserPlus;
-      messageOrButton = <AddFriendButton context='privateProfile' name={userData.firstName} />;
+      messageOrButton = <AddFriendButton context='privateProfile' userData={userData} setUserData={setUserData} />;
       break;
     case 'pending':
       icon = faUserClock;

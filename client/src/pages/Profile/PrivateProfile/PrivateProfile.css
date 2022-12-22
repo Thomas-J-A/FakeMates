@@ -85,6 +85,11 @@
   font-size: var(--fs-500);
 }
 
+.privateProfile__relationshipMsg {
+  font-size: var(--fs-300);
+  font-weight: var(--fw-bold);
+}
+
 .privateProfile__banner {
   position: absolute;
   top: 0;

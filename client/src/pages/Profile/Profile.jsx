@@ -202,7 +202,7 @@ const Profile = () => {
   // Display private profile page if account
   // is private and users are not friends
   if (isPrivateStranger) {
-    return <PrivateProfile userData={userData} />;
+    return <PrivateProfile userData={userData} setUserData={setUserData} />;
   }
 
   return (
@@ -216,7 +216,14 @@ const Profile = () => {
             }
             {initialPage && isLoading
               ? <ProfileDescriptionSkeleton />
-              : <ProfileDescription userData={userData} setIsOpenModal={setIsOpenModal} isOwn={isOwn} />
+              : (
+                <ProfileDescription
+                  userData={userData} 
+                  setUserData={setUserData}
+                  setIsOpenModal={setIsOpenModal}
+                  isOwn={isOwn}
+                />
+              )
             }
             <AdsCarousel ads={ads} type="profile" />
             {initialPage && isLoading

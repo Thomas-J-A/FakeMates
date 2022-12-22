@@ -1,5 +1,4 @@
 import { useState } from 'react';
-
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUser } from '@fortawesome/free-solid-svg-icons';
 import { faImage, faPenToSquare } from '@fortawesome/free-regular-svg-icons';
@@ -9,7 +8,7 @@ import Options from '../../../components/Options/Options';
 
 import './ProfileDescription.css';
 
-const ProfileDescription = ({ userData, setIsOpenModal, isOwn }) => {
+const ProfileDescription = ({ userData, setUserData, setIsOpenModal, isOwn }) => {
   const [isVisibleProfileOptions, setIsVisibleProfileOptions] = useState(false);
 
   // Render appropriate message/button regarding the relationship status between two users
@@ -17,7 +16,7 @@ const ProfileDescription = ({ userData, setIsOpenModal, isOwn }) => {
 
   switch (userData.relationshipStatus) {
     case 'none':
-      messageOrButton = <AddFriendButton context='publicProfile' name={userData.firstName} />;
+      messageOrButton = <AddFriendButton context='publicProfile' userData={userData} setUserData={setUserData} />;
       break;
     case 'pending':
       messageOrButton = <p className="profileDescription__relationshipMsg">You have a FakeMate request pending.</p>;

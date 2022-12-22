@@ -57,7 +57,6 @@ exports.sendFriendRequest = async (req, res, next) => {
     await friendRequest.save();
 
     return res.status(201).json(friendRequest);
-
   } catch (err) {
     next(err);
   }
