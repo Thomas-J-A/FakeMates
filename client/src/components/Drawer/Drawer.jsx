@@ -112,7 +112,7 @@ const Drawer = ({ isOpen, closeDrawer }) => {
                     </ul>
                   </nav>
                 }
-                <ToggleSwitch />
+                <ToggleSwitch isChecked={currentUser.isPrivate} id={currentUser._id} />
                 <div className="drawer__buttons">
                   <button
                     className="drawer__signOut"

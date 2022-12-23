@@ -1,15 +1,28 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 
 import './ToggleSwitch.css';
 
-const ToggleSwitch = () => {
-  // TODO: Get isPrivate value from authState.currentUser and initialize isChecked with that value
-  const [isChecked, setIsChecked] = useState(true);
+const ToggleSwitch = ({ isChecked, id }) => {
+  const [isToggleChecked, setIsToggleChecked] = useState(isChecked);
 
-  const handleToggle = () => {
-    // TODO: Call API to change isPrivate values
-    console.log('Changing account status...');
-    setIsChecked((prevValue) => !prevValue);
+  // Update user's isPrivate setting in database record and current UI
+  const handleToggle = async () => {
+    try {
+      const res = await fetch(`http://192.168.8.146:3000/api/users/${ id }?action=change-visibility`, {
+        method: 'PUT',
+        mode: 'cors',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!res.ok) throw new Error();
+
+      setIsToggleChecked((prevValue) => !prevValue);
+    } catch (err) {
+      console.log('An error occurred.');
+    }
   };
 
   return (
@@ -17,12 +30,12 @@ const ToggleSwitch = () => {
       <input
         className="toggleSwitch__checkbox"
         type="checkbox"
-        checked={isChecked}
+        checked={isToggleChecked}
         onChange={handleToggle}
       />
       <div className="toggleSwitch__slider" />
       <p className="toggleSwitch__text">Account:
-        <span className="toggleSwitch__accountStatus">{isChecked ? " private" : " public"}</span>
+        <span className="toggleSwitch__accountStatus">{isToggleChecked ? " private" : " public"}</span>
       </p>
     </label>
   );
