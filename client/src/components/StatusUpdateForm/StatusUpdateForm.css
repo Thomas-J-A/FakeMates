@@ -173,6 +173,10 @@
 }
 
 @media screen and (min-width: 810px) {
+  .statusUpdateForm {
+    row-gap: var(--s-500);
+  }
+
   .statusUpdateForm__content {
     font-size: var(--fs-400);
   }
