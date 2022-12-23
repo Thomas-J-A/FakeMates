@@ -9,7 +9,7 @@ const PedrosHerbs = () => {
           It's <span className="ad--pedros__taglineEmphasis">all</span> medicinal
         </h2>
       </div>
-      <button className="ad--pedros__button" type="button">SMOKING DEALS</button>
+      <button className="ad--pedros__button" type="button">SMOKIN' DEALS</button>
     </div>
   );
 };
