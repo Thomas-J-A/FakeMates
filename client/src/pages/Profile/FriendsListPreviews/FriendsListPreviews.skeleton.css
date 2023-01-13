@@ -1,6 +1,4 @@
 .friendsListPreviewsSkeleton {
-  grid-column: 1 / -1;
-  margin-bottom: var(--s-400);
   padding: var(--s-500);
   border: var(--s-100) solid var(--c-black);
   border-radius: var(--br-300);
@@ -11,6 +9,7 @@
 .friendsListPreviewsSkeleton__header {
   display: flex;
   justify-content: space-between;
+  margin-bottom: var(--s-500);
 }
 
 .friendsListPreviewsSkeleton__title {
@@ -21,11 +20,19 @@
   flex: .2;
 }
 
-.friendsListPreviewsSkeleton__previews {
-  display: flex;
-  gap: var(--s-400);
+.friendsListPreviewsSkeleton__preview {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(var(--s-700), 1fr));
+  grid-template-rows: auto;
+  grid-auto-rows: 0;
+  overflow-y: hidden;
+  column-gap: var(--s-400);
 }
 
-.friendsListPreviewsSkeleton__preview {
-  flex: .25;
+@media screen and (min-width: 810px) and (min-height: 765px) {
+  .friendsListPreviewsSkeleton__preview {
+    grid-auto-rows: auto;
+    overflow-y: auto;
+    grid-gap: var(--s-400);
+  }  
 }

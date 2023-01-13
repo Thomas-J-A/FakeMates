@@ -69,7 +69,8 @@ const EditInfoModal = ({ isOpen, closeModal, userData, setUserData }) => {
 
       if (!res.ok) throw new Error(body);
 
-      setUserData(body);
+      // Update profile data in state with latest profile info
+      setUserData((prevUserData) => ({ ...prevUserData, ...modifiedValues }));
     } catch (err) {
       console.log(err);
     } finally {

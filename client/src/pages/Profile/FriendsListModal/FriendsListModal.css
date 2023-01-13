@@ -2,8 +2,9 @@
   position: fixed;
   top: 50%;
   left: 50%;
-  max-height: 75%;
+  max-height: 400px;
   width: 80%;
+  max-width: 400px;
   z-index: 500;
   overflow: auto;
   transform: translate(-50%, -50%) scale(0);
@@ -59,7 +60,7 @@
 
 .friend {
   display: flex;
-  column-gap: var(--s-500);
+  column-gap: var(--s-400);
   padding-bottom: var(--s-500);
   border-bottom: var(--s-100) solid var(--c-neutral-500);
 }
@@ -154,4 +155,45 @@
 .friend__mutualFriendsCount {
   font-size: var(--fs-300);
   line-height: 1rem;
+}
+
+@media screen and (min-width: 810px) {
+  .friendsListModal {
+    max-width: 600px;
+  }
+
+  .friendsListModal__header {
+    padding-left: var(--s-600);
+    padding-right: var(--s-600);
+  }
+
+  .friendsListModal__title {
+    font-size: var(--fs-700);
+  }
+
+  .friendsListModal__exit {
+    font-size: var(--fs-800);
+  }
+
+  .friendsListModal__friends {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    padding-left: var(--s-600);
+    padding-right: var(--s-600);
+  }
+
+  /* Target only bottom row of friends list grid, either one or two .friend elements */
+  .friend:nth-child(2n+1):nth-last-child(-n+2),
+  .friend:nth-child(2n+1):nth-last-child(-n+2) ~ .friend {
+    padding-bottom: 0;
+    border: none;
+  }
+}
+
+/* Make modal scrollable on mobile in landscape */
+@media screen and (max-height: 600px) {
+  .friendsListModal {
+    max-height: 70vh;
+    /* overflow-y: scroll; */
+  }
 }

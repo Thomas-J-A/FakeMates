@@ -91,12 +91,14 @@ const GlobalHeader = ({ isOpen, toggleDrawer, closeDrawer }) => {
 
   return (
     <header className="globalHeader">
-      <Link className="logo" to={isAuthenticated() ? "/timeline" : ""} onClick={handleClick}>
-        <FontAwesomeIcon className="logo__icon" icon={faFaceLaughWink} />
-        <h1 className="logo__name">FakeMates</h1>
-      </Link>
-      { isAuthenticated() && isWideEnoughForSearchBar && <SearchBar isOpen={isOpen} /> }
-      {headerRight}
+      <div className="globalHeader__innerWrapper">
+        <Link className="logo" to={isAuthenticated() ? "/timeline" : ""} onClick={handleClick}>
+          <FontAwesomeIcon className="logo__icon" icon={faFaceLaughWink} />
+          <h1 className="logo__name">FakeMates</h1>
+        </Link>
+        { isAuthenticated() && isWideEnoughForSearchBar && <SearchBar isOpen={isOpen} /> }
+        {headerRight}
+      </div>
     </header>
   );
 };

@@ -10,12 +10,7 @@ const FriendsListPreviewsSkeleton = () => {
         <Skeleton containerClassName="friendsListPreviewsSkeleton__title" />
         <Skeleton containerClassName="friendsListPreviewsSkeleton__viewAll" />
       </div>
-      <div className="friendsListPreviewsSkeleton__previews">
-        <Skeleton containerClassName="friendsListPreviewsSkeleton__preview" height={64} />
-        <Skeleton containerClassName="friendsListPreviewsSkeleton__preview" height={64} />
-        <Skeleton containerClassName="friendsListPreviewsSkeleton__preview" height={64} />
-        <Skeleton containerClassName="friendsListPreviewsSkeleton__preview" height={64} />
-      </div>
+      <Skeleton containerClassName="friendsListPreviewsSkeleton__preview" count={9} inline={true} height={64} />
     </div>
   );
 };

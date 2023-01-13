@@ -55,3 +55,30 @@
     background: var(--c-accent-700);
   }
 }
+
+@media screen and (min-width: 810px) {
+  .notFound {
+    row-gap: var(--s-600);
+  }
+
+  .notFound__image {
+    height: var(--s-900);
+  }
+
+  .notFound__titleGroup {
+    row-gap: var(--s-500);
+  }
+
+  .notFound__title {
+    font-size: var(--fs-900);
+  }
+
+  .notFound__subtitle {
+    font-size: var(--fs-500);
+  }
+
+  .notFound__button {
+    min-height: 45px;
+    font-size: var(--fs-400);
+  }
+}

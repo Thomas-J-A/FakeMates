@@ -1,14 +1,31 @@
 .profileHeaderSkeleton {
   position: relative;
-  grid-column: 1 / -1;
-  margin-left: calc(-1 * var(--s-600)); /* Calculate negative version of variable */
+  margin-top: calc(-1 * var(--s-500)); /* Calculate negative version of variable */
+  margin-left: calc(-1 * var(--s-600));
   margin-right: calc(-1 * var(--s-600));
-  margin-bottom: 80px;
+  margin-bottom: 70px;
+  line-height: 1;
 }
 
-.profileHeaderSkeleton__avatar {
+.profileHeaderSkeleton__avatarWrapper {
   position: absolute;
   bottom: 0;
   left: 50%;
   transform: translate(-50%, 50%);
+}
+
+@media screen and (min-width: 810px) {
+  .profileHeaderSkeleton {
+    margin-left: 0;
+    margin-right: 0;
+  }
+
+  .profileHeaderSkeleton__background {
+    height: 164px !important;
+  }
+
+  .profileHeaderSkeleton__avatar {
+    height: 132px !important;
+    width: 140px !important;
+  }
 }

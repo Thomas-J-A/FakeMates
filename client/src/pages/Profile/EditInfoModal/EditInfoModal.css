@@ -3,6 +3,7 @@
   top: 50%;
   left: 50%;
   width: 80%;
+  max-width: 400px;
   z-index: 500;
   transform: translate(-50%, -50%) scale(0);
   border-radius: var(--br-300);
@@ -155,5 +156,58 @@
 @media (hover: hover) {
   .editInfoModal__submit:hover {
     background: var(--c-primary-700);
+  }
+}
+
+@media screen and (min-width: 810px) {
+  .editInfoModal__header {
+    padding-left: var(--s-600);
+    padding-right: var(--s-600);
+  }
+
+  .editInfoModal__title {
+    font-size: var(--fs-700);
+  }
+
+  .editInfoModal__exit {
+    font-size: var(--fs-800);
+  }
+
+  .editInfoModal__formBody {
+    padding: 0 var(--s-600) var(--s-500);
+  }
+
+  .editInfoModal__namesWrapper,
+  .editInfoModal__locationsWrapper {
+    column-gap: var(--s-500);
+  }
+
+  .editInfoModal__formGroup {
+    margin-bottom: var(--s-500);
+  }
+
+  .editInfoModal__label,
+  .editInfoModal__input,
+  .editInfoModal__bio {
+    font-size: var(--fs-400);
+  }
+
+  .editInfoModal__label {
+    margin-bottom: var(--s-400);
+  }
+
+  .editInfoModal__submit {
+    /* column-gap: var(--s-500); */
+    min-height: 45px;
+    margin-top: var(--s-600);
+    font-size: var(--fs-400);
+  }
+}
+
+/* Make modal scrollable on mobile in landscape */
+@media screen and (max-height: 630px) {
+  .editInfoModal {
+    height: 70vh;
+    overflow-y: scroll;
   }
 }

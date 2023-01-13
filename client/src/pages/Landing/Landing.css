@@ -156,6 +156,10 @@
     font-size: var(--fs-500);
   }
 
+  .registerForm__namesWrapper {
+    column-gap: var(--s-500);
+  }
+
   .registerForm__formGroup {
     margin-bottom: var(--s-500);
   }

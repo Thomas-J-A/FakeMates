@@ -25,9 +25,12 @@ import {
   WendellsIceCream,
   McDougallsMatchmaking,
   PedrosHerbs,
+  MistyMountainAscents,
 } from '../../components/Ads/';
 
 import { useAuth } from '../../contexts/AuthContext';
+
+import useMediaQuery from '../../hooks/useMediaQuery';
 
 import './Profile.css';
 
@@ -41,7 +44,7 @@ const cssOverride = {
 const ads = [
   <WendellsIceCream />,
   <McDougallsMatchmaking />,
-  <PedrosHerbs />
+  <PedrosHerbs />,
 ];
 
 const Profile = () => {
@@ -62,6 +65,7 @@ const Profile = () => {
   const observer = useRef(null);
   const { id: userId } = useParams();
   const { authState: { currentUser } } = useAuth();
+  const isSmallViewport = useMediaQuery('(max-width: 809px)');
 
   // Setup intersection observer which lets react know that
   // last post is nearly visible so fetch more posts
@@ -207,110 +211,128 @@ const Profile = () => {
 
   return (
     <div className="profile">
-      {error !== 'userData'
-        ? (
-          <>
-            {initialPage && isLoading
-              ? <ProfileHeaderSkeleton />
-              : <ProfileHeader userData={userData} />
-            }
-            {initialPage && isLoading
-              ? <ProfileDescriptionSkeleton />
-              : (
-                <ProfileDescription
-                  userData={userData} 
-                  setUserData={setUserData}
-                  setIsOpenModal={setIsOpenModal}
-                  isOwn={isOwn}
-                />
-              )
-            }
-            <AdsCarousel ads={ads} type="profile" />
+      <section className="profile__main">
+        {error !== 'userData'
+          ? (
+            <>
+              {initialPage && isLoading
+                ? <ProfileHeaderSkeleton />
+                : <ProfileHeader userData={userData} />
+              }
+              {initialPage && isLoading
+                ? <ProfileDescriptionSkeleton />
+                : (
+                  <ProfileDescription
+                    userData={userData} 
+                    setUserData={setUserData}
+                    setIsOpenModal={setIsOpenModal}
+                    isOwn={isOwn}
+                  />
+                )
+              }
+              {isSmallViewport && (
+                <>
+                  <AdsCarousel ads={ads} context="profile" />
+                  {initialPage && isLoading
+                    ? <FriendsListPreviewsSkeleton />
+                    : <FriendsListPreviews userData={userData} setIsOpenModal={setIsOpenModal} />
+                  }
+                </>
+              )}
+              <section className="posts">
+                {isOwn && <StatusUpdateForm setPosts={setPosts} />}
+                {posts.map((post, index) => {
+                  return posts.length === index + 1
+                    ? <Post key={post._id} ref={lastPostRef} post={post} setPosts={setPosts} />
+                    : <Post key={post._id} post={post} setPosts={setPosts} />
+                })}
+                {initialPage && isLoading && (
+                  Array(5).fill().map((_, i) => {
+                    return <PostSkeleton key={i} />
+                  })
+                )}
+                {!initialPage && (
+                  <PulseLoader
+                    loading={isLoading}
+                    size={16}
+                    speedMultiplier={.8}
+                    color="#fff"
+                    cssOverride={cssOverride}
+                  />
+                )}
+                {posts.length > 0 && !hasMore && (
+                  <p className="posts__noMoreMessage">No more posts to display.</p>
+                )}
+                {!isLoading && !posts.length && (error !== 'posts') && (
+                  <div className="posts__noPosts">
+                    <FontAwesomeIcon className="posts__noPostsIcon" icon={faFaceSadTear} />
+                    <p className="posts__noPostsMessage">There are no posts to display.</p>
+                  </div>
+                )}
+                {error === 'posts' && (
+                  <div className="posts__error">
+                    <FontAwesomeIcon className="posts__errorIcon" icon={faTriangleExclamation} />
+                    <p
+                      className="posts__errorMessage">
+                      {initialPage ? "Failed to load posts." : "Failed to load more posts."}
+                    </p>
+                  </div>
+                )}
+              </section>
+              {userData && (
+                <>
+                  <Backdrop type="modal" isVisible={Object.values(isOpenModal).some((v) => v)} close={closeModal} />
+                  <ImageUploadModal
+                    type="avatar"
+                    isOpen={isOpenModal.avatar}
+                    closeModal={closeModal}
+                    imageUrl={userData.avatarUrl}
+                    setUserData={setUserData}
+                  />
+                  <ImageUploadModal
+                    type="background"
+                    isOpen={isOpenModal.background}
+                    closeModal={closeModal}
+                    imageUrl={userData.backgroundUrl}
+                    setUserData={setUserData}
+                  />
+                  <EditInfoModal
+                    isOpen={isOpenModal.profileInfo}
+                    closeModal={closeModal}
+                    userData={userData}
+                    setUserData={setUserData}
+                  />
+                  <FriendsListModal
+                    isOpen={isOpenModal.friendsList}
+                    closeModal={closeModal}
+                    userData={userData}
+                    isOwn={isOwn}
+                    currentUser={currentUser}
+                  />
+                </>
+              )}  
+            </>
+          ) : (
+            <div className="profile__error">
+              <FontAwesomeIcon className="profile__errorIcon" icon={faTriangleExclamation} />
+              <p className="profile__errorMessage">A little spot of bother fetching this info...</p>
+            </div>
+          )
+        }
+      </section>
+      {!isSmallViewport && (
+        <aside className="profile__sidebar">
+          <div className="profile__sidebarWrapper">
+            <AdsCarousel ads={ads} context="profile" />
             {initialPage && isLoading
               ? <FriendsListPreviewsSkeleton />
               : <FriendsListPreviews userData={userData} setIsOpenModal={setIsOpenModal} />
             }
-            <section className="posts">
-              {isOwn && <StatusUpdateForm setPosts={setPosts} />}
-              {posts.map((post, index) => {
-                return posts.length === index + 1
-                  ? <Post key={post._id} ref={lastPostRef} post={post} setPosts={setPosts} />
-                  : <Post key={post._id} post={post} setPosts={setPosts} />
-              })}
-              {initialPage && isLoading && (
-                Array(5).fill().map((_, i) => {
-                  return <PostSkeleton key={i} />
-                })
-              )}
-              {!initialPage && (
-                <PulseLoader
-                  loading={isLoading}
-                  size={16}
-                  speedMultiplier={.8}
-                  color="#fff"
-                  cssOverride={cssOverride}
-                />
-              )}
-              {posts.length > 0 && !hasMore && (
-                <p className="posts__noMoreMessage">No more posts to display.</p>
-              )}
-              {!isLoading && !posts.length && (error !== 'posts') && (
-                <div className="posts__noPosts">
-                  <FontAwesomeIcon className="posts__noPostsIcon" icon={faFaceSadTear} />
-                  <p className="posts__noPostsMessage">There are no posts to display.</p>
-                </div>
-              )}
-              {error === 'posts' && (
-                <div className="posts__error">
-                  <FontAwesomeIcon className="posts__errorIcon" icon={faTriangleExclamation} />
-                  <p
-                    className="posts__errorMessage">
-                    {initialPage ? "Failed to load posts." : "Failed to load more posts."}
-                  </p>
-                </div>
-              )}
-            </section>
-            <ScrollToTop />
-            {userData && (
-              <>
-                <Backdrop type="modal" isVisible={Object.values(isOpenModal).some((v) => v)} close={closeModal} />
-                <ImageUploadModal
-                  type="avatar"
-                  isOpen={isOpenModal.avatar}
-                  closeModal={closeModal}
-                  imageUrl={userData.avatarUrl}
-                  setUserData={setUserData}
-                />
-                <ImageUploadModal
-                  type="background"
-                  isOpen={isOpenModal.background}
-                  closeModal={closeModal}
-                  imageUrl={userData.backgroundUrl}
-                  setUserData={setUserData}
-                />
-                <EditInfoModal
-                  isOpen={isOpenModal.profileInfo}
-                  closeModal={closeModal}
-                  userData={userData}
-                  setUserData={setUserData}
-                />
-                <FriendsListModal
-                  isOpen={isOpenModal.friendsList}
-                  closeModal={closeModal}
-                  userData={userData}
-                  isOwn={isOwn}
-                  currentUser={currentUser}
-                />
-              </>
-            )}  
-          </>
-        ) : (
-          <div className="profile__error">
-            <FontAwesomeIcon className="profile__errorIcon" icon={faTriangleExclamation} />
-            <p className="profile__errorMessage">A little spot of bother fetching this info...</p>
+            <MistyMountainAscents />
           </div>
-        )
-      }
+        </aside>
+      )}
+      <ScrollToTop />
     </div>
   );
 };

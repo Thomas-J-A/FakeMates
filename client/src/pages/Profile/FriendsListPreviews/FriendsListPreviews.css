@@ -1,6 +1,4 @@
 .friendsListPreviews {
-  grid-column: 1 / -1;
-  margin-bottom: var(--s-400);
   padding: var(--s-500);
   border: var(--s-100) solid var(--c-black);
   border-radius: var(--br-300);
@@ -12,7 +10,7 @@
 .friendsListPreviews__header {
   display: flex;
   justify-content: space-between;
-  margin-bottom: var(--s-400);
+  margin-bottom: var(--s-500);
 }
 
 .friendsListPreviews__title {
@@ -44,10 +42,14 @@
 .friendsListPreviews__preview {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(var(--s-700), 1fr));
-  gap: var(--s-400);
+  grid-template-rows: auto;
+  grid-auto-rows: 0;
+  overflow-y: hidden;
+  column-gap: var(--s-400);
 }
 
 .friendsListPreview {
+  display: block;
   height: var(--s-700);
   width: 100%;
   border: var(--s-100) solid var(--c-black);
@@ -60,4 +62,13 @@
 
 .friendsList__noFriendsMsg {
   font-weight: var(--fw-semi-bold);
+}
+
+/* min-height check ensures just one row of previews on mobiles in landscape */
+@media screen and (min-width: 810px) and (min-height: 765px) {
+  .friendsListPreviews__preview {
+    grid-auto-rows: auto;
+    overflow-y: auto;
+    row-gap: var(--s-400);
+  }
 }

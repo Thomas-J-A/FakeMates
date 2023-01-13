@@ -1,9 +1,9 @@
 .profileHeader {
   position: relative;
-  grid-column: 1 / -1;
-  margin-left: calc(-1 * var(--s-600)); /* Calculate negative version of variable */
+  margin-top: calc(-1 * var(--s-500)); /* Calculate negative version of variable */
+  margin-left: calc(-1 * var(--s-600));
   margin-right: calc(-1 * var(--s-600));
-  margin-bottom: 80px;
+  margin-bottom: 70px;
   /* box-shadow: 2px 2px 4px rgba(0,0,0,.2); */
   border-bottom: var(--s-300) solid var(--c-white);
 }
@@ -82,4 +82,39 @@
   width: 100%;
   object-fit: cover;
   background-color: var(--c-primary-100);
+}
+
+@media screen and (min-width: 464px) {
+  .profileHeader {
+    border: var(--s-300) solid var(--c-white);
+    border-top: none;
+    border-bottom-left-radius: var(--br-300);
+    border-bottom-right-radius: var(--br-300);
+  }
+}
+
+@media screen and (min-width: 810px) {
+  .profileHeader {
+    margin-left: 0;
+    margin-right: 0;    
+  }
+
+  .profileHeader__name {
+    column-gap: var(--s-400);
+    padding: var(--s-500);
+    font-size: var(--fs-600);
+  }
+
+  .profileHeader__relationshipStatusIcon {
+    font-size: var(--fs-500);
+  }
+
+  .profileHeader__avatar {
+    height: 140px;
+    width: 140px;
+  }
+
+  .profileHeader__backgroundImage {
+    height: 160px;
+  }
 }

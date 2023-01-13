@@ -2,6 +2,7 @@
   display: grid;
   grid-template-columns: repeat(4, minmax(60px, 100px));
   grid-template-rows: auto 1fr;
+  justify-content: center;
   padding: 0 var(--s-600) var(--s-500);
   background-color: var(--c-primary-900);
   background-image: url('../../../../public/images/french-stucco.png');
@@ -65,6 +66,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+  margin-top: var(--s-500);
   padding: var(--s-500);
   border: var(--s-100) solid var(--c-black);
   border-radius: var(--br-300);
@@ -102,4 +104,69 @@
   color: var(--c-white);
   outline: var(--c-accent-700) solid var(--s-700);
   clip-path: inset(0 -200px);
+}
+
+@media screen and (min-width: 464px) {
+  .privateProfile__header {
+    border: var(--s-300) solid var(--c-white);
+    border-top: none;
+    border-bottom-left-radius: var(--br-300);
+    border-bottom-right-radius: var(--br-300);
+  }
+}
+
+@media screen and (min-width: 810px) {
+  .privateProfile {
+    grid-template-columns: repeat(8, minmax(70px, 90px));
+    column-gap: var(--s-500);
+    padding-left: var(--s-700);
+    padding-right: var(--s-700);
+  }
+
+  .privateProfile__header {
+    margin: 0;
+  }
+
+  .privateProfile__name {
+    column-gap: var(--s-500);
+    padding: var(--s-500);
+    font-size: var(--fs-700);
+  }
+
+  .privateProfile__relationshipStatusIcon {
+    font-size: var(--fs-500);
+  }
+
+  .privateProfile__avatar {
+    height: 180px;
+    width: 180px;
+  }
+
+  .privateProfile__backgroundImage {
+    height: 180px;
+  }
+
+  .privateProfile__main {
+    grid-column: 3 / 7;
+    padding: var(--s-600);
+  }
+
+  .privateProfile__lockIcon {
+    font-size: 48px;
+  }
+
+  .privateProfile__message {
+    font-size: var(--fs-600);
+  }
+}
+
+/* Reposition profile avatar on mobile in landscape so that elements don't overlap */
+@media screen and (max-height: 620px) {
+  .privateProfile__avatar {
+    left: 0;
+    border: 0;
+    border-right: var(--s-300) solid var(--c-white);
+    border-radius: 0;
+    transform: none;
+  }
 }

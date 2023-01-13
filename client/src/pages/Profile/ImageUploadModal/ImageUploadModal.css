@@ -1,9 +1,9 @@
-.backgroundUploadModal,
-.avatarUploadModal {
+.imageUploadModal {
   position: fixed;
   top: 50%;
   left: 50%;
   width: 80%;
+  max-width: 400px;
   z-index: 500;
   transform: translate(-50%, -50%) scale(0);
   border-radius: var(--br-300);
@@ -13,20 +13,17 @@
   color: var(--c-white);
 }
 
-.backgroundUploadModal--open,
-.avatarUploadModal--open {
+.imageUploadModal--open {
   transform: translate(-50%, -50%) scale(1);
 }
 
-.backgroundUploadModal__form,
-.avatarUploadModal__form {
+.imageUploadModal__form {
   display: flex;
   flex-direction: column;
   row-gap: var(--s-600);
 }
 
-.backgroundUploadModal__header,
-.avatarUploadModal__header {
+.imageUploadModal__header {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -37,33 +34,28 @@
   background-color: var(--c-accent-700);
 }
 
-.backgroundUploadModal__title,
-.avatarUploadModal__title {
+.imageUploadModal__title {
   font-size: var(--fs-600);
   font-weight: var(--fw-semi-bold);
 }
 
-.backgroundUploadModal__exit,
-.avatarUploadModal__exit {
+.imageUploadModal__exit {
   font-size: var(--fs-700);
   color: var(--c-white);
   cursor: pointer;
 }
 
-.backgroundUploadModal__exit:active,
-.avatarUploadModal__exit:active {
+.imageUploadModal__exit:active {
   color: var(--c-primary-900);
 }
 
 @media (hover: hover) {
-  .backgroundUploadModal__exit:hover,
-  .avatarUploadModal__exit:hover {
+  .imageUploadModal__exit:hover {
     color: var(--c-primary-900);
   }
 }
 
-.backgroundUploadModal__thumbnailWrapper,
-.avatarUploadModal__thumbnailWrapper {
+.imageUploadModal__thumbnailWrapper {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -71,8 +63,7 @@
   padding: 0 var(--s-500);
 }
 
-.backgroundUploadModal__thumbnail,
-.avatarUploadModal__thumbnail {
+.imageUploadModal__thumbnail {
   display: block;
   height: var(--s-800);
   width: 100%;
@@ -82,40 +73,34 @@
   background-color: var(--c-primary-100);
 }
 
-.avatarUploadModal__thumbnail {
+.imageUploadModal--avatar__thumbnail {
   width: var(--s-800);
   border-radius: 50%;
 }
 
-.backgroundUploadModal__thumbnail--error,
-.avatarUploadModal__thumbnail--error {
+.imageUploadModal__thumbnail--error {
   border-color: var(--c-error);
 }
 
-.backgroundUploadModal__feedbackError,
-.avatarUploadModal__feedbackError {
+.imageUploadModal__feedbackError {
   font-size: var(--fs-300);
 }
 
-.backgroundUploadModal__skeleton,
-.avatarUploadModal__skeleton {
+.imageUploadModal__skeleton {
   display: block;
   line-height: 1;
 }
 
-.backgroundUploadModal__input,
-.avatarUploadModal__input {
+.imageUploadModal__input {
   display: none;
 }
 
-.backgroundUploadModal__buttons,
-.avatarUploadModal__buttons {
+.imageUploadModal__buttons {
   padding: var(--s-500);
   padding-top: 0;
 }
 
-.backgroundUploadModal__button,
-.avatarUploadModal__button {
+.imageUploadModal__button {
   display: flex;
   justify-content: center;
   align-items: center;
@@ -133,46 +118,80 @@
   outline: none;
 }
 
-.backgroundUploadModal__upload,
-.avatarUploadModal__upload {
+.imageUploadModal__upload {
   margin-bottom: var(--s-400);
   border: var(--s-100) solid var(--c-accent-700);
   background: linear-gradient(var(--c-accent-300), var(--c-accent-700));
 }
 
-.backgroundUploadModal__upload:active,
-.avatarUploadModal__upload:active {
+.imageUploadModal__upload:active {
   background: var(--c-accent-700);
 }
 
 @media (hover: hover) {
-  .backgroundUploadModal__upload:hover,
-  .avatarUploadModal__upload:hover {
+  .imageUploadModal__upload:hover {
     background: var(--c-accent-700);
   }
 }
 
-.backgroundUploadModal__confirm,
-.avatarUploadModal__confirm {
+.imageUploadModal__confirm {
   border: var(--s-100) solid var(--c-primary-700); 
   background: linear-gradient(var(--c-primary-300), var(--c-primary-700));
 }
 
-.backgroundUploadModal__confirm:active,
-.avatarUploadModal__confirm:active {
+.imageUploadModal__confirm:active {
   background: var(--c-primary-700);
 }
 
 @media (hover: hover) {
-  .backgroundUploadModal__confirm:hover,
-  .avatarUploadModal__confirm:hover {
+  .imageUploadModal__confirm:hover{
     background: var(--c-primary-700);
   }
 }
 
-.backgroundUploadModal__uploadIcon,
-.avatarUploadModal__uploadIcon
-.backgroundUploadModal__confirmIcon,
-.avatarUploadModal__cofirmIcon {
+.imageUploadModal__uploadIcon,
+.imageUploadModal__confirmIcon {
   font-size: var(--fs-400);
+}
+
+@media screen and (min-width: 810px) {
+  .imageUploadModal__header {
+    padding-left: var(--s-600);
+    padding-right: var(--s-600);
+  }
+
+  .imageUploadModal__title {
+    font-size: var(--fs-700);
+  }
+
+  .imageUploadModal__exit {
+    font-size: var(--fs-800);
+  }
+
+  .imageUploadModal__thumbnailWrapper {
+    padding: 0 var(--s-600);
+  }
+
+  .imageUploadModal__buttons {
+    display: flex;
+    column-gap: var(--s-400);
+    padding: 0 var(--s-600) var(--s-500);
+  }
+
+  .imageUploadModal__button {
+    min-height: 45px;
+    font-size: var(--fs-400);
+  }
+
+  .imageUploadModal__upload {
+    margin-bottom: 0;
+  }
+}
+
+/* Make modal scrollable on mobile in landscape */
+@media screen and (max-height: 400px) {
+  .imageUploadModal {
+    height: 70vh;
+    overflow-y: scroll;
+  }
 }

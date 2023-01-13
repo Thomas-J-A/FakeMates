@@ -336,7 +336,7 @@ describe('PUT /api/friend-request/:id', () => {
   });
 
 
-  it('should add recipient to requesters\'s friends list if accepted', async () => {
+  it('should add recipient to requester\'s friends list if accepted', async () => {
     // Seed a second user
     const user = await seedUser();
 

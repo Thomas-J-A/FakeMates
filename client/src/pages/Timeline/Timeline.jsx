@@ -103,7 +103,7 @@ const Timeline = () => {
         {isSmallViewport && (
           <>
             <OnlineFriendsList />
-            <AdsCarousel ads={ads} type="timeline" />
+            <AdsCarousel ads={ads} context="timeline" />
           </>
         )}
         {posts.map((post, index) => {
@@ -147,7 +147,7 @@ const Timeline = () => {
       {!isSmallViewport && (
         <aside className="timeline__sidebar">
           <div className="timeline__sidebarWrapper">
-            <AdsCarousel ads={ads} type="timeline" />
+            <AdsCarousel ads={ads} context="timeline" />
             <OnlineFriendsList />
             <MistyMountainAscents />
           </div>

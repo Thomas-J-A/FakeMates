@@ -1,22 +1,18 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 
 const useMediaQuery = (query) => {
-  const [isMatching, setIsMatching] = useState(false);
-  
+  const media = useMemo(() => window.matchMedia(query), [query]);
+
+  // Check match status on initial render
+  const [isMatching, setIsMatching] = useState(media.matches);
+
+  // Check match status for duration of component
   useEffect(() => {
-    const media = window.matchMedia(query);
-
-    // Initial check on page load
-    if (media.matches !== isMatching) {
-      setIsMatching(media.matches);
-    }
-
-    // Check for changes to viewport width for duration of component
     const handleChange = (e) => setIsMatching(e.matches);
     media.addEventListener('change', handleChange);
 
     return () => media.removeEventListener('change', handleChange);
-  }, [query]);
+  }, [media]);
 
   return isMatching;
 };

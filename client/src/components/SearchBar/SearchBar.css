@@ -42,3 +42,9 @@
     font-size: var(--fs-400);
   }
 }
+
+@media screen and (min-width: 1000px) {
+  .searchBar {
+    margin-right: var(--s-600);
+  }
+}

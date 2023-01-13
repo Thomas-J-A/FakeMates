@@ -2,13 +2,20 @@
   display: grid;
   grid-template-columns: repeat(4, minmax(60px, 100px));
   align-content: start;
-  padding: 0 var(--s-600) var(--s-500);
+  justify-content: center;
+  padding: var(--s-500) var(--s-600);
   background-color: var(--c-primary-900);
   background-image: url('../../../public/images/french-stucco.png');
 }
 
-.profile__error {
+.profile__main {
   grid-column: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  row-gap: var(--s-400);
+}
+
+.profile__error {
   display: flex;
   flex-direction: column;
   row-gap: var(--s-300);
@@ -24,4 +31,48 @@
   text-align: center;
   font-weight: var(--fw-semi-bold);
   color: var(--c-white);
+}
+
+.profile__sidebar {
+  grid-column: 6 / -1;
+}
+
+.profile__sidebarWrapper {
+  position: sticky;
+  top: calc(72px + var(--s-500));
+  display: flex;
+  flex-direction: column;
+  row-gap: var(--s-500);
+}
+
+@media screen and (min-width: 810px) {
+  .profile {
+    grid-template-columns: repeat(8, minmax(70px, 90px));
+    column-gap: var(--s-500);
+    padding-right: var(--s-700);
+    padding-left: var(--s-700);
+  }
+
+  .profile__main {
+    grid-column: 1 / 6;
+    row-gap: var(--s-500);
+  }
+
+  .profile__error {
+    row-gap: var(--s-400);
+  }
+
+  .profile__errorIcon {
+    font-size: var(--fs-700);
+  }
+
+  .profile__errorMessage {
+    font-size: var(--fs-500);
+  }
+}
+
+@media screen and (min-width: 1300px) {
+  .profile__sidebarWrapper {
+    top: calc(82px + var(--s-500));
+  }
 }

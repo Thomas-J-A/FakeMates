@@ -32,9 +32,9 @@ const FriendsListPreviews = ({ userData, setIsOpenModal }) => {
       {userData.friends.length
         ? (
           <div className="friendsListPreviews__preview">
-            {/* Only preview first 8 friends */}
+            {/* Only preview first 9 friends (fewer on mobile, hidden with CSS) */}
             {userData.friends
-              .filter((el, i) => i < 8)
+              .filter((el, i) => i < 9)
               .map((friend) => <FriendsListPreview key={friend._id} friend={friend} />)
             }
           </div>

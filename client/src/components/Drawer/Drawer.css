@@ -164,3 +164,9 @@
     font-size: var(--fs-700);
   } */
 }
+
+@media screen and (min-width: 1300px) {
+  .drawer {
+    padding-top: calc(82px + var(--s-500));
+  }
+}

@@ -50,7 +50,13 @@ const ImageUploadModal = ({ type, isOpen, closeModal, imageUrl, setUserData }) =
 
       if (!res.ok) throw new Error(body);
 
-      setUserData(body);
+      // Update profile data in state with latest avatar/background image
+      setUserData((prevUserData) => {
+        const field = type === 'avatar' ? 'avatarUrl' : 'backgroundUrl';
+
+        return {...prevUserData, [field]: body[field]};
+      });
+
       closeModal();
     } catch (err) {
       console.log(err.message);
@@ -107,7 +113,7 @@ const ImageUploadModal = ({ type, isOpen, closeModal, imageUrl, setUserData }) =
   }, [type, isOpen]);
 
   return (
-    <div className={`${ type }UploadModal ${ isOpen ? `${ type }UploadModal--open` : "" }`}>
+    <div className={`imageUploadModal ${ isOpen ? `imageUploadModal--open` : "" }`}>
       <Formik
         initialValues={initialValues}
         validationSchema={validationSchema}
@@ -122,33 +128,33 @@ const ImageUploadModal = ({ type, isOpen, closeModal, imageUrl, setUserData }) =
           setFieldValue,
           setFieldTouched,
         }) => (
-          <Form className={`${ type }UploadModal__form`} autoComplete="off" noValidate>
-            <header className={`${ type }UploadModal__header`}>
-              <h1 className={`${ type }UploadModal__title`}>Upload {capitalizeFirstLetter(type)}</h1>
+          <Form className="imageUploadModal__form" autoComplete="off" noValidate>
+            <header className="imageUploadModal__header">
+              <h1 className="imageUploadModal__title">Upload {capitalizeFirstLetter(type)}</h1>
               <FontAwesomeIcon
-                className={`${ type }UploadModal__exit`}
+                className="imageUploadModal__exit"
                 icon={faXmark}
                 onClick={closeModal}
               />
             </header>
-            <div className={`${ type }UploadModal__thumbnailWrapper`}>
+            <div className="imageUploadModal__thumbnailWrapper">
               {initialThumbnailUrl
                 ? (
                   <img
-                  className={`${ type }UploadModal__thumbnail ${ touched[type] && errors[type] ? `${ type }UploadModal__thumbnail--error` : "" }`}
+                  className={`imageUploadModal__thumbnail ${type === 'avatar' ? 'imageUploadModal--avatar__thumbnail' : ''} ${ touched[type] && errors[type] ? `imageUploadModal__thumbnail--error` : "" }`}
                   src={newThumbnailUrl ? newThumbnailUrl : initialThumbnailUrl}
                   crossOrigin="anonymous"
                   alt=""
                   />
                 ) : (
-                  <Skeleton height={128} containerClassName={`${ type }UploadModal__skeleton`} />
+                  <Skeleton height={128} containerClassName="imageUploadModal__skeleton" />
                 )
               }
-              <ErrorMessage className={`${ type }UploadModal__feedbackError`} name={type} component="div" />
+              <ErrorMessage className="imageUploadModal__feedbackError" name={type} component="div" />
             </div>
-            <div className={`${ type }UploadModal__buttons`}>
+            <div className="imageUploadModal__buttons">
               <input
-                className={`${ type }UploadModal__input`}
+                className="imageUploadModal__input"
                 type="file"
                 name={type}
                 aria-label={`${ type } image upload`}
@@ -157,16 +163,16 @@ const ImageUploadModal = ({ type, isOpen, closeModal, imageUrl, setUserData }) =
                 ref={fileInputRef}
                 />
               <button
-                className={`${ type }UploadModal__button ${ type }UploadModal__upload`}
+                className="imageUploadModal__button imageUploadModal__upload"
                 type="button"
                 onClick={() => fileInputRef.current.click()}
                 // onBlur={() => setFieldTouched('background', true)}
               >
-                <FontAwesomeIcon className={`${ type }UploadModal__uploadIcon`} icon={faImage} />
+                <FontAwesomeIcon className="imageUploadModal__uploadIcon" icon={faImage} />
                 UPLOAD
               </button>
-              <button className={`${ type }UploadModal__button ${ type }UploadModal__confirm`} type="submit" disabled={isSubmitting || !dirty}>
-                <FontAwesomeIcon className={`${ type }UploadModal__confirmIcon`} icon={faCircleCheck}/>
+              <button className="imageUploadModal__button imageUploadModal__confirm" type="submit" disabled={isSubmitting || !dirty}>
+                <FontAwesomeIcon className="imageUploadModal__confirmIcon" icon={faCircleCheck}/>
                 CONFIRM
               </button>
             </div>

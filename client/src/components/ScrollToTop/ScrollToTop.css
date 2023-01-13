@@ -36,7 +36,8 @@
 
 @media screen and (min-width: 810px) {
   .scrollToTop {
-    bottom: 44px;
+    right: 8px;
+    bottom: 48px;
   }
 
   .scrollToTop__icon {

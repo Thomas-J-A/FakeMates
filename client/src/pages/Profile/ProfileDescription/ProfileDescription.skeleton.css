@@ -1,6 +1,7 @@
 .profileDescriptionSkeleton {
-  grid-column: 1 / -1;
-  margin-bottom: var(--s-400);
+  display: flex;
+  flex-direction: column;
+  row-gap: var(--s-500);
   padding: var(--s-500);
   border: var(--s-100) solid var(--c-black);
   border-radius: var(--br-300);
@@ -8,6 +9,25 @@
   background-color: var(--c-white);
 }
 
-.profileDescriptionSkeleton__name {
-  margin-bottom: var(--s-300);
+.profileDescriptionSkeleton__bio {
+  width: 90%;
+}
+
+.profileDescriptionSkeleton__bio,
+.profileDescriptionSkeleton__info,
+.profileDescriptionSkeleton__relationshipMsg {
+  display: block;
+  margin: 0 auto;
+  line-height: 1;
+}
+
+.profileDescriptionSkeleton__info {
+  display: flex;
+  flex-direction: column;
+  row-gap: var(--s-300);
+  width: 70%;
+}
+
+.profileDescriptionSkeleton__relationshipMsg {
+  width: 50%;
 }

@@ -6,8 +6,9 @@ import './ProfileDescription.skeleton.css';
 const ProfileDescriptionSkeleton = () => {
   return (
     <div className="profileDescriptionSkeleton">
-      <Skeleton className="profileDescriptionSkeleton__name" height={32} />
-      <Skeleton count={3} />
+      <Skeleton containerClassName="profileDescriptionSkeleton__bio" height={32} />
+      <Skeleton containerClassName="profileDescriptionSkeleton__info" count={3} />
+      <Skeleton containerClassName="profileDescriptionSkeleton__relationshipMsg" />
     </div>
   );
 };
