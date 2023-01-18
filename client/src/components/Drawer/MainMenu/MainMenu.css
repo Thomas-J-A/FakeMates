@@ -1,0 +1,98 @@
+.mainMenu {
+  display: flex;
+  flex-direction: column;
+  row-gap: var(--s-500);
+}
+
+.mainMenuNav__list {
+  display: flex;
+  flex-direction: column;
+  row-gap: var(--s-400);
+}
+
+.mainMenuNav__link {
+  display: flex;
+  align-items: center;
+  column-gap: var(--s-400);
+  text-decoration: none;
+  color: var(--c-black);
+  outline: none;
+}
+
+.mainMenuNav__linkText {
+  letter-spacing: var(--s-100);
+  /* transition: color .175s ease-in-out; */
+}
+
+.mainMenuNav__link:active .mainMenuNav__linkText {
+  color: var(--c-primary-700);
+}
+
+@media (hover: hover) {
+  .mainMenuNav__link:hover .mainMenuNav__linkText {
+    color: var(--c-primary-700);
+  }
+}
+
+.mainMenu__buttons {
+  display: flex;
+  flex-direction: column;
+  row-gap: var(--s-400);
+}
+
+.mainMenu__signOut,
+.mainMenu__deleteAccount {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  column-gap: var(--s-400);
+  min-height: 40px;
+  padding: var(--s-400) var(--s-500);
+  border-radius: var(--br-300);
+  box-shadow: 2px 2px 4px rgba(0,0,0,.2);
+  text-shadow: 2px 2px 4px rgba(0,0,0,.2);
+  font-weight: var(--fw-bold);
+  letter-spacing: var(--s-100);
+  color: var(--c-white);
+  cursor: pointer;
+  outline: none;
+}
+
+.mainMenu__signOut {
+  border: var(--s-100) solid var(--c-primary-700);
+  background: linear-gradient(var(--c-primary-300), var(--c-primary-700));
+}
+
+.mainMenu__signOut:active {
+  background: var(--c-primary-700);
+}
+
+@media (hover: hover) {
+  .mainMenu__signOut:hover {
+    background: var(--c-primary-700);
+  }
+}
+
+.mainMenu__deleteAccount {
+  border: var(--s-100) solid var(--c-accent-700);
+  background: linear-gradient(var(--c-accent-300), var(--c-accent-700));
+}
+
+.mainMenu__deleteAccount:active {
+  background: var(--c-accent-700);
+}
+
+@media (hover: hover) {
+  .mainMenu__deleteAccount:hover {
+    background: var(--c-accent-700);
+  }
+}
+
+@media screen and (min-width: 810px) {
+  .mainMenu__signOut,
+  .mainMenu__deleteAccount {
+    column-gap: var(--s-500);
+    min-height: 45px;
+    font-size: var(--fs-400);
+  }
+}

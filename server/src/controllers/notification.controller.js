@@ -15,7 +15,7 @@ exports.fetchNotifications = async (req, res, next) => {
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit)
-      .populate('actor', 'fullName avatarUrl isPrivate')
+      .populate('actor', 'fullName avatarUrl isPrivate')             // isPrivate field not necessary?
       .exec();
 
     // Check if there are more results

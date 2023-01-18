@@ -20,9 +20,9 @@
 }
 
 .drawer__innerWrapper {
-  display: flex;
+  /* display: flex;
   flex-direction: column;
-  row-gap: var(--s-500);
+  row-gap: var(--s-500); */
   height: 100%;
 }
 
@@ -42,90 +42,6 @@
   flex: 1;
   height: var(--s-200);
   background-color: var(--c-neutral-500);
-}
-
-.drawerNav__list {
-  display: flex;
-  flex-direction: column;
-  row-gap: var(--s-400);
-}
-
-.drawerNav__link {
-  display: flex;
-  align-items: center;
-  column-gap: var(--s-400);
-  text-decoration: none;
-  color: var(--c-black);
-  outline: none;
-}
-
-.drawerNav__linkText {
-  letter-spacing: var(--s-100);
-  /* transition: color .175s ease-in-out; */
-}
-
-.drawerNav__link:active .drawerNav__linkText {
-  color: var(--c-primary-700);
-}
-
-@media (hover: hover) {
-  .drawerNav__link:hover .drawerNav__linkText {
-    color: var(--c-primary-700);
-  }
-}
-
-.drawer__buttons {
-  display: flex;
-  flex-direction: column;
-  row-gap: var(--s-400);
-}
-
-.drawer__signOut,
-.drawer__deleteAccount {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  column-gap: var(--s-400);
-  min-height: 40px;
-  padding: var(--s-400) var(--s-500);
-  border-radius: var(--br-300);
-  box-shadow: 2px 2px 4px rgba(0,0,0,.2);
-  text-shadow: 2px 2px 4px rgba(0,0,0,.2);
-  font-weight: var(--fw-bold);
-  letter-spacing: var(--s-100);
-  color: var(--c-white);
-  cursor: pointer;
-  outline: none;
-}
-
-.drawer__signOut {
-  border: var(--s-100) solid var(--c-primary-700);
-  background: linear-gradient(var(--c-primary-300), var(--c-primary-700));
-}
-
-.drawer__signOut:active {
-  background: var(--c-primary-700);
-}
-
-@media (hover: hover) {
-  .drawer__signOut:hover {
-    background: var(--c-primary-700);
-  }
-}
-
-.drawer__deleteAccount {
-  border: var(--s-100) solid var(--c-accent-700);
-  background: linear-gradient(var(--c-accent-300), var(--c-accent-700));
-}
-
-.drawer__deleteAccount:active {
-  background: var(--c-accent-700);
-}
-
-@media (hover: hover) {
-  .drawer__deleteAccount:hover {
-    background: var(--c-accent-700);
-  }
 }
 
 /* .closeDrawer {
@@ -151,13 +67,6 @@
 @media screen and (min-width: 810px) {
   .drawer {
     padding-top: calc(72px + var(--s-500));
-  }
-
-  .drawer__signOut,
-  .drawer__deleteAccount {
-    column-gap: var(--s-500);
-    min-height: 45px;
-    font-size: var(--fs-400);
   }
 
   /* .closeDrawer {

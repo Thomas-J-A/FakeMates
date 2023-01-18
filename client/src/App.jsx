@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import {
   Routes,
   Route,
@@ -18,30 +18,65 @@ import GlobalFooter from './components/GlobalFooter/GlobalFooter';
 import Backdrop from './components/Backdrop/Backdrop';
 import Drawer from './components/Drawer/Drawer';
 
+import { useAuth } from './contexts/AuthContext';
+
 import './App.css';
 
 const App = () => {
-  const [isOpen, setIsOpen] = useState(false);
+  const [isOpenDrawer, setIsOpenDrawer] = useState({
+    mainMenu: false,
+    notifications: false,
+  });
+
   const { pathname } = useLocation();
+  const { isAuthenticated } = useAuth();
+
+  // Close any drawer that is currently open
+  const closeDrawer = useCallback(() => {
+    setIsOpenDrawer({
+      mainMenu: false,
+      notifications: false,
+    });
+  }, [setIsOpenDrawer]);
+
+  // Create more semantic, memoized code to tell if any type of drawer is open
+  const isOpenAnyDrawer = useMemo(() => Object.values(isOpenDrawer).some((v) => v), [isOpenDrawer]);
 
   // Close drawer when navigating to a new page
+  // Drawer is closed elsewhere in most cases,
+  // but during sign-in/out the check will pass
   useEffect(() => {
-    if (isOpen) {
-      setIsOpen(false);
+    if (isOpenAnyDrawer) {
+      closeDrawer();
     }
   }, [pathname]);
 
-  const toggleDrawer = () => {
-    setIsOpen((prevValue) => !prevValue);
-  };
+  // Close drawer by pressing esc key
+  useEffect(() => {
+    const handleKeyPress = (e) => {
+      if (e.key === 'Escape') {
+        // If any input in drawer is focused, remove focus
+        e.target.blur();
+        closeDrawer();
+      }
+    };
 
-  const closeDrawer = () => {
-    setIsOpen(false);
-  }
+    if (isOpenAnyDrawer) {
+      window.addEventListener('keyup', handleKeyPress);
+    }
+
+    return () => {
+      window.removeEventListener('keyup', handleKeyPress);
+    }
+  }, [isOpenAnyDrawer, closeDrawer]);
 
   return (
     <>
-      <GlobalHeader isOpen={isOpen} toggleDrawer={toggleDrawer} closeDrawer={closeDrawer} />
+      <GlobalHeader
+        isOpenDrawer={isOpenDrawer}
+        setIsOpenDrawer={setIsOpenDrawer}
+        closeDrawer={closeDrawer}
+      />
       <Routes>
         <Route path="/" element={<Landing />} />
         <Route path="/search" element={<Search />} />
@@ -51,8 +86,23 @@ const App = () => {
         <Route path="/messenger" element={<Messenger />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
-      <Backdrop type="drawer" isVisible={isOpen} close={closeDrawer} />
-      <Drawer isOpen={isOpen} closeDrawer={closeDrawer} />
+      <Backdrop
+        type="drawer"
+        isVisible={Object.values(isOpenDrawer).some((v) => v)}
+        close={closeDrawer}
+      />
+      <Drawer 
+        type="mainMenu"
+        isOpen={isOpenDrawer.mainMenu}
+        closeDrawer={closeDrawer}
+      />
+      {isAuthenticated() && (
+        <Drawer
+          type="notifications"
+          isOpen={isOpenDrawer.notifications}
+          closeDrawer={closeDrawer}
+        />
+      )}
       <GlobalFooter />
     </>
   );

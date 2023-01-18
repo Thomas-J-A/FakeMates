@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const { Schema } = mongoose;
 
 const actionSourcesSchema = new Schema({
-  friendRequest: {
+  friendRequest: {                           // Not needed? friend request 'notifications' are fetched via a different API 
     type: Schema.Types.ObjectId,
     ref: 'FriendRequest',
   },

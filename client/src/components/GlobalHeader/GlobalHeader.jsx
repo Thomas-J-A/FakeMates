@@ -13,17 +13,19 @@ import useMediaQuery from '../../hooks/useMediaQuery';
 
 import './GlobalHeader.css';
 
-const GlobalHeader = ({ isOpen, toggleDrawer, closeDrawer }) => {
+const GlobalHeader = ({ isOpenDrawer, setIsOpenDrawer, closeDrawer }) => {
   const { authState: { currentUser }, isAuthenticated } = useAuth();
   const isWideEnoughForIcons = useMediaQuery('(min-width: 810px)');
   const isWideEnoughForSearchBar = useMediaQuery('(min-width: 1000px)');
   const isWideEnoughForForm = useMediaQuery('(min-width: 1300px)');
 
-  // useLocation hook in App.jsx closes drawer when user navigates to
-  // a new URL, but if user clicks an icon which navigates to current URL
-  // it won't execute, so this function closes drawer in such cases
+  // More semantic code to tell if either type of drawer is open
+  const isOpenAnyDrawer = Object.values(isOpenDrawer).some((v) => v);
+
+  // Close any open drawers if user navigates to another
+  // URL, or navigates to current URL (clicking icon, etc)
   const handleClick = () => {
-    if (isOpen) {
+    if (isOpenAnyDrawer) {
       closeDrawer();
     }
   };
@@ -46,10 +48,18 @@ const GlobalHeader = ({ isOpen, toggleDrawer, closeDrawer }) => {
               </Link>
             </li>
             <li className="globalNav__item">
-              <FontAwesomeIcon className="globalNav__icon" icon={faBell} onClick={toggleDrawer} />
+              <FontAwesomeIcon
+                className="globalNav__icon"
+                icon={faBell}
+                onClick={() => setIsOpenDrawer((prev) => ({ mainMenu: false, notifications: !prev.notifications }))}
+              />
             </li>
             <li className="globalNav__item">
-              <FontAwesomeIcon className="globalNav__icon" icon={faGear} onClick={toggleDrawer} />
+              <FontAwesomeIcon
+                className="globalNav__icon"
+                icon={faGear}
+                onClick={() => setIsOpenDrawer((prev) => ({ mainMenu: !prev.mainMenu, notifications: false }))}
+              />
             </li>
           </ul>
         </nav>
@@ -58,10 +68,10 @@ const GlobalHeader = ({ isOpen, toggleDrawer, closeDrawer }) => {
       headerRight = (
         <nav className="globalNav">
           <ul className="globalNav__list">
-            <li className="globalNav__item" onClick={toggleDrawer}>
+            <li className="globalNav__item" onClick={() => setIsOpenDrawer((prev) => ({ mainMenu: false, notifications: !prev.notifications }))}>
               <FontAwesomeIcon className="globalNav__icon" icon={faBell} />
             </li>
-            <li className="globalNav__item" onClick={toggleDrawer}>
+            <li className="globalNav__item" onClick={() => setIsOpenDrawer((prev) => ({ mainMenu: !prev.mainMenu, notifications: false }))}>
               <FontAwesomeIcon className="globalNav__icon" icon={faBars} />
             </li>
           </ul>
@@ -81,9 +91,9 @@ const GlobalHeader = ({ isOpen, toggleDrawer, closeDrawer }) => {
       headerRight = (
         <button
           className="globalHeader__drawerToggle"
-          type="button" onClick={toggleDrawer}
+          type="button" onClick={() => setIsOpenDrawer((prev) => ({ mainMenu: !prev.mainMenu, notifications: false }))}
         >
-          {isOpen ? "CLOSE" : "SIGN IN"}
+          {isOpenDrawer.mainMenu ? "CLOSE" : "SIGN IN"}
         </button>
       );
     }
@@ -96,7 +106,7 @@ const GlobalHeader = ({ isOpen, toggleDrawer, closeDrawer }) => {
           <FontAwesomeIcon className="logo__icon" icon={faFaceLaughWink} />
           <h1 className="logo__name">FakeMates</h1>
         </Link>
-        { isAuthenticated() && isWideEnoughForSearchBar && <SearchBar isOpen={isOpen} /> }
+        { isAuthenticated() && isWideEnoughForSearchBar && <SearchBar isOpen={isOpenAnyDrawer} /> }
         {headerRight}
       </div>
     </header>

@@ -5,7 +5,7 @@ import { faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons';
 
 import './SearchBar.css';
 
-const SearchBar = ({ isOpen, closeDrawer }) => {
+const SearchBar = ({ isOpen }) => {
   const [query, setQuery] = useState('');
   const navigate = useNavigate();
   const { pathname } = useLocation();
