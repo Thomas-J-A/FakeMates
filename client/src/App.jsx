@@ -20,6 +20,8 @@ import Drawer from './components/Drawer/Drawer';
 
 import { useAuth } from './contexts/AuthContext';
 
+import useMediaQuery from './hooks/useMediaQuery';
+
 import './App.css';
 
 const App = () => {
@@ -30,6 +32,7 @@ const App = () => {
 
   const { pathname } = useLocation();
   const { isAuthenticated } = useAuth();
+  const isWideEnoughForForm = useMediaQuery('(min-width: 1300px)');
 
   // Close any drawer that is currently open
   const closeDrawer = useCallback(() => {
@@ -86,16 +89,25 @@ const App = () => {
         <Route path="/messenger" element={<Messenger />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
-      <Backdrop
-        type="drawer"
-        isVisible={Object.values(isOpenDrawer).some((v) => v)}
-        close={closeDrawer}
-      />
-      <Drawer 
-        type="mainMenu"
-        isOpen={isOpenDrawer.mainMenu}
-        closeDrawer={closeDrawer}
-      />
+
+      {/* 
+        Remove elements from DOM on wide viewports if unauthenticated because the styles in the main menu drawer now
+        correspond to a header form and look messy in the drawer component while it slides out of view during logout
+      */}
+      {!(!isAuthenticated() && isWideEnoughForForm) && (
+        <>
+          <Backdrop
+            type="drawer"
+            isVisible={Object.values(isOpenDrawer).some((v) => v)}
+            close={closeDrawer}
+          />
+          <Drawer 
+            type="mainMenu"
+            isOpen={isOpenDrawer.mainMenu}
+            closeDrawer={closeDrawer}
+          />
+        </>
+      )}
       {isAuthenticated() && (
         <Drawer
           type="notifications"
