@@ -1,0 +1,64 @@
+.friendRequests {
+  max-height: 30%;
+  overflow: auto;
+  scrollbar-width: none;
+}
+
+.friendRequests__title {
+  font-size: var(--fs-500);
+  font-weight: var(--fw-semi-bold);
+  margin-bottom: var(--s-500);
+  padding: var(--s-400);
+  border-radius: var(--br-300);
+  background-color: var(--c-primary-700);
+  text-align: center;
+  letter-spacing: var(--s-100);
+  color: var(--c-white);
+}
+
+.friendRequests__title {
+  position: sticky;
+  top: 0;
+}
+
+.friendRequests__title::-webkit-scrollbar {
+  display: none;
+}
+
+.friendRequests__list {
+  display: flex;
+  flex-direction: column;
+  row-gap: var(--s-500);
+  padding: 0 var(--s-400);
+}
+
+.friendRequests__noRequestsMsg {
+  padding: 0 var(--s-400);
+  text-align: center;
+  font-size: var(--fs-300);
+  line-height: 1.2rem;
+}
+
+.friendRequests__error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0 var(--s-400);
+}
+
+.friendRequests__errorIcon {
+  font-size: var(--fs-600);
+  color: var(--c-error);
+}
+
+.friendRequests__errorMsg {
+  font-size: var(--fs-300);
+  font-weight: var(--fw-semi-bold);
+  color: var(--c-error);
+}
+
+.friendRequests__skeletons {
+  display: flex;
+  flex-direction: column;
+  row-gap: var(--s-500);
+}

@@ -24,11 +24,11 @@ const PrivateProfile = ({ userData, setUserData }) => {
       break;
     case 'pending':
       icon = faUserClock;
-      messageOrButton = <p className="privateProfile__relationshipMsg">You have a FakeMate request pending.</p>;
+      messageOrButton = <p className="privateProfile__relationshipMsg">FakeMate request pending.</p>;
       break;
     case 'rejected':
       icon = faUserSlash;
-      messageOrButton = <p className="privateProfile__relationshipMsg">{`${ userData.firstName } doesn't want to be your FakeMate.`}</p>;
+      messageOrButton = <p className="privateProfile__relationshipMsg">FakeMate request declined.</p>;
       break;
   }
 

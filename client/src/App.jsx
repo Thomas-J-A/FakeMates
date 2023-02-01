@@ -19,6 +19,7 @@ import Backdrop from './components/Backdrop/Backdrop';
 import Drawer from './components/Drawer/Drawer';
 
 import { useAuth } from './contexts/AuthContext';
+import { NotificationCountContext } from './contexts/NotificationCountContext';
 
 import useMediaQuery from './hooks/useMediaQuery';
 
@@ -30,6 +31,7 @@ const App = () => {
     notifications: false,
   });
 
+  const [notificationCount, setNotificationCount] = useState();
   const { pathname } = useLocation();
   const { isAuthenticated } = useAuth();
   const isWideEnoughForForm = useMediaQuery('(min-width: 1300px)');
@@ -74,7 +76,12 @@ const App = () => {
   }, [isOpenAnyDrawer, closeDrawer]);
 
   return (
-    <>
+    <NotificationCountContext.Provider
+      value={{
+        notificationCount,
+        setNotificationCount,
+      }}
+    >
       <GlobalHeader
         isOpenDrawer={isOpenDrawer}
         setIsOpenDrawer={setIsOpenDrawer}
@@ -116,7 +123,7 @@ const App = () => {
         />
       )}
       <GlobalFooter />
-    </>
+    </NotificationCountContext.Provider>
   );
 };
 

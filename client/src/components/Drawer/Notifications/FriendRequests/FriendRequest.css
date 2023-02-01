@@ -1,0 +1,102 @@
+.friendRequest {
+  display: flex;
+  align-items: center;
+}
+
+.friendRequest__avatar {
+  height: var(--s-600);
+  width: var(--s-600);
+  margin-right: var(--s-400);
+  border: var(--s-100) solid var(--c-black);
+  border-radius: 50%;
+  object-fit: cover;
+  background-color: var(--c-primary-100);
+}
+
+.friendRequest__name {
+  line-height: 1.2rem;
+  font-size: var(--fs-300);
+  color: var(--c-primary-700);
+}
+
+.friendRequest__time {
+  line-height: 1.2rem;
+  font-size: var(--fs-200);
+  color: var(--c-neutral-500);
+}
+
+.friendRequest__options {
+  display: flex;
+  margin-left: auto;
+}
+
+.friendRequest__button {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 26px;
+  width: 26px;
+  padding: var(--s-200);
+  border-radius: 50%;
+  box-shadow: 2px 2px 4px rgba(0,0,0,.2);
+  font-size: var(--fs-300);
+  color: var(--c-white);
+  cursor: pointer;
+  outline: none;
+}
+
+.friendRequest__accept {
+  border: var(--s-100) solid var(--c-primary-700);
+  background: linear-gradient(var(--c-primary-300), var(--c-primary-700));
+}
+
+.friendRequest__decline {
+  margin-right: var(--s-300);
+  border: var(--s-100) solid var(--c-accent-700);
+  background: linear-gradient(var(--c-accent-300), var(--c-accent-700));
+}
+
+.friendRequest__accept:active {
+  background: var(--c-primary-700);
+}
+
+.friendRequest__decline:active {
+  background: var(--c-accent-700);
+}
+
+@media (hover: hover) {
+  .friendRequest__accept:hover {
+    background: var(--c-primary-700);
+  }
+
+  .friendRequest__decline:hover {
+    background: var(--c-accent-700);
+  }
+}
+
+.friendRequest__statusMsg {
+  padding: 0 var(--s-400);
+  text-align: center;
+  font-size: var(--fs-300);
+  line-height: 1.2rem;
+}
+
+.friendRequest__error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0 var(--s-400);
+}
+
+.friendRequest__errorIcon {
+  font-size: var(--fs-600);
+  color: var(--c-error);
+}
+
+.friendRequest__errorMsg {
+  text-align: center;
+  font-size: var(--fs-300);
+  font-weight: var(--fw-semi-bold);
+  line-height: 1.2rem;
+  color: var(--c-error);
+}

@@ -19,13 +19,13 @@ const ProfileDescription = ({ userData, setUserData, setIsOpenModal, isOwn }) =>
       messageOrButton = <AddFriendButton context='publicProfile' userData={userData} setUserData={setUserData} />;
       break;
     case 'pending':
-      messageOrButton = <p className="profileDescription__relationshipMsg">You have a FakeMate request pending.</p>;
+      messageOrButton = <p className="profileDescription__relationshipMsg">FakeMate request pending.</p>;
       break;
     case 'accepted':
       messageOrButton = <p className="profileDescription__relationshipMsg">{`You and ${ userData.firstName } are FakeMates.`}</p>;
       break;
     case 'rejected':
-      messageOrButton = <p className="profileDescription__relationshipMsg">{`${ userData.firstName } doesn't want to be your FakeMate.`}</p>;
+      messageOrButton = <p className="profileDescription__relationshipMsg">FakeMate request declined.</p>;
       break;
     default:
       messageOrButton = null;

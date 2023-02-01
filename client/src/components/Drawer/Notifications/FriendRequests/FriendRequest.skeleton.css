@@ -1,0 +1,22 @@
+.friendRequestSkeleton {
+  display: flex;
+  align-items: center;
+  padding: 0 var(--s-400);
+}
+
+.friendRequestSkeleton__avatar {
+  margin-right: var(--s-400);
+}
+
+.friendRequestSkeleton__info {
+  flex: 1;
+}
+
+.friendRequestSkeleton__options {
+  display: flex;
+  margin-left: var(--s-400);
+}
+
+.friendRequestSkeleton__decline {
+  margin-right: var(--s-300);
+}
