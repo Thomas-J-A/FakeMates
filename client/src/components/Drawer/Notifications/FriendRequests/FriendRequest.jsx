@@ -65,7 +65,7 @@ const FriendRequest = ({ fr, authState: { currentUser: currentUserData, expiresA
       <PulseLoader 
         size={10}
         speedMultiplier={.8}
-        color="#000"
+        color="#fff"
         cssOverride={cssOverride}
       />
     );
