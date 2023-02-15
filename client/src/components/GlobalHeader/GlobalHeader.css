@@ -105,6 +105,28 @@
   transition: color .175s ease-in-out;
 }
 
+.globalNav__notificationAlert {
+  position: relative;
+}
+
+.globalNav__notificationCount {
+  position: absolute;
+  top: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 22px;
+  width: 22px;
+  border: var(--s-100) solid var(--c-accent-700);
+  border-radius: 50%;
+  box-shadow: 2px 2px 4px rgba(0,0,0,.2);
+  background: linear-gradient(var(--c-accent-300), var(--c-accent-700));
+  font-size: var(--fs-300);
+  font-weight: var(--fw-bold);
+  transform: translate(8px, -10px);
+}
+
 @media screen and (min-width: 810px) {
   .globalHeader__innerWrapper {
     height: 72px;

@@ -79,6 +79,21 @@ exports.createComment = async (req, res, next) => {
     post.commentsCount++;
     await post.save();
 
+    // Create a notification representing this user activity
+    const notification = new req.models.Notification({
+      actor: req.user._id,
+      recipients: [post.postedBy._id],
+      actionType: 3,
+      actionSources: {
+        post: post._id,
+        comment: comment._id,
+      },
+    });
+
+    await notification.save();
+
+    // TODO: Emit notification to recipient if they're currently online
+
     // Populate some fields in order to display more info in UI
     await comment.populate({
       path: 'postedBy',
@@ -133,6 +148,21 @@ exports.likeComment = async (req, res, next) => {
     } else {
       // User has liked comment
       comment.likedBy.push(req.user._id);
+
+      // Create a notification representing this user activity
+      const notification = new req.models.Notification({
+        actor: req.user._id,
+        recipients: [comment.postedBy._id],
+        actionType: 4,
+        actionSources: {
+          post: post._id,
+          comment: comment._id,
+        },
+      });
+
+      await notification.save();
+
+      // TODO: Emit notification to recipient if they're currently online
     }
 
     await comment.save();

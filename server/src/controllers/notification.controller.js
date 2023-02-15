@@ -1,10 +1,11 @@
+// TODO: Refactor to use an aggregation pipeline instead of multiple queries
 exports.fetchNotifications = async (req, res, next) => {
   try {
     const { page } = req.query;
 
     // Fetch (paginated) notifications for current user 
     // which haven't been soft deleted
-    const limit = 10;
+    const limit = 5;
     const skip = (page - 1) * limit;
 
     const notifications = await req.models.Notification.find({})
@@ -30,10 +31,21 @@ exports.fetchNotifications = async (req, res, next) => {
     const hasMore = endIndex < totalCount;
     const resultsRemaining = hasMore ? totalCount - endIndex : 0;
 
+    // Count total number of unread notifications
+    const unreadCount = await req.models.Notification.countDocuments({
+      $and: [
+        { recipients: { $in: [req.user._id]}},
+        { deletedBy: { $nin: [req.user._id]}},
+        { readBy: { $nin: [req.user._id]}},
+      ],
+    })
+    .exec();
+
     return res.status(200).json({
       notifications,
       hasMore,
       resultsRemaining,
+      unreadCount,
     });
   } catch (err) {
     next(err);

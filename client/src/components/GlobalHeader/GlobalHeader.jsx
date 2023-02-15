@@ -1,3 +1,4 @@
+import { useContext } from 'react';
 import { Link } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faFaceLaughWink, faBell, faCircleUser, faMessage } from '@fortawesome/free-regular-svg-icons';
@@ -9,12 +10,14 @@ import SearchBar from '../SearchBar/SearchBar';
 
 import { useAuth } from '../../contexts/AuthContext';
 
+import { NotificationCountContext } from '../../contexts/NotificationCountContext';
 import useMediaQuery from '../../hooks/useMediaQuery';
 
 import './GlobalHeader.css';
 
 const GlobalHeader = ({ isOpenDrawer, setIsOpenDrawer, closeDrawer }) => {
   const { authState: { currentUser }, isAuthenticated } = useAuth();
+  const { notificationCount } = useContext(NotificationCountContext);
   const isWideEnoughForIcons = useMediaQuery('(min-width: 810px)');
   const isWideEnoughForSearchBar = useMediaQuery('(min-width: 1000px)');
   const isWideEnoughForForm = useMediaQuery('(min-width: 1300px)');
@@ -47,12 +50,13 @@ const GlobalHeader = ({ isOpenDrawer, setIsOpenDrawer, closeDrawer }) => {
                 <FontAwesomeIcon className="globalNav__icon" icon={faMessage} />
               </Link>
             </li>
-            <li className="globalNav__item">
+            <li className="globalNav__item globalNav__notificationAlert">
               <FontAwesomeIcon
                 className="globalNav__icon"
                 icon={faBell}
                 onClick={() => setIsOpenDrawer((prev) => ({ mainMenu: false, notifications: !prev.notifications }))}
               />
+              {!!notificationCount && <div className="globalNav__notificationCount">{notificationCount}</div>}
             </li>
             <li className="globalNav__item">
               <FontAwesomeIcon
@@ -68,8 +72,12 @@ const GlobalHeader = ({ isOpenDrawer, setIsOpenDrawer, closeDrawer }) => {
       headerRight = (
         <nav className="globalNav">
           <ul className="globalNav__list">
-            <li className="globalNav__item" onClick={() => setIsOpenDrawer((prev) => ({ mainMenu: false, notifications: !prev.notifications }))}>
+            <li
+              className="globalNav__item globalNav__notificationAlert"
+              onClick={() => setIsOpenDrawer((prev) => ({ mainMenu: false, notifications: !prev.notifications }))}
+            >
               <FontAwesomeIcon className="globalNav__icon" icon={faBell} />
+              {!!notificationCount && <div className="globalNav__notificationCount">{notificationCount}</div>}
             </li>
             <li className="globalNav__item" onClick={() => setIsOpenDrawer((prev) => ({ mainMenu: !prev.mainMenu, notifications: false }))}>
               <FontAwesomeIcon className="globalNav__icon" icon={faBars} />

@@ -36,6 +36,7 @@
   padding: 0 var(--s-400);
   text-align: center;
   font-size: var(--fs-300);
+  font-weight: var(--fw-semi-bold);
   line-height: 1.2rem;
 }
 

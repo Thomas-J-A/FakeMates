@@ -60,6 +60,20 @@ exports.createPost = async (req, res, next) => {
     
     await post.save();
 
+    // Create a notification representing this user activity
+    const notification = new req.models.Notification({
+      actor: req.user._id,
+      recipients: req.user.friends,
+      actionType: 1,
+      actionSources: {
+        post: post._id,
+      },
+    });
+
+    await notification.save();
+
+    // TODO: Emit notification to recipients who are currently online
+
     // Populate some fields in order to display more info in UI
     await post.populate({
       path: 'postedBy',
@@ -131,6 +145,20 @@ exports.likePost = async (req, res, next) => {
     } else {
       // User has liked post
       post.likedBy.push(req.user._id);
+
+      // Create a notification representing this user activity
+      const notification = new req.models.Notification({
+        actor: req.user._id,
+        recipients: [post.postedBy],
+        actionType: 2,
+        actionSources: {
+          post: post._id,
+        },
+      });
+
+      await notification.save();
+
+      // TODO: Emit notification to recipient if they're currently online
     }
     
     await post.save();

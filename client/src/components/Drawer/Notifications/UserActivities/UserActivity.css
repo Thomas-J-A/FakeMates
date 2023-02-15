@@ -1,0 +1,56 @@
+.userActivity {
+  display: flex;
+  align-items: center;
+  column-gap: var(--s-400);
+}
+
+.userActivity__avatar {
+  height: var(--s-600);
+  width: var(--s-600);
+  border: var(--s-100) solid var(--c-black);
+  border-radius: 50%;
+  object-fit: cover;
+  background-color: var(--c-primary-100);
+}
+
+.userActivity__time {
+  line-height: 1.2rem;
+  font-size: var(--fs-100);
+  color: var(--c-neutral-500);
+}
+
+.userActivity__options {
+  display: flex;
+  margin-left: auto;
+}
+
+.userActivity__button {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 26px;
+  width: 26px;
+  padding: var(--s-200);
+  border-radius: 50%;
+  box-shadow: 2px 2px 4px rgba(0,0,0,.2);
+  font-size: var(--fs-300);
+  color: var(--c-white);
+  cursor: pointer;
+  outline: none;
+}
+
+.userActivity__remove {
+  border: var(--s-100) solid var(--c-accent-700);
+  background: linear-gradient(var(--c-accent-300), var(--c-accent-700));
+}
+
+.userActivity__remove:active {
+  background: var(--c-accent-700);
+}
+
+@media (hover: hover) {
+  .userActivity__remove:hover {
+    background: var(--c-accent-700);
+  }
+}
+

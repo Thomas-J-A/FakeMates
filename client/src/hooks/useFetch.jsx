@@ -19,14 +19,19 @@ const useFetch = (url, {
   const [isLoading, setIsLoading] = useState(!!isLoadingOnMount);
   const [error, setError] = useState(null);
 
-  const doFetch = useCallback(async (opts = {}, query = null) => {
+  const doFetch = useCallback(async (opts = {}, query = null, pathname = null) => {
     setIsLoading(true);
     setError(null);
     if (clearDataOnLoad) setData(null);
 
     try {
-      // If client passes a query, append to original URL
-      const fullUrl = query ? `${ url }?${ query.toString() }` : url;
+      const fullUrl = new URL(url);
+
+      // If client passes a query, append to URL
+      if (query) fullUrl.search = query.toString();
+
+      // If client passes a pathname, override pathname from closure url
+      if (pathname) fullUrl.pathname = pathname;
 
       // Make fetch call
       const res = await fetch(fullUrl, opts);
@@ -44,7 +49,7 @@ const useFetch = (url, {
         error.status = res.status;
         throw error;
       }
-      
+
       setData({ statusCode: res.status, body });
     } catch (err) {
       setError({ statusCode: err.status, message: err.message });

@@ -1,41 +1,32 @@
+import { useEffect, useRef } from 'react';
+
 import FriendRequests from './FriendRequests/FriendRequests';
 import UserActivities from './UserActivities/UserActivities';
 
 import './Notifications.css';
 
-const Notifications = () => {
+const Notifications = ({ isOpen }) => {
+  const friendRequestsRef = useRef(null);
+  const userActivitiesRef = useRef(null);
+
+  // Scroll friend request/notification list back to top when closing drawer
+  useEffect(() => {
+    const scrollToTop = () => {
+      friendRequestsRef.current.scrollTop = 0;
+      userActivitiesRef.current.scrollTop = 0;
+    };
+
+    if (!isOpen) {
+      setTimeout(scrollToTop, 300);
+    }
+  }, [isOpen]);
+
   return (
     <div className="notifications">
-      <FriendRequests />
-      <UserActivities />
+      <FriendRequests ref={friendRequestsRef} />
+      <UserActivities ref={userActivitiesRef} isOpen={isOpen} />
     </div>
   );
 };
 
 export default Notifications;
-
-
-  
-
-// useEffect(() => {
-//   const fetchFriendRequests = async () => {
-//     try {
-//       const res = await fetch('http://192.168.8.146:3000/api/friend-requests', {
-//         method: 'GET',
-//         mode: 'cors',
-//         credentials: 'include',
-//         headers: {
-//           'Content-Type': 'application/json',
-//         },
-//       });
-
-//       const body = await res.json();
-
-//       setFriendRequests(body);
-//     } catch (err) {
-//       console.log('Something went wrong...');
-//     }
-//   };
-
-//   fetchFriendRequests();
-// }, []);

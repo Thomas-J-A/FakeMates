@@ -1,0 +1,13 @@
+.userActivityMessage {
+  line-height: 1rem;
+  font-size: var(--fs-200);
+}
+
+.userActivityMessage__name {
+  font-weight: var(--fw-bold);
+  color: var(--c-primary-700);
+}
+
+.userActivityMessage__source {
+  color: var(--c-primary-700);
+}

@@ -11,7 +11,7 @@ const Drawer = ({ type, isOpen, closeDrawer }) => {
       <div className="drawer__innerWrapper">
         {type === "mainMenu"
           ? <MainMenu isOpen={isOpen} closeDrawer={closeDrawer} />
-          : <Notifications />
+          : <Notifications isOpen={isOpen} />
         }              
       </div>
       {/* <button

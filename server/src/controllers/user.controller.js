@@ -168,6 +168,19 @@ exports.updateUserInfo = async (req, res, next) => {
         break;
     }
 
+    if (action === 'edit' || action === 'upload') {
+      // Create a notification representing this user activity
+      const notification = new req.models.Notification({
+        actor: req.user._id,
+        recipients: req.user.friends,
+        actionType: 5,
+      });
+
+      await notification.save();
+
+      // TODO: Emit notification to recipient if they're currently online
+    }
+
     await user.save();
 
     return res.status(200).json(user);

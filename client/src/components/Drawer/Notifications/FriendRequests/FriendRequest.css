@@ -1,12 +1,12 @@
 .friendRequest {
   display: flex;
   align-items: center;
+  column-gap: var(--s-400);
 }
 
 .friendRequest__avatar {
   height: var(--s-600);
   width: var(--s-600);
-  margin-right: var(--s-400);
   border: var(--s-100) solid var(--c-black);
   border-radius: 50%;
   object-fit: cover;
@@ -16,12 +16,13 @@
 .friendRequest__name {
   line-height: 1.2rem;
   font-size: var(--fs-300);
+  font-weight: var(--fw-bold);
   color: var(--c-primary-700);
 }
 
 .friendRequest__time {
   line-height: 1.2rem;
-  font-size: var(--fs-200);
+  font-size: var(--fs-100);
   color: var(--c-neutral-500);
 }
 

@@ -31,7 +31,7 @@ const App = () => {
     notifications: false,
   });
 
-  const [notificationCount, setNotificationCount] = useState();
+  const [notificationCount, setNotificationCount] = useState(0);
   const { pathname } = useLocation();
   const { isAuthenticated } = useAuth();
   const isWideEnoughForForm = useMediaQuery('(min-width: 1300px)');
@@ -92,7 +92,7 @@ const App = () => {
         <Route path="/search" element={<Search />} />
         <Route path="/profile/:id" element={<Profile key={pathname} />} /> {/* NOTE 1 */}
         <Route path="/timeline" element={<Timeline />} />
-        <Route path="/post/:id" element={<PostDetail />} />
+        <Route path="/posts/:id" element={<PostDetail />} />
         <Route path="/messenger" element={<Messenger />} />
         <Route path="*" element={<NotFound />} />
       </Routes>

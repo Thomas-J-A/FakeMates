@@ -6,7 +6,7 @@
   flex-direction: column;
   height: 100%;
   width: var(--s-900);
-  padding: calc(64px + var(--s-500)) var(--s-500) 0;
+  padding: calc(64px + var(--s-500)) var(--s-500) calc(32px + var(--s-500));
   z-index: 200;
   background-color: var(--c-neutral-300);
   background-image: url('../../../public/images/otis-redding.png');

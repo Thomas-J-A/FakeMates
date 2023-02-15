@@ -1,9 +1,9 @@
-import { useEffect } from 'react';
+import { useEffect, forwardRef } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTriangleExclamation } from '@fortawesome/free-solid-svg-icons';
 
 import FriendRequest from './FriendRequest';
-import FriendRequestSkeleton from './FriendRequest.skeleton';
+import NotificationSkeleton from '../Notification.skeleton';
 
 import { useAuth } from '../../../../contexts/AuthContext';
 
@@ -11,7 +11,7 @@ import useFetch from '../../../../hooks/useFetch';
 
 import './FriendRequests.css';
 
-const FriendRequests = () => {
+const FriendRequests = forwardRef((_, ref) => {
   const { authState, setAuthInfo } = useAuth();
   const [{ data, isLoading, error }, doFetch] = useFetch(
     'http://192.168.8.146:3000/api/friend-requests',
@@ -31,13 +31,13 @@ const FriendRequests = () => {
   }, [doFetch]);
 
   return (
-    <div className="friendRequests">
+    <div className="friendRequests" ref={ref}>
       <h1 className="friendRequests__title">FakeMate Requests</h1>
 
       {isLoading && (
         <div className="friendRequests__skeletons">
-          <FriendRequestSkeleton />
-          <FriendRequestSkeleton />
+          <NotificationSkeleton context="friendRequest"/>
+          <NotificationSkeleton context="friendRequest"/>
         </div>
       )}
 
@@ -55,7 +55,7 @@ const FriendRequests = () => {
       )}
 
       {!isLoading && (data?.body.length === 0) && (
-        <p className="friendRequests__noRequestsMsg">Nobody's asking to be your friend, unfortunately.</p>
+        <p className="friendRequests__noRequestsMsg">Nobody wants to be your friend.</p>
       )}
 
       {!isLoading && error && (
@@ -66,6 +66,6 @@ const FriendRequests = () => {
       )}
     </div>
   );
-};
+});
 
 export default FriendRequests;
