@@ -5,31 +5,30 @@ import {
   useMemo,
   useCallback,
   useContext,
-  forwardRef
-} from 'react';
+  forwardRef,
+} from "react";
 
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faTriangleExclamation } from '@fortawesome/free-solid-svg-icons';
-import PulseLoader from 'react-spinners/PulseLoader';
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faTriangleExclamation } from "@fortawesome/free-solid-svg-icons";
+import PulseLoader from "react-spinners/PulseLoader";
 
-import UserActivity from './UserActivity';
-import NotificationSkeleton from '../Notification.skeleton';
+import UserActivity from "./UserActivity";
+import NotificationSkeleton from "../Notification.skeleton";
 
-import useFetch from '../../../../hooks/useFetch';
+import useFetch from "../../../../hooks/useFetch";
 
-import { NotificationCountContext } from '../../../../contexts/NotificationCountContext';
-import { useAuth } from '../../../../contexts/AuthContext';
+import { NotificationCountContext } from "../../../../contexts/NotificationCountContext";
+import { useAuth } from "../../../../contexts/AuthContext";
 
-import './UserActivities.css';
+import "./UserActivities.css";
 
 const cssOverride = {
   display: "flex",
-  alignItems: 'center',
-  justifyContent: 'center',
+  alignItems: "center",
+  justifyContent: "center",
 };
 
 const UserActivities = forwardRef(({ isOpen }, ref) => {
-
   /************ STATE  ************/
 
   const [userActivities, setUserActivities] = useState([]);
@@ -37,17 +36,19 @@ const UserActivities = forwardRef(({ isOpen }, ref) => {
   const [resultsRemaining, setResultsRemaining] = useState(0);
   const [hasMore, setHasMore] = useState(false);
   const [{ data, isLoading, error }, doFetch] = useFetch(
-    'http://192.168.8.146:3000/api/notifications',
+    `http://${process.env.HOST}:3000/api/notifications`,
     { isLoadingOnMount: true }
   );
 
   const [, doFetchRead] = useFetch(
-    'http://192.168.8.146:3000/api/notifications',
+    `http://${process.env.HOST}:3000/api/notifications`,
     { isLoadingOnMount: false }
   );
 
   const { setNotificationCount } = useContext(NotificationCountContext);
-  const { authState: { currentUser } } = useAuth();
+  const {
+    authState: { currentUser },
+  } = useAuth();
 
   /************ HOOKS  ************/
 
@@ -62,11 +63,11 @@ const UserActivities = forwardRef(({ isOpen }, ref) => {
   // Fetch new data every time currentPage value changes
   useEffect(() => {
     const fetchOpts = {
-      method: 'GET',
-      mode: 'cors',
-      credentials: 'include',
+      method: "GET",
+      mode: "cors",
+      credentials: "include",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
     };
 
@@ -77,31 +78,33 @@ const UserActivities = forwardRef(({ isOpen }, ref) => {
 
   // Mark all fetched notifications as read
   useEffect(() => {
-    const markAsRead = async () => {  
+    const markAsRead = async () => {
       try {
         const fetchOpts = {
-          method: 'PUT',
-          mode: 'cors',
-          credentials: 'include',
+          method: "PUT",
+          mode: "cors",
+          credentials: "include",
           headers: {
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
           },
         };
-        
+
         // Find only unread notifications in the array
-        const unreadUserActivities = userActivities.filter((ua) => !ua.readBy.includes(currentUser._id));
+        const unreadUserActivities = userActivities.filter(
+          (ua) => !ua.readBy.includes(currentUser._id)
+        );
 
         // If user simply opens drawer without loading more notifications, return
         if (!unreadUserActivities.length) return;
 
         // Mark each unread notification as read in backend
         const promises = unreadUserActivities.map(async (ua) => {
-          const query = new URLSearchParams({ action: 'read' });
-          const pathname = `api/notifications/${ ua._id }`;
+          const query = new URLSearchParams({ action: "read" });
+          const pathname = `api/notifications/${ua._id}`;
 
           return await doFetchRead(fetchOpts, query, pathname);
         });
-        
+
         await Promise.all(promises);
 
         // Update readBy array in each unread (now read) notification in local state
@@ -110,19 +113,19 @@ const UserActivities = forwardRef(({ isOpen }, ref) => {
           if (!ua.readBy.includes(currentUser._id)) {
             ua.readBy.push(currentUser._id);
           }
-          
-          return ua; 
+
+          return ua;
         });
 
         setUserActivities(updatedUserActivities);
-        
+
         // Update notificationCount context to display new unread count in header
         setNotificationCount((prev) => prev - unreadUserActivities.length);
       } catch (err) {
         console.log(err);
       }
     };
-      
+
     if (isOpen && userActivities.length) {
       markAsRead();
     }
@@ -131,7 +134,7 @@ const UserActivities = forwardRef(({ isOpen }, ref) => {
   // Append latest data to local state to keep a list of all loaded data,
   useLayoutEffect(() => {
     if (data) {
-      setUserActivities((prev) => [ ...prev, ...data.body.notifications ]);
+      setUserActivities((prev) => [...prev, ...data.body.notifications]);
       setResultsRemaining(data.body.resultsRemaining);
       setHasMore(data.body.hasMore);
     }
@@ -147,23 +150,41 @@ const UserActivities = forwardRef(({ isOpen }, ref) => {
 
   /************ JSX LOGIC  ************/
 
-  const userActivitiesList = useMemo(() => (
-    userActivities.map((ua) => (
-      <UserActivity key={ua._id} ua={ua} setUserActivities={setUserActivities} />
-    ))
-  ), [userActivities]);
+  const userActivitiesList = useMemo(
+    () =>
+      userActivities.map((ua) => (
+        <UserActivity
+          key={ua._id}
+          ua={ua}
+          setUserActivities={setUserActivities}
+        />
+      )),
+    [userActivities]
+  );
 
-  const loadMore = useMemo(() => (
-    <p className="userActivities__loadMore" onClick={loadNextPage}>
-      {resultsRemaining > 1 ? `Load ${ resultsRemaining } more notifications...` : 'Load 1 more notification...'}
-    </p>
-  ), [resultsRemaining]);
+  const loadMore = useMemo(
+    () => (
+      <p className="userActivities__loadMore" onClick={loadNextPage}>
+        {resultsRemaining > 1
+          ? `Load ${resultsRemaining} more notifications...`
+          : "Load 1 more notification..."}
+      </p>
+    ),
+    [resultsRemaining]
+  );
 
-  const skeletonList = useMemo(() => (
-    <div className="userActivities__skeletons">
-      {Array(5).fill().map((_, i) => <NotificationSkeleton key={i} context="userActivity" />)}
-    </div>
-  ), [NotificationSkeleton]);
+  const skeletonList = useMemo(
+    () => (
+      <div className="userActivities__skeletons">
+        {Array(5)
+          .fill()
+          .map((_, i) => (
+            <NotificationSkeleton key={i} context="userActivity" />
+          ))}
+      </div>
+    ),
+    [NotificationSkeleton]
+  );
 
   const initialPage = currentPage === 1;
 
@@ -183,25 +204,32 @@ const UserActivities = forwardRef(({ isOpen }, ref) => {
         <PulseLoader
           loading={isLoading}
           size={10}
-          speedMultiplier={.8}
+          speedMultiplier={0.8}
           color="#fff"
           cssOverride={cssOverride}
         />
       )}
 
       {userActivities.length > 0 && !hasMore && (
-        <p className="userActivities__noMoreMsg">No more notifications to display.</p>
+        <p className="userActivities__noMoreMsg">
+          No more notifications to display.
+        </p>
       )}
 
-      {!isLoading && !error && (!userActivities.length) && (
-        <p className="userActivities__noUserActivitiesMsg">Your friends are boring.</p>
+      {!isLoading && !error && !userActivities.length && (
+        <p className="userActivities__noUserActivitiesMsg">
+          Your friends are boring.
+        </p>
       )}
 
       {error && (
         <div className="userActivities__error">
-          <FontAwesomeIcon className="userActivities__errorIcon" icon={faTriangleExclamation} />
+          <FontAwesomeIcon
+            className="userActivities__errorIcon"
+            icon={faTriangleExclamation}
+          />
           <p className="userActivities__errorMsg">Whoops-a-daisy!</p>
-      </div>
+        </div>
       )}
     </div>
   );

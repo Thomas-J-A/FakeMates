@@ -1,31 +1,30 @@
-import { useLayoutEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { formatDistance } from 'date-fns';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faXmark } from '@fortawesome/free-solid-svg-icons';
+import { useLayoutEffect } from "react";
+import { Link } from "react-router-dom";
+import { formatDistance } from "date-fns";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faXmark } from "@fortawesome/free-solid-svg-icons";
 
-import UserActivityMessage from './UserActivityMessage';
+import UserActivityMessage from "./UserActivityMessage";
 
-import useFetch from '../../../../hooks/useFetch';
+import useFetch from "../../../../hooks/useFetch";
 
-import './UserActivity.css';
-import { useEffect } from 'react';
+import "./UserActivity.css";
+import { useEffect } from "react";
 
 const fetchOpts = {
-  method: 'PUT',
-  mode: 'cors',
-  credentials: 'include',
+  method: "PUT",
+  mode: "cors",
+  credentials: "include",
   headers: {
-    'Content-Type': 'application/json',
+    "Content-Type": "application/json",
   },
 };
 
 const UserActivity = ({ ua, setUserActivities }) => {
-
   /************ STATE  ************/
-  
-  const [{ data,  isLoading }, doFetch] = useFetch(
-    `http://192.168.8.146:3000/api/notifications/${ ua._id }?action=delete`,
+
+  const [{ data, isLoading }, doFetch] = useFetch(
+    `http://${process.env.HOST}:3000/api/notifications/${ua._id}?action=delete`,
     { isLoadingOnMount: false }
   );
 
@@ -34,9 +33,9 @@ const UserActivity = ({ ua, setUserActivities }) => {
   // Remove notification in frontend
   useLayoutEffect(() => {
     if (data) {
-      setUserActivities((prevValues) => (
+      setUserActivities((prevValues) =>
         prevValues.filter((prevValue) => prevValue._id !== ua._id)
-      ));
+      );
     }
   }, [data]);
 
@@ -44,7 +43,7 @@ const UserActivity = ({ ua, setUserActivities }) => {
 
   // Remove notification in backend
   const removeNotification = async () => {
-    try {  
+    try {
       doFetch(fetchOpts);
     } catch (err) {
       console.log(err);
@@ -55,17 +54,21 @@ const UserActivity = ({ ua, setUserActivities }) => {
 
   return (
     <div className="userActivity">
-       <Link to={`/profile/${ ua.actor._id }`}>
+      <Link to={`/profile/${ua.actor._id}`}>
         <img
           className="userActivity__avatar"
-          src={`http://192.168.8.146:3000/${ ua.actor.avatarUrl }`}
+          src={`http://${process.env.HOST}:3000/${ua.actor.avatarUrl}`}
           crossOrigin="anonymous"
           alt="Avatar of user who performed activity"
         />
       </Link>
       <div className="userActivity__info">
         <UserActivityMessage ua={ua} />
-        <p className="userActivity__time">{formatDistance(new Date(ua.createdAt), new Date(), { addSuffix: true })}</p>
+        <p className="userActivity__time">
+          {formatDistance(new Date(ua.createdAt), new Date(), {
+            addSuffix: true,
+          })}
+        </p>
       </div>
       <div className="userActivity__options">
         <button

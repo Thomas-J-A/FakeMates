@@ -1,24 +1,32 @@
-import { useEffect, useMemo } from 'react';
-import { Link } from 'react-router-dom';
-import { formatDistance } from 'date-fns';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCheck, faXmark, faTriangleExclamation } from '@fortawesome/free-solid-svg-icons';
-import PulseLoader from 'react-spinners/PulseLoader';
+import { useEffect, useMemo } from "react";
+import { Link } from "react-router-dom";
+import { formatDistance } from "date-fns";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+  faCheck,
+  faXmark,
+  faTriangleExclamation,
+} from "@fortawesome/free-solid-svg-icons";
+import PulseLoader from "react-spinners/PulseLoader";
 
-import useFetch from '../../../../hooks/useFetch';
+import useFetch from "../../../../hooks/useFetch";
 
-import './FriendRequest.css';
+import "./FriendRequest.css";
 
 const cssOverride = {
   display: "flex",
-  alignItems: 'center',
-  justifyContent: 'center',
+  alignItems: "center",
+  justifyContent: "center",
 };
 
 // currentUser must be renamed because call to setAuthInfo function API also requires a value of that name
-const FriendRequest = ({ fr, authState: { currentUser: currentUserData, expiresAt }, setAuthInfo }) => {
+const FriendRequest = ({
+  fr,
+  authState: { currentUser: currentUserData, expiresAt },
+  setAuthInfo,
+}) => {
   const [{ data, isLoading, error }, doFetch] = useFetch(
-    `http://192.168.8.146:3000/api/friend-requests/${ fr._id }`
+    `http://${process.env.HOST}:3000/api/friend-requests/${fr._id}`
   );
 
   const isAccepted = useMemo(() => data && data.statusCode === 200, [data]);
@@ -26,11 +34,11 @@ const FriendRequest = ({ fr, authState: { currentUser: currentUserData, expiresA
   // Accept or decline friend request
   const handleFriendRequest = async (accept) => {
     const fetchOpts = {
-      method: 'PUT',
-      mode: 'cors',
-      credentials: 'include',
+      method: "PUT",
+      mode: "cors",
+      credentials: "include",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
     };
 
@@ -43,14 +51,17 @@ const FriendRequest = ({ fr, authState: { currentUser: currentUserData, expiresA
   // immediately, during current session; currentUser is only updated on login.
   useEffect(() => {
     if (isAccepted) {
-      const updatedFriendsList = [ ...currentUserData.friends, {
-        _id: fr.from._id,
-        fullName: fr.from.fullName,
-        avatarUrl: fr.from.avatarUrl
-      }];
+      const updatedFriendsList = [
+        ...currentUserData.friends,
+        {
+          _id: fr.from._id,
+          fullName: fr.from.fullName,
+          avatarUrl: fr.from.avatarUrl,
+        },
+      ];
 
       const currentUser = { ...currentUserData, friends: updatedFriendsList };
-      
+
       setAuthInfo({ currentUser, expiresAt });
 
       // ---- FOR BACKEND? ----
@@ -62,9 +73,9 @@ const FriendRequest = ({ fr, authState: { currentUser: currentUserData, expiresA
 
   if (isLoading) {
     return (
-      <PulseLoader 
+      <PulseLoader
         size={10}
-        speedMultiplier={.8}
+        speedMultiplier={0.8}
         color="#fff"
         cssOverride={cssOverride}
       />
@@ -74,8 +85,13 @@ const FriendRequest = ({ fr, authState: { currentUser: currentUserData, expiresA
   if (error) {
     return (
       <div className="friendRequest__error">
-        <FontAwesomeIcon className="friendRequest__errorIcon" icon={faTriangleExclamation} />
-        <p className="friendRequest__errorMsg">This wasn't supposed to happen...</p>
+        <FontAwesomeIcon
+          className="friendRequest__errorIcon"
+          icon={faTriangleExclamation}
+        />
+        <p className="friendRequest__errorMsg">
+          This wasn't supposed to happen...
+        </p>
       </div>
     );
   }
@@ -85,7 +101,9 @@ const FriendRequest = ({ fr, authState: { currentUser: currentUserData, expiresA
   if (data) {
     return (
       <p className="friendRequest__statusMsg">
-        {`You have ${ isAccepted ? 'accepted' : 'declined' } ${ fr.from.firstName }'s FakeMate request.`}
+        {`You have ${isAccepted ? "accepted" : "declined"} ${
+          fr.from.firstName
+        }'s FakeMate request.`}
       </p>
     );
   }
@@ -93,19 +111,23 @@ const FriendRequest = ({ fr, authState: { currentUser: currentUserData, expiresA
   // Display a friend request in UI
   return (
     <div className="friendRequest">
-      <Link to={`/profile/${ fr.from._id }`}>
+      <Link to={`/profile/${fr.from._id}`}>
         <img
           className="friendRequest__avatar"
-          src={`http://192.168.8.146:3000/${ fr.from.avatarUrl }`}
+          src={`http://${process.env.HOST}:3000/${fr.from.avatarUrl}`}
           crossOrigin="anonymous"
           alt="Avatar of user who sent friend request"
         />
       </Link>
       <div className="friendRequest__info">
-        <Link to={`/profile/${ fr.from._id }`}>
+        <Link to={`/profile/${fr.from._id}`}>
           <p className="friendRequest__name">{fr.from.fullName}</p>
         </Link>
-        <p className="friendRequest__time">{formatDistance(new Date(fr.createdAt), new Date(), { addSuffix: true })}</p>
+        <p className="friendRequest__time">
+          {formatDistance(new Date(fr.createdAt), new Date(), {
+            addSuffix: true,
+          })}
+        </p>
       </div>
       <div className="friendRequest__options">
         <button

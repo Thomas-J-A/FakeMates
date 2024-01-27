@@ -1,5 +1,5 @@
-const JwtStrategy = require('passport-jwt').Strategy;
-const GoogleTokenStrategy = require('passport-google-token').Strategy;
+const JwtStrategy = require("passport-jwt").Strategy;
+const GoogleTokenStrategy = require("passport-google-token").Strategy;
 
 const extractJwtFromCookie = (req) => {
   let token = null;
@@ -19,46 +19,53 @@ const jwtOpts = {
 module.exports = (passport) => {
   // With { session: false } in auth call, calling done() will populate
   // req.user and call next(), but it won't call serializeUser()
-  passport.use(new JwtStrategy(jwtOpts, async (req, jwt_payload, done) => {
-    try {
-      const user = await req.models.User.findById(jwt_payload.sub).exec();
-      
-      if (user) {
-        done(null, user);
-      } else {
-        done(null, false);
+  passport.use(
+    new JwtStrategy(jwtOpts, async (req, jwt_payload, done) => {
+      try {
+        const user = await req.models.User.findById(jwt_payload.sub).exec();
+
+        if (user) {
+          done(null, user);
+        } else {
+          done(null, false);
+        }
+      } catch (err) {
+        done(err, false);
       }
-    } catch (err) {
-      done(err, false);
-    }
-  }));
+    })
+  );
 
   // 'accessToken' and 'refreshToken' are used to further query Google's API
   // and not needed for authentication
-  passport.use(new GoogleTokenStrategy({
-    clientID: process.env.GOOGLE_CLIENT_ID,
-    clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-    passReqToCallback: true,
-  }, async (req, accessToken, refreshToken, profile, done) => {
-    try {
-      const result = await req.models.User.findOrCreate(
-        { email: profile.emails[0].value },
-        {
-          firstName: profile.name.givenName,
-          lastName: profile.name.familyName,
+  passport.use(
+    new GoogleTokenStrategy(
+      {
+        clientID: process.env.GOOGLE_CLIENT_ID,
+        clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+        passReqToCallback: true,
+      },
+      async (req, accessToken, refreshToken, profile, done) => {
+        try {
+          const result = await req.models.User.findOrCreate(
+            { email: profile.emails[0].value },
+            {
+              firstName: profile.name.givenName,
+              lastName: profile.name.familyName,
+            }
+          );
+
+          // Status code in res will change depending on whether
+          // a user was found or created (signed in || signed up)
+          req.isCreated = result.created;
+
+          done(null, result.doc);
+        } catch (err) {
+          console.log(err);
+          done(err, false);
         }
-      );
-
-      // Status code in res will change depending on whether
-      // a user was found or created (signed in || signed up)
-      req.isCreated = result.created;
-
-      done(null, result.doc);
-    } catch (err) {
-      console.log(err);
-      done(err, false);
-    }
-  }));
+      }
+    )
+  );
 
   // // Serialize user into session/persist user info in session
   // // Not required if using JWT-based auth, though some OAuth providers

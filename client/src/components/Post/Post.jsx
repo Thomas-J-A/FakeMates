@@ -1,21 +1,30 @@
-import { useState, useEffect, useCallback, forwardRef } from 'react';
-import { Link } from 'react-router-dom';
-import PulseLoader from 'react-spinners/PulseLoader';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCircleQuestion, faThumbsUp, faComment } from '@fortawesome/free-regular-svg-icons';
-import { faEllipsisVertical, faTrashCan, faTriangleExclamation, faAngleDown } from '@fortawesome/free-solid-svg-icons';
-import { formatDistance } from 'date-fns';
+import { useState, useEffect, useCallback, forwardRef } from "react";
+import { Link } from "react-router-dom";
+import PulseLoader from "react-spinners/PulseLoader";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+  faCircleQuestion,
+  faThumbsUp,
+  faComment,
+} from "@fortawesome/free-regular-svg-icons";
+import {
+  faEllipsisVertical,
+  faTrashCan,
+  faTriangleExclamation,
+  faAngleDown,
+} from "@fortawesome/free-solid-svg-icons";
+import { formatDistance } from "date-fns";
 
-import Comment from '../Comment/Comment';
-import CommentForm from './CommentForm/CommentForm';
-import Options from '../Options/Options';
+import Comment from "../Comment/Comment";
+import CommentForm from "./CommentForm/CommentForm";
+import Options from "../Options/Options";
 
-import { useAuth } from '../../contexts/AuthContext';
+import { useAuth } from "../../contexts/AuthContext";
 
-import usePrevious from '../../hooks/usePrevious';
-import useMediaQuery from '../../hooks/useMediaQuery';
+import usePrevious from "../../hooks/usePrevious";
+import useMediaQuery from "../../hooks/useMediaQuery";
 
-import './Post.css';
+import "./Post.css";
 
 // Custom styles for PulseLoader component
 const cssOverride = {
@@ -32,9 +41,11 @@ const Post = forwardRef(({ post, setPosts }, ref) => {
   const [error, setError] = useState(null);
   const [areExpandedComments, setAreExpandedComments] = useState(false);
   const [isVisiblePostOptions, setIsVisiblePostOptions] = useState(false);
-  const isWideViewport = useMediaQuery('(min-width: 810px)');
+  const isWideViewport = useMediaQuery("(min-width: 810px)");
 
-  const { authState: { currentUser } } = useAuth();
+  const {
+    authState: { currentUser },
+  } = useAuth();
 
   const prevAreExpandedComments = usePrevious(areExpandedComments);
 
@@ -43,14 +54,17 @@ const Post = forwardRef(({ post, setPosts }, ref) => {
     setError(null);
 
     try {
-      const res = await fetch(`http://192.168.8.146:3000/api/comments?postid=${ post._id }&page=${ currentPage }`, {
-        method: 'GET',
-        mode: 'cors',
-        credentials: 'include',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
+      const res = await fetch(
+        `http://${process.env.HOST}:3000/api/comments?postid=${post._id}&page=${currentPage}`,
+        {
+          method: "GET",
+          mode: "cors",
+          credentials: "include",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
 
       const body = await res.json();
 
@@ -58,7 +72,9 @@ const Post = forwardRef(({ post, setPosts }, ref) => {
         // If an incomplete page of results is returned then current page number will be
         // used again in next API request so this logic filters out duplicate comments
         const currentCommentIds = prevComments.map((c) => c._id);
-        const commentsNotDisplayed = body.comments.filter(({ _id }) => !currentCommentIds.includes(_id));
+        const commentsNotDisplayed = body.comments.filter(
+          ({ _id }) => !currentCommentIds.includes(_id)
+        );
 
         return [...prevComments, ...commentsNotDisplayed];
       });
@@ -88,7 +104,7 @@ const Post = forwardRef(({ post, setPosts }, ref) => {
     if (areExpandedComments && !hasMore) {
       fetchComments();
     }
-  }, [areExpandedComments, hasMore]); 
+  }, [areExpandedComments, hasMore]);
 
   const loadMoreComments = () => {
     fetchComments();
@@ -98,20 +114,23 @@ const Post = forwardRef(({ post, setPosts }, ref) => {
     const id = post._id;
 
     try {
-      const res = await fetch(`http://192.168.8.146:3000/api/posts/${ id }`, {
-        method: 'PUT',
-        mode: 'cors',
-        credentials: 'include',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
+      const res = await fetch(
+        `http://${process.env.HOST}:3000/api/posts/${id}`,
+        {
+          method: "PUT",
+          mode: "cors",
+          credentials: "include",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
 
       const updatedPost = await res.json();
 
-      setPosts((prevPosts) => (
-        prevPosts.map((p) => p._id === updatedPost._id ? updatedPost : p)
-      ));
+      setPosts((prevPosts) =>
+        prevPosts.map((p) => (p._id === updatedPost._id ? updatedPost : p))
+      );
     } catch (err) {
       console.log(err);
     }
@@ -136,29 +155,36 @@ const Post = forwardRef(({ post, setPosts }, ref) => {
 
   const submitComment = async (values, { resetForm, setStatus }) => {
     // Clear any global errors stored in status
-    setStatus('');
+    setStatus("");
 
     try {
-      const res = await fetch(`http://192.168.8.146:3000/api/comments?postid=${ post._id }`, {
-        method: 'POST',
-        mode: 'cors',
-        credentials: 'include',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          content: values.content,
-        }),
-      });
+      const res = await fetch(
+        `http://${process.env.HOST}:3000/api/comments?postid=${post._id}`,
+        {
+          method: "POST",
+          mode: "cors",
+          credentials: "include",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            content: values.content,
+          }),
+        }
+      );
 
       if (!res.ok) throw new Error(res);
 
       const newComment = await res.json();
 
       // Increase comments count on post footer
-      setPosts((prevPosts) => (
-        prevPosts.map((p) => p._id === newComment.postId ? { ...p, commentsCount: p.commentsCount += 1 } : p)
-      ));
+      setPosts((prevPosts) =>
+        prevPosts.map((p) =>
+          p._id === newComment.postId
+            ? { ...p, commentsCount: (p.commentsCount += 1) }
+            : p
+        )
+      );
 
       // Add new comment to comments array
       setComments((prevComments) => [...prevComments, newComment]);
@@ -168,20 +194,23 @@ const Post = forwardRef(({ post, setPosts }, ref) => {
     } catch (err) {
       // Clear textarea and let client know about server error
       resetForm();
-      setStatus('Oops, something went wrong with the internets.');
+      setStatus("Oops, something went wrong with the internets.");
     }
   };
 
   const removePost = async () => {
     try {
-      const res = await fetch(`http://192.168.8.146:3000/api/posts/${ post._id }`, {
-        method: 'DELETE',
-        mode: 'cors',
-        credentials: 'include',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
+      const res = await fetch(
+        `http://${process.env.HOST}:3000/api/posts/${post._id}`,
+        {
+          method: "DELETE",
+          mode: "cors",
+          credentials: "include",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
 
       if (!res.ok) throw new Error(res);
 
@@ -197,33 +226,39 @@ const Post = forwardRef(({ post, setPosts }, ref) => {
     {
       onClick: removePost,
       icon: faTrashCan,
-      text: 'Remove Post',
+      text: "Remove Post",
     },
     {
-      onClick: () => alert('This is the mystery. Are you disappointed?'),
+      onClick: () => alert("This is the mystery. Are you disappointed?"),
       icon: faCircleQuestion,
-      text: 'Mystery Click',
+      text: "Mystery Click",
     },
   ];
 
   const isOwn = post.postedBy._id === currentUser._id;
 
   return (
-    <article className="post" ref={ref ? ref : null} > {/* Only last post is forwarded a ref */}
+    <article className="post" ref={ref ? ref : null}>
+      {" "}
+      {/* Only last post is forwarded a ref */}
       <header className="postHeader">
-        <Link to={`/profile/${ post.postedBy._id }`}>
+        <Link to={`/profile/${post.postedBy._id}`}>
           <img
             className="postHeader__avatar"
-            src={`http://192.168.8.146:3000/${ post.postedBy.avatarUrl }`}
+            src={`http://${process.env.HOST}:3000/${post.postedBy.avatarUrl}`}
             crossOrigin="anonymous"
             alt=""
           />
         </Link>
         <div className="postHeader__meta">
-          <Link to={`/profile/${ post.postedBy._id }`}>
+          <Link to={`/profile/${post.postedBy._id}`}>
             <p className="postHeader__postedBy">{post.postedBy.fullName}</p>
           </Link>
-          <p className="postHeader__createdAt">{formatDistance(new Date(post.createdAt), new Date(), { addSuffix: true })}</p>
+          <p className="postHeader__createdAt">
+            {formatDistance(new Date(post.createdAt), new Date(), {
+              addSuffix: true,
+            })}
+          </p>
         </div>
         {isOwn && (
           <>
@@ -246,7 +281,7 @@ const Post = forwardRef(({ post, setPosts }, ref) => {
         {post.imageUrl && (
           <img
             className="postContent__image"
-            src={`http://192.168.8.146:3000/${ post.imageUrl }`}
+            src={`http://${process.env.HOST}:3000/${post.imageUrl}`}
             crossOrigin="anonymous"
             alt=""
           />
@@ -254,57 +289,92 @@ const Post = forwardRef(({ post, setPosts }, ref) => {
       </main>
       <footer className="postFooter">
         <div
-          className={`postFooter__likesCount ${ isOwn ? 'postFooter--own__likesCount' : '' } ${ post.likedBy.includes(currentUser._id) ? 'postFooter__likesCount--liked' : '' }`}
+          className={`postFooter__likesCount ${
+            isOwn ? "postFooter--own__likesCount" : ""
+          } ${
+            post.likedBy.includes(currentUser._id)
+              ? "postFooter__likesCount--liked"
+              : ""
+          }`}
           onClick={!isOwn ? likePost : undefined}
         >
-          <FontAwesomeIcon className="postFooter__likesIcon" icon={faThumbsUp} />
+          <FontAwesomeIcon
+            className="postFooter__likesIcon"
+            icon={faThumbsUp}
+          />
           <span className="postFooter__likesTotal">{post.likedBy.length}</span>
         </div>
         <div className="postFooter__commentsCount">
-          <FontAwesomeIcon className="postFooter__commentsIcon" icon={faComment} />
-          <span className="postFooter__commentsTotal">{post.commentsCount}</span>
+          <FontAwesomeIcon
+            className="postFooter__commentsIcon"
+            icon={faComment}
+          />
+          <span className="postFooter__commentsTotal">
+            {post.commentsCount}
+          </span>
         </div>
         <div
-          className={`postFooter__expandComments  ${ areExpandedComments ? 'postFooter__expandComments--expanded' : '' }`}
+          className={`postFooter__expandComments  ${
+            areExpandedComments ? "postFooter__expandComments--expanded" : ""
+          }`}
           onClick={toggleComments}
         >
           <span className="postFooter__viewComments">View comments</span>
-          <FontAwesomeIcon className="postFooter__expandIcon" icon={faAngleDown} />
+          <FontAwesomeIcon
+            className="postFooter__expandIcon"
+            icon={faAngleDown}
+          />
         </div>
       </footer>
       {areExpandedComments && (
         <section className="postComments">
           <div className="postComments__comments">
-            {comments.map((comment) => <Comment key={comment._id} comment={comment} setComments={setComments} />)}
+            {comments.map((comment) => (
+              <Comment
+                key={comment._id}
+                comment={comment}
+                setComments={setComments}
+              />
+            ))}
             {!isLoading && hasMore && !error && (
               <p className="postComments__loadMore" onClick={loadMoreComments}>
-                {resultsRemaining > 1 ? `Load ${resultsRemaining} more comments...` : 'Load 1 more comment...'}
+                {resultsRemaining > 1
+                  ? `Load ${resultsRemaining} more comments...`
+                  : "Load 1 more comment..."}
               </p>
             )}
           </div>
           <PulseLoader
             loading={isLoading}
             size={isWideViewport ? 12 : 8}
-            speedMultiplier={.8}
+            speedMultiplier={0.8}
             color="#000"
             cssOverride={cssOverride}
           />
-          {error
-            ? (
-              <div className="postComments__error">
-                <FontAwesomeIcon className="postComments__errorIcon" icon={faTriangleExclamation} />
-                <p
-                  className="postComments__errorMessage">
-                  {comments.length ? "Failed to load more comments." : "Failed to load comments."}
+          {error ? (
+            <div className="postComments__error">
+              <FontAwesomeIcon
+                className="postComments__errorIcon"
+                icon={faTriangleExclamation}
+              />
+              <p className="postComments__errorMessage">
+                {comments.length
+                  ? "Failed to load more comments."
+                  : "Failed to load comments."}
+              </p>
+            </div>
+          ) : (
+            <>
+              {!isLoading && !comments.length && (
+                <p className="postComments__firstComment">
+                  Be the first to comment!
                 </p>
-              </div>
-            ) : (
-              <>
-                {!isLoading && !comments.length && <p className="postComments__firstComment">Be the first to comment!</p>}
-                {!isLoading && !hasMore && <CommentForm handleSubmit={submitComment} />}
-              </>
-            )
-          }
+              )}
+              {!isLoading && !hasMore && (
+                <CommentForm handleSubmit={submitComment} />
+              )}
+            </>
+          )}
         </section>
       )}
     </article>

@@ -1,29 +1,29 @@
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faUserGear,
   faUserPlus,
   faUserClock,
   faUserCheck,
-  faUserSlash
-} from '@fortawesome/free-solid-svg-icons';
+  faUserSlash,
+} from "@fortawesome/free-solid-svg-icons";
 
-import './ProfileHeader.css';
+import "./ProfileHeader.css";
 
 const ProfileHeader = ({ userData }) => {
   // Render appropriate icon which represents relationship between the two users
   let icon;
 
   switch (userData.relationshipStatus) {
-    case 'none':
+    case "none":
       icon = faUserPlus;
       break;
-    case 'pending':
+    case "pending":
       icon = faUserClock;
       break;
-    case 'accepted':
+    case "accepted":
       icon = faUserCheck;
       break;
-    case 'rejected':
+    case "rejected":
       icon = faUserSlash;
       break;
     default:
@@ -34,20 +34,23 @@ const ProfileHeader = ({ userData }) => {
     <div className="profileHeader">
       <p className="profileHeader__name">
         {userData.fullName}
-        <FontAwesomeIcon className="profileHeader__relationshipStatusIcon" icon={icon} />
+        <FontAwesomeIcon
+          className="profileHeader__relationshipStatusIcon"
+          icon={icon}
+        />
       </p>
       <img
         className="profileHeader__avatar"
-        src={`http://192.168.8.146:3000/${ userData.avatarUrl }`}
+        src={`http://${process.env.HOST}:3000/${userData.avatarUrl}`}
         crossOrigin="anonymous"
         alt=""
       />
       <img
         className="profileHeader__backgroundImage"
-        src={`http://192.168.8.146:3000/${ userData.backgroundUrl }`}
+        src={`http://${process.env.HOST}:3000/${userData.backgroundUrl}`}
         alt=""
         crossOrigin="anonymous"
-        />
+      />
     </div>
   );
 };

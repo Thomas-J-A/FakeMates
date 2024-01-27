@@ -1,42 +1,43 @@
-const express = require('express');
-const path = require('path');
-const logger = require('morgan');
-const helmet = require('helmet');
-const cors = require('cors');
-const cookieParser = require('cookie-parser');
+const express = require("express");
+const path = require("path");
+const logger = require("morgan");
+const helmet = require("helmet");
+const cors = require("cors");
+const cookieParser = require("cookie-parser");
 // const session = require('express-session');
 // const MongoStore = require('connect-mongo');
-const passport = require('passport');
-const mongoose = require('mongoose');
+const passport = require("passport");
+const mongoose = require("mongoose");
 
 // Import routes
-const indexRouter = require('./routes/index.route');
+const indexRouter = require("./routes/index.route");
 
 // Import models
-const models = require('./models/index.model');
+const models = require("./models/index.model");
 
 // Set up environment variables
-require('dotenv').config({ path: '../.env'});
+require("dotenv").config();
 
 // Create Express app
 const app = express();
 
 // Prod/Dev db setup
 // Test db setup happens in test util file
-if (process.env.NODE_ENV !== 'test') require('./configs/db.config');
+if (process.env.NODE_ENV !== "test") require("./configs/db.config");
 
 // Passport setup
-require('./configs/passport.config')(passport);
+require("./configs/passport.config")(passport);
 
 // Set up middlewares
-if (process.env.NODE_ENV !== 'test') app.use(logger('dev'));
-app.use(cors({
-  origin: 'http://192.168.8.146:8080', // React client
-  // origin: 'http://localhost:8080',  // React client
-  credentials: true, // Allow cookies to be sent
-}));
+if (process.env.NODE_ENV !== "test") app.use(logger("dev"));
+app.use(
+  cors({
+    origin: `http://${process.env.HOST}:8080`, // React client
+    credentials: true, // Allow cookies to be sent
+  })
+);
 app.use(helmet());
-app.use('/public', express.static(path.join(__dirname, '../public'))); // Serve static files from ./public directory
+app.use("/public", express.static(path.join(__dirname, "../public"))); // Serve static files from ./public directory
 app.use(express.json());
 app.use(cookieParser()); // Parses Cookie header and populates req.cookies (req.cookies.<cookieName>)
 // app.use(session({
@@ -58,11 +59,11 @@ app.use((req, res, next) => {
 });
 
 // Mount all routes
-app.use('/api', indexRouter);
+app.use("/api", indexRouter);
 
 // Handle undefined routes
 app.use((req, res, next) => {
-  const err = new Error('Not found');
+  const err = new Error("Not found");
   err.status = 404;
   next(err);
 });
