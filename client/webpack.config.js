@@ -36,8 +36,6 @@ module.exports = {
     ],
   },
   devServer: {
-    // host: '192.168.8.146',
-    // host: "local-ipv4",
     host: "localhost",
     port: 8080,
     open: true,
