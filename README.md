@@ -20,7 +20,7 @@
   - [Authentication](#authentication)
 - [Thoughts and considerations](#thoughts-considerations)
   - [On what I learned](#what-i-learned)
-  - [On returning to an older project](returning-to-older-project)
+  - [On returning to an older project](#returning-to-older-project)
   - [On changes I would make in this project](#changes-i-would-make)
   - [On changes I made in the next project](#how-i-learned-from-mistakes)
   - [On challenges I faced](#challenges-i-faced)
