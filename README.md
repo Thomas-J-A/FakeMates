@@ -2,6 +2,11 @@
 
 \* **Note**: not a verified - nor a credible - claim.
 
+<figure align="center">
+  <img src="showcase.gif" alt="Showcase of app functionality" height="500" />
+  <figcaption>Please excuse the compression!</figcaption>
+</figure>
+
 ## Table Of Contents
 
 <details>
@@ -53,6 +58,7 @@ Users can send FakeMate™ requests, post humourous updates with emojis and imag
 - Methodical approach, no jumping into IDE with only a vague idea of what I wanted to build.
 - Logical separation of concerns, hierarchical directory structures.
 - Hardening code with tests, handling edge cases with conditionals, not a "this code works" attitude, rather a "this code works, _securely_" one.
+- Should be responsive and work on both mobile and desktop.
 
 - How I approached it:
 
@@ -133,6 +139,7 @@ I designed my app using Figma. I enjoyed learning about design fundamentals (typ
 - Client: React, Webpack dev server, proxied API requests to server
 - Server: Nodemon, Express, Mongoose
 - Database: MongoDB daemon running locally, visualized in MongoDB Compass GUI
+- Network: Switched between localhost and private IP to test usability on multiple devices on network
 
 ### Authentication <a name="authentication"></a>
 
