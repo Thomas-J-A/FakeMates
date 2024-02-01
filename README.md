@@ -2,7 +2,7 @@
 
 \* **Note**: not a verified - nor a credible - claim.
 
-<figure align="center">
+<figure style="text-align: center;">
   <img src="showcase.gif" alt="Showcase of app functionality" height="500" />
   <figcaption>Please excuse the compression!</figcaption>
 </figure>
